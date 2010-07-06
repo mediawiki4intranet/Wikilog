@@ -60,6 +60,7 @@ class WikilogComment
 	 */
 	public  $mID			= null;		///< Comment ID.
 	public  $mParent		= null;		///< Parent comment ID.
+	public  $mParentObj		= null;		///< Parent comment object.
 	public  $mThread		= null;		///< Comment thread.
 	public  $mUserID		= null;		///< Comment author user id.
 	public  $mUserText		= null;		///< Comment author user name.
@@ -173,6 +174,7 @@ class WikilogComment
 		$delayed = array();
 
 		# Main update.
+		$sendtext = false;
 		if ( $this->mID ) {
 			$dbw->update( 'wikilog_comments', $data,
 				array( 'wlc_id' => $this->mID ), __METHOD__ );
@@ -183,8 +185,18 @@ class WikilogComment
 			$this->mID = $dbw->insertId();
 
 			# Now that we have an ID, we can generate the thread.
-			$this->mThread = self::getThreadHistory( $this->mID, $this->mParent );
+			$this->mThread = array();
+			if( $this->mParent )
+			{
+				if( !$this->mParentObj )
+					$this->mParentObj = WikilogComment::newFromID( $this->mItem, $this->mParent );
+				if( !$this->mParentObj || !$this->mParentObj->mThread )
+					throw new MWException( 'Invalid parent history.' );
+				$this->mThread = $this->mParentObj->mThread;
+			}
+			$this->mThread[] = self::padID( $this->mID );
 			$delayed['wlc_thread'] = implode( '/', $this->mThread );
+			$emailnotify = true;
 		}
 
 		# Save article with comment text.
@@ -215,6 +227,63 @@ class WikilogComment
 		$this->mItem->mTitle->invalidateCache();
 		$this->mItem->mTitle->getTalkPage()->invalidateCache();
 		$this->mItem->mParentTitle->invalidateCache();
+
+		# Notify item and parent comment authors about new comment
+		if ( $emailnotify )
+			$this->sendCommentEmails();
+	}
+
+	/**
+	 * Notify about new comment by email
+	 */
+	public function sendCommentEmails()
+	{
+		global $wgParser, $wgPasswordSender;
+		/* Message arguments:
+		 * $1 = full page name of comment page
+		 * $2 = name of a user who posted the new comment
+		 * $3 = full URL to Wikilog item
+		 * $4 = Wikilog item talk page anchor for the new comment
+		 * $5 (optional) = full page name of parent comment page
+		 * $6 (optional) = name of a user who posted the parent comment
+		 */
+		$args = array(
+			$this->mCommentTitle->getPrefixedText(),
+			$this->mUserText,
+			$this->mItem->mTitle->getFullURL(),
+			'c' . $this->mID,
+			'',
+			'',
+		);
+		$to_ids = array_flip( $this->mItem->mAuthors );
+		if ( $this->mParentObj )
+		{
+			$to_ids[$this->mParentObj->mUserID] = true;
+			$args[4] = $this->mParentObj->mCommentTitle->getPrefixedText();
+			$args[5] = $this->mParentObj->mUserText;
+		}
+		$saveExpUrls = WikilogParser::expandLocalUrls();
+		$popt = new ParserOptions( User::newFromId( $this->mUserID ) );
+		$subject = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-subject', $args ),
+			$this->mItem->mTitle, $popt, false, false );
+		$subject = strip_tags( $subject->getText() );
+		$body = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-body', $args ),
+			$this->mItem->mTitle, $popt, true, false );
+		$body = $body->getText();
+		WikilogParser::expandLocalUrls( $saveExpUrls );
+		$to = array();
+		foreach( $to_ids as $id => $true )
+		{
+			$email = new MailAddress( User::newFromId( $id )->getEmail() );
+			if( $email )
+				$to[] = $email;
+		}
+		$from = User::newFromId( $this->mUserID );
+		if ( $from && $from->getEmail() )
+			$from = new MailAddress( $from->getEmail(), $from->getRealName() );
+		else
+			$from = new MailAddress( $wgPasswordSender, 'WikiAdmin' );
+		UserMailer::send( $to, $from, $subject, $body );
 	}
 
 	/**
