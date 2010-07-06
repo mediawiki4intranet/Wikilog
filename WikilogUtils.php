@@ -89,7 +89,7 @@ class WikilogUtils
 				: ParserCache::singleton();
 
 			# Look for the parsed article output in the parser cache.
-			$parserOutput = $parserCache->get( $article, $parserOpt );
+			$parserOutput = $parserCache->get( $article, $wgUser );
 
 			# On success, return the object retrieved from the cache.
 			if ( $parserOutput ) {
@@ -123,7 +123,7 @@ class WikilogUtils
 
 		# Save in parser cache.
 		if ( $useParserCache && $parserOutput->getCacheTime() != -1 ) {
-			$parserCache->save( $parserOutput, $article, $parserOpt );
+			$parserCache->save( $parserOutput, $article, $wgUser );
 		}
 
 		# Restore default behavior.
@@ -278,23 +278,36 @@ class WikilogUtils
 			# Parser output contains wikilog output and summary, use it.
 			$summary = Sanitizer::removeHTMLcomments( $parserOutput->mExtWikilog->mSummary );
 		} else {
-			# Try to extract summary from the content text.
-			$blocks = preg_split( '/<(h[1-6]).*?>.*?<\\/\\1>/i', $content, 2 );
-			if ( count( $blocks ) > 1 ) {
-				# Long article with multiple sections, use only the first one.
-				$summary = $blocks[0];
-				# It is possible for the regex to split on a heading that is
-				# not a child of the root element (e.g. <div><h2>...</h2>
-				# </div> leaving an open <div> tag). In order to handle such
-				# cases, we pass the summary through tidy if it is available.
-				if ( $wgUseTidy ) {
-					$summary = MWTidy::tidy( $summary );
+			# Use DOM to extract summary from the content text.
+			try
+			{
+				$dom = new DOMDocument();
+				@$dom->loadHTML('<?xml encoding="UTF-8">' . $content);
+				$summary = new DOMDocument();
+				$h = false;
+				# Dive straight into imported <html><body>
+				foreach ($dom->documentElement->childNodes->item(0)->childNodes as $node)
+				{
+					# Cut summary at first heading
+					if (preg_match('/^h\d$/is', $node->nodeName))
+					{
+						$h = true;
+						break;
+					}
+					if ($node->nodeName == 'table' && $node->attributes->getNamedItem('id')->textContent == 'toc' ||
+						$node->nodeName == 'script')
+						continue;
+					$summary->appendChild($summary->importNode($node, true));
 				}
-			} else {
-				# Short article with a single section, use no summary and
-				# leave to the caller to decide what to do.
-				$summary = null;
 			}
+			catch(Exception $e)
+			{
+				$h = false;
+			}
+			if ($h)
+				$summary = $summary->saveHTML();
+			else
+				$summary = null;
 		}
 
 		return array( $summary, $content );

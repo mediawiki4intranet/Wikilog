@@ -57,7 +57,7 @@ class WikilogHooks
 		if ( $title->isTalkPage() ) {
 			# ::WikilogCommentsPage::
 			# Invalidate cache of wikilog item page.
-			if ( $wi->getItemTitle()->exists() ) {
+			if ( $wi->getItemTitle() && $wi->getItemTitle()->exists() ) {
 				$wi->getItemTitle()->invalidateCache();
 				$wi->getItemTitle()->purgeSquid();
 			}

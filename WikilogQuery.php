@@ -141,6 +141,31 @@ abstract class WikilogQuery
 			str_pad( $date_end,   14, '0', STR_PAD_RIGHT )
 		);
 	}
+
+	/* Does $dbr->select with additional conditions taken from this query object */
+	public function select($dbr, $tables, $fields, $conds = array(), $function = __FUNCTION__, $options = array(), $join_conds = array())
+	{
+		return $dbr->query( $this->selectSQLText( $dbr, $tables, $fields, $conds, $function, $options, $join_conds ), $function );
+	}
+
+	/* Does $dbr->selectSQLText with additional conditions taken from this query object */
+	public function selectSQLText($dbr, $tables, $fields, $conds = array(), $function = __FUNCTION__, $options = array(), $join_conds = array())
+	{
+		$info = $this->getQueryInfo( $dbr );
+		if ( $tables )
+			$tables = array_merge( $info['tables'], $tables );
+		else
+			$tables = $info['tables'];
+		if ( $info['conds'] )
+			$conds = array_merge( $info['conds'], $conds );
+		if ( $info['options'] )
+			$options = array_merge( $info['options'], $options );
+		if ( $info['join_conds'] )
+			$join_conds = array_merge( $info['join_conds'], $join_conds );
+		if ( !$fields )
+			$fields = $info['fields'];
+		return $dbr->selectSQLText($tables, $fields, $conds, $function, $options, $join_conds);
+	}
 }
 
 /**
@@ -211,7 +236,7 @@ class WikilogItemQuery
 	 * @param $category Category title object or text.
 	 */
 	public function setCategory( $category ) {
-		if ( is_object( $category ) ) {
+		if ( is_null( $category ) || is_object( $category ) ) {
 			$this->mCategory = $category;
 		} elseif ( is_string( $category ) ) {
 			$t = Title::makeTitleSafe( NS_CATEGORY, $category );
@@ -226,7 +251,7 @@ class WikilogItemQuery
 	 * @param $author User page title object or text.
 	 */
 	public function setAuthor( $author ) {
-		if ( is_object( $author ) ) {
+		if ( is_null( $author ) || is_object( $author ) ) {
 			$this->mAuthor = $author;
 		} elseif ( is_string( $author ) ) {
 			$t = Title::makeTitleSafe( NS_USER, $author );
@@ -546,7 +571,7 @@ class WikilogCommentQuery
 	 * @param $author User page title object or text.
 	 */
 	public function setAuthor( $author ) {
-		if ( is_object( $author ) ) {
+		if ( is_null( $author ) || is_object( $author ) ) {
 			$this->mAuthor = $author;
 		} elseif ( is_string( $author ) ) {
 			$t = Title::makeTitleSafe( NS_USER, $author );

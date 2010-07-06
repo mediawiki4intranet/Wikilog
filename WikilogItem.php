@@ -163,7 +163,7 @@ class WikilogItem
 	 * parameters.
 	 */
 	public function getMsgParams( $extended = false, $pout = null ) {
-		global $wgContLang, $wgWikilogEnableTags;
+		global $wgLang, $wgWikilogEnableTags;
 
 		$authors = array_keys( $this->mAuthors );
 		$authorsFmt = WikilogUtils::authorList( $authors );
@@ -208,8 +208,8 @@ class WikilogItem
 			/* $5  */ count( $authors ),
 			/* $6  */ ( count( $authors ) > 0 ? $authors[0] : '' ),
 			/* $7  */ $authorsFmt,
-			/* $8  */ $wgContLang->date( $this->mPubDate ),
-			/* $9  */ $wgContLang->time( $this->mPubDate ),
+			/* $8  */ $wgLang->date( $this->mPubDate, true ),
+			/* $9  */ $wgLang->time( $this->mPubDate, true ),
 			/* $10 */ $commentsFmt,
 			/* $11 */ count( $categories ),
 			/* $12 */ $categoriesFmt,

@@ -209,7 +209,7 @@ class WikilogCommentsPage
 		$wgOut->addHtml( $pager->getBody() . $pager->getNavigationBar() );
 
 		# Display "post new comment" form, if appropriate.
-		if ( $this->mUserCanPost && !$replyTo ) {
+		if ( $this->mUserCanPost ) {
 			$wgOut->addHtml( $this->getPostCommentForm( $this->mSingleComment ) );
 		}
 
