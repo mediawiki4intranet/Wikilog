@@ -35,6 +35,29 @@ if ( !defined( 'MEDIAWIKI' ) )
 class WikilogUtils
 {
 	/**
+	 * Updates last visit date of Wiki page with id $pageid
+	 */
+	public static function updateLastVisit( $pageid, $timestamp = NULL, $userid = NULL )
+	{
+		if ( !$userid )
+		{
+			global $wgUser;
+			$userid = $wgUser->getID();
+			if ( !$userid )
+				return;
+		}
+		$timestamp = wfTimestamp( TS_MW, $timestamp );
+		$dbw = wfGetDB( DB_MASTER );
+		$where = array( 'pv_page' => $pageid, 'pv_user' => $userid );
+		$set = array( 'pv_date' => $timestamp );
+		$last = $dbw->selectField( 'page_last_visit', 'pv_date', $where, __FUNCTION__, array('FOR UPDATE'));
+		if ( !$last )
+			$dbw->insert( 'page_last_visit', $where + $set );
+		elseif ( $last < $timestamp)
+			$dbw->update( 'page_last_visit', $set, $where, __METHOD__ );
+	}
+
+	/**
 	 * Retrieves an article parsed output either from parser cache or by
 	 * parsing it again. If parsing again, stores it back into parser cache.
 	 *

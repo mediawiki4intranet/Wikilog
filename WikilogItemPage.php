@@ -91,6 +91,10 @@ class WikilogItemPage
 			# Display article.
 			parent::view();
 
+			# Update last visit
+			if ( $this->mItem )
+				WikilogUtils::updateLastVisit( $this->mItem->getID() );
+
 			# Override page title.
 			# NOTE (MW1.16+): Must come after parent::view().
 			$fullPageTitle = wfMsg( 'wikilog-title-item-full',

@@ -55,6 +55,9 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_posts (
   -- Last time the post was updated.
   wlp_updated BINARY(14) NOT NULL,
 
+  -- Last time the post talk page was updated.
+  wlp_talk_updated BINARY(14) NOT NULL,
+
   -- Serialized PHP array of authors.
   wlp_authors BLOB NOT NULL,
 
@@ -70,6 +73,16 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_posts (
   INDEX wlp_pubdate (wlp_pubdate),
   INDEX wlp_updated (wlp_updated)
 
+) /*$wgDBTableOptions*/;
+
+--
+-- Last visit dates for some Wiki pages (Wikilog posts and comments)
+--
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/page_last_visit (
+  pv_user INTEGER UNSIGNED NOT NULL,
+  pv_page INTEGER UNSIGNED NOT NULL,
+  pv_date BINARY(14) NOT NULL,
+  PRIMARY KEY (pv_user, pv_page)
 ) /*$wgDBTableOptions*/;
 
 --

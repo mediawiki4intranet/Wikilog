@@ -67,6 +67,8 @@ In order to publish articles and enable other wikilog features, it has to be cre
 	'wikilog-draft-title-mark' => '(draft)',
 	'wikilog-anonymous-mark' => '(anonymous)',
 
+	'wikilog-talk-updated' => 'Talk Updated',
+
 	# Pager strings
 	'wikilog-pager-newest' => 'newest',
 	'wikilog-pager-oldest' => 'oldest',
@@ -103,7 +105,7 @@ Uncheck this box to keep the article as a draft.',
 	# Comments
 	'wikilog-comment-header' => '',
 	'wikilog-comment-footer' => '— $2 • $5 $6',
-	'wikilog-comment-permalink' => '$1 at $2',
+	'wikilog-comment-permalink' => '{{#if:$3|$1 at $2|<b>$1 at $2 (unread)</b>}}',
 	'wikilog-comment-note-item' => 'posted to $1',
 	'wikilog-comment-note-edited' => 'last edited on $1 at $2',
 	'wikilog-comment-anonsig' => '$3 (anonymous)',
@@ -4927,6 +4929,7 @@ $messages['ru'] = array(
 	'wikilog-title' => 'Название',
 	'wikilog-actions' => 'Действия',
 	'wikilog-comments' => 'Комментарии',
+	'wikilog-talk-updated' => 'Обновлено обсуждение',
 	'wikilog-replies' => 'Ответы',
 	'wikilog-view-archives' => 'Архивы',
 	'wikilog-view-summary' => 'Описание',
@@ -4951,7 +4954,7 @@ $messages['ru'] = array(
 	'wikilog-edit-signpub' => 'Подписать и опубликовать эту статью',
 	'wikilog-edit-signpub-tooltip' => 'Вызывает подписывание и опубликование статьи в викилоге при сохранении.
 Снимите этот флажок, чтобы оставить статью в качестве черновика.',
-	'wikilog-comment-permalink' => '$1 в $2',
+	'wikilog-comment-permalink' => '{{#if:$3|$1 в $2|<b>$1 в $2 (не прочитан)</b>}}',
 	'wikilog-comment-note-item' => 'размещён в $1',
 	'wikilog-comment-note-edited' => 'последняя правка $1 в $2',
 	'wikilog-comment-anonsig' => '$3 (анонимно)',
