@@ -193,7 +193,7 @@ class WikilogItemQuery
 	# Options
 	/** Query options. */
 	protected $mDefaultOptions = array(
-		'last-comment-timestamp' => false
+		'last-visit-date' => false
 	);
 
 	/**

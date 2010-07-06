@@ -383,7 +383,6 @@ class WikilogArchivesPager
 	function __construct( WikilogItemQuery $query, $including = false ) {
 		# WikilogItemQuery object drives our queries.
 		$this->mQuery = $query;
-		$this->mQuery->setOption( 'last-comment-timestamp', true );
 		$this->mQuery->setOption( 'last-visit-date', true );
 		$this->mIncluding = $including;
 
@@ -458,7 +457,7 @@ class WikilogArchivesPager
 			$result = $dbr->select(
 				array( 'wikilog_comments', 'page_last_visit' ),
 				'COUNT(*)',
-				array( 'wlc_updated > pv_date' ),
+				array( 'IFNULL(wlc_updated>pv_date,1)', 'wlc_post' => $row->wlp_page ),
 				__METHOD__,
 				NULL,
 				array( 'page_last_visit' => array( 'LEFT JOIN', array( 'pv_page = wlc_comment_page', 'pv_user' => $wgUser->getID() ) ) )

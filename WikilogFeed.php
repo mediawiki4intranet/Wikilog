@@ -368,7 +368,6 @@ class WikilogItemFeed
 	}
 
 	public function doQuery() {
-		$this->mQuery->setOption( 'last-comment-timestamp' );
 		return parent::doQuery();
 	}
 

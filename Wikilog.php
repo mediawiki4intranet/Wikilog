@@ -412,10 +412,11 @@ class Wikilog
 
 		$ns = MWNamespace::getSubject( $title->getNamespace() );
 		if ( in_array( $ns, $wgWikilogNamespaces ) ) {
-			return new WikilogInfo( $title );
-		} else {
-			return null;
+			$wi = new WikilogInfo( $title );
+			if ( $wi->mWikilogName )
+				return $wi;
 		}
+		return null;
 	}
 }
 
@@ -457,7 +458,7 @@ class WikilogInfo
 			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
 			$this->mItemTitle = Title::makeTitle( $ns, $rawtitle );
 			$this->mItemTalkTitle = Title::makeTitle( $tns, $rawtitle );
-		} else {
+		} elseif (count($parts) == 1) {
 			# Title doesn't contain a '/', treat as a wikilog name.
 			$this->mWikilogName = $title->getText();
 			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
