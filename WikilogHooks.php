@@ -139,7 +139,7 @@ class WikilogHooks
 	 * ArticleDeleteComplete hook handler function.
 	 * Purges wikilog metadata when an article is deleted.
 	 */
-	static function ArticleDeleteComplete( &$article, &$user, $reason, $id ) {
+	static function ArticleDeleteComplete( &$article, &$user, $reason, $id = NULL ) {
 		# Deleting comment through MW interface.
 		if ( $article instanceof WikilogCommentsPage ) {
 			$cmt =& $article->mSingleComment;
@@ -151,6 +151,8 @@ class WikilogHooks
 
 		# Retrieve wikilog information.
 		$wi = Wikilog::getWikilogInfo( $article->getTitle() );
+		if ( is_null($id) && $article )
+			$id = $article->getId();
 
 		# Take special procedures if it is a wikilog page.
 		if ( $wi ) {
