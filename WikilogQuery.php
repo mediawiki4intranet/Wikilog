@@ -184,6 +184,7 @@ class WikilogItemQuery
 	private $mWikilogTitle = null;			///< Filter by wikilog.
 	private $mPubStatus = self::PS_ALL;		///< Filter by published status.
 	private $mCategory = false;				///< Filter by category.
+	private $mNotCategory = false;			///< Exclude items belonging to this category.
 	private $mAuthor = false;				///< Filter by author.
 	private $mTag = false;					///< Filter by tag.
 	private $mDate = false;					///< Filter by date.
@@ -247,6 +248,21 @@ class WikilogItemQuery
 	}
 
 	/**
+	 * Sets the category not to query for.
+	 * @param $category Category title object or text.
+	 */
+	public function setNotCategory( $category ) {
+		if ( is_object( $category ) ) {
+			$this->mNotCategory = $category;
+		} elseif ( is_string( $category ) ) {
+			$t = Title::makeTitleSafe( NS_CATEGORY, $category );
+			if ( $t !== null ) {
+				$this->mNotCategory = $t;
+			}
+		}
+	}
+
+	/**
 	 * Sets the author to query for.
 	 * @param $author User page title object or text.
 	 */
@@ -300,6 +316,7 @@ class WikilogItemQuery
 	public function getWikilogTitle()	{ return $this->mWikilogTitle; }
 	public function getPubStatus()		{ return $this->mPubStatus; }
 	public function getCategory()		{ return $this->mCategory; }
+	public function getNotCategory()	{ return $this->mNotCategory; }
 	public function getAuthor()		{ return $this->mAuthor; }
 	public function getTag()			{ return $this->mTag; }
 	public function getDate()			{ return $this->mDate; }
@@ -340,9 +357,21 @@ class WikilogItemQuery
 
 		# Filter by category.
 		if ( $this->mCategory ) {
-			$q_tables[] = 'categorylinks';
-			$q_joins['categorylinks'] = array( 'JOIN', 'wlp_page = cl_from' );
-			$q_conds['cl_to'] = $this->mCategory->getDBkey();
+			$q_tables[] = '`categorylinks` clyes';
+			$q_joins['`categorylinks` clyes'] = array( 'JOIN', '(wlp_page = clyes.cl_from OR wlp_parent = clyes.cl_from)' );
+			$q_conds['clyes.cl_to'] = $this->mCategory->getDBkey();
+		}
+
+		# Exclude items and blogs belonging to category.
+		if ( $this->mNotCategory ) {
+			# Items
+			$q_tables[] = '`categorylinks` clno';
+			$q_joins['`categorylinks` clno'] = array( 'LEFT JOIN', array( 'wlp_page = clno.cl_from', 'clno.cl_to' => $this->mNotCategory->getDBkey() ) );
+			$q_conds[] = 'clno.cl_to IS NULL';
+			# Blogs
+			$q_tables[] = '`categorylinks` clnob';
+			$q_joins['`categorylinks` clnob'] = array( 'LEFT JOIN', array( 'wlp_parent = clnob.cl_from', 'clnob.cl_to' => $this->mNotCategory->getDBkey() ) );
+			$q_conds[] = 'clnob.cl_to IS NULL';
 		}
 
 		# Filter by author.
@@ -402,6 +431,10 @@ class WikilogItemQuery
 
 		if ( $this->mCategory ) {
 			$query['category'] = $this->mCategory->getDBKey();
+		}
+
+		if ( $this->mNotCategory ) {
+			$query['notcategory'] = $this->mNotCategory->getDBKey();
 		}
 
 		if ( $this->mAuthor ) {

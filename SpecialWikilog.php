@@ -76,12 +76,14 @@ class SpecialWikilog
 	 */
 	public function getDefaultOptions() {
 		global $wgWikilogNumArticles;
+		global $wgWikilogDefaultNotCategory;
 
 		$opts = new FormOptions();
 		$opts->add( 'view',     'summary' );
 		$opts->add( 'show',     'published' );
 		$opts->add( 'wikilog',  '' );
 		$opts->add( 'category', '' );
+		$opts->add( 'notcategory', '' );
 		$opts->add( 'author',   '' );
 		$opts->add( 'tag',      '' );
 		$opts->add( 'year',     '', FormOptions::INTNULL );
@@ -97,9 +99,12 @@ class SpecialWikilog
 	 */
 	public function webSetup( $parameters ) {
 		global $wgRequest, $wgWikilogExpensiveLimit;
+		global $wgWikilogDefaultNotCategory;
 
 		$opts = $this->getDefaultOptions();
 		$opts->fetchValuesFromRequest( $wgRequest );
+		if ( is_null( $wgRequest->getVal('notcategory') ) )
+			$opts['notcategory'] = $wgWikilogDefaultNotCategory;
 
 		# Collect inline parameters, they have precedence over query params.
 		$this->parseInlineParams( $parameters, $opts );
@@ -116,9 +121,12 @@ class SpecialWikilog
 	 */
 	public function feedSetup() {
 		global $wgRequest, $wgFeedLimit;
+		global $wgWikilogDefaultNotCategory;
 
 		$opts = $this->getDefaultOptions();
 		$opts->fetchValuesFromRequest( $wgRequest, array( 'show', 'limit' ) );
+		if ( is_null( $wgRequest->getVal('notcategory') ) )
+			$opts['notcategory'] = $wgWikilogDefaultNotCategory;
 		$opts->validateIntBounds( 'limit', 0, $wgFeedLimit );
 		return $opts;
 	}
@@ -135,7 +143,7 @@ class SpecialWikilog
 		$this->outputHeader();
 
 		# Build query object.
-		$query = self::getQuery( $opts );
+		$this->query = $query = self::getQuery( $opts );
 
 		# Prepare the parser.
 		# This must be called here if not including, before the pager
@@ -289,7 +297,7 @@ class SpecialWikilog
 
 		$out = Xml::hidden( 'title', $this->getTitle()->getPrefixedText() );
 
-		$out .= self::getQueryForm( $opts );
+		$out .= $this->getQueryForm( $opts );
 
 		$unconsumed = $opts->getUnconsumedValues();
 		foreach ( $unconsumed as $key => $value ) {
@@ -308,11 +316,11 @@ class SpecialWikilog
 	 * @param $opts Form options.
 	 * @return HTML of the query form.
 	 */
-	protected static function getQueryForm( FormOptions $opts ) {
+	protected function getQueryForm( FormOptions $opts ) {
 		global $wgContLang;
 
 		$align = $wgContLang->isRtl() ? 'left' : 'right';
-		$fields = self::getQueryFormFields( $opts );
+		$fields = $this->getQueryFormFields( $opts );
 		$columns = array_chunk( $fields, ( count( $fields ) + 1 ) / 2, true );
 
 		$out = Xml::openElement( 'table', array( 'width' => '100%' ) ) .
@@ -323,6 +331,8 @@ class SpecialWikilog
 			$out .= Xml::openElement( 'table' );
 
 			foreach ( $fields as $row ) {
+				if ( !$row )
+					continue;
 				$out .= Xml::openElement( 'tr' );
 				if ( is_array( $row ) ) {
 					$out .= Xml::tags( 'td', array( 'align' => $align ), $row[0] );
@@ -341,53 +351,146 @@ class SpecialWikilog
 		return $out;
 	}
 
+	/* Get possible options for combo-boxes */
+	protected function getSelectOptions()
+	{
+		$dbr = wfGetDB( DB_SLAVE );
+		$select_options = array();
+
+		/* Wikilogs */
+		$query = clone $this->query;
+		$query->setWikilogTitle(NULL);
+		$res = $query->select( $dbr,
+			array(), 'p.page_namespace, p.page_title',
+			array(), __FUNCTION__,
+			array('GROUP BY' => 'wlp_parent', 'ORDER BY' => 'w.page_title')
+		);
+		$values = array();
+		while( $row = $dbr->fetchRow( $res ) )
+		{
+			$parts = explode( '/', $row['page_title'] );
+			$row = Title::makeTitleSafe( $row['page_namespace'], $parts[0] );
+			if ($row)
+				$values[] = array( $row->getText(), $row->getPrefixedText() );
+		}
+		$dbr->freeResult( $res );
+		$select_options['wikilog'] = $values;
+
+		/* Authors */
+		$query = clone $this->query;
+		$query->setAuthor(NULL);
+		$res = $query->select( $dbr, array(), 'DISTINCT wlp_authors', array(), __FUNCTION__ );
+		$rows = array();
+		while( $row = $dbr->fetchRow( $res ) )
+			$rows += unserialize( $row['wlp_authors'] );
+		$dbr->freeResult( $res );
+		ksort( $rows );
+		$select_options['author'] = array();
+		foreach( $rows as $k => $v )
+			$select_options['author'][] = array($k);
+
+		/* Categories */
+		$query = clone $this->query;
+		$query->setCategory(NULL);
+		$res = $query->select( $dbr, array('`categorylinks` wlpostcat'),
+			'DISTINCT wlpostcat.cl_to',
+			array('wlpostcat.cl_from=wlp_page'),
+			__FUNCTION__,
+			array(),
+			array( '`categorylinks` wlpostcat' => array( 'INNER JOIN', array( 'wlp_page = wlpostcat.cl_from' ) ) ) );
+		$rows = array();
+		while( $row = $dbr->fetchRow( $res ) )
+		{
+			$row = Title::makeTitleSafe( NS_CATEGORY, $row['cl_to'] );
+			$rows[] = array( $row->getText() );
+		}
+		$dbr->freeResult( $res );
+		$select_options['category'] = $rows;
+
+		return $select_options;
+	}
+
+	/* Get possible Author options for combo-box */
+	protected function getAuthorOptions() {
+		$dbr = wfGetDB( DB_SLAVE );
+	}
+
 	/**
 	 * Returns query form fields.
 	 * @param $opts Form options.
 	 * @return Array of form fields.
 	 */
-	protected static function getQueryFormFields( FormOptions $opts ) {
+	protected function getQueryFormFields( FormOptions $opts ) {
 		global $wgWikilogEnableTags;
+		global $wgWikilogDefaultNotCategory;
+		global $wgWikilogSearchDropdowns;
+		global $wgLang, $wgUser;
 
 		$fields = array();
+		$formvalues = array();
+		$formfields = array('wikilog' => true, 'category' => true);
+		if ( $wgUser && $wgUser->getID() )
+			$formfields['notcategory'] = false;
+		$formfields['author'] = true;
+		if ( $wgWikilogEnableTags )
+			$formfields['tag'] = false;
 
-		$fields['wikilog'] = Xml::inputLabelSep(
-			wfMsg( 'wikilog-form-wikilog' ), 'wikilog', 'wl-wikilog', 40,
-			str_replace( '_', ' ', $opts->consumeValue( 'wikilog' ) )
-		);
+		if ( $wgWikilogSearchDropdowns )
+			$select_options = $this->getSelectOptions();
 
-		$fields['category'] = Xml::inputLabelSep(
-			wfMsg( 'wikilog-form-category' ), 'category', 'wl-category', 40,
-			str_replace( '_', ' ', $opts->consumeValue( 'category' ) )
-		);
-
-		$fields['author'] = Xml::inputLabelSep(
-			wfMsg( 'wikilog-form-author' ), 'author', 'wl-author', 40,
-			str_replace( '_', ' ', $opts->consumeValue( 'author' ) )
-		);
-
-		if ( $wgWikilogEnableTags ) {
-			$fields['tag'] = Xml::inputLabelSep(
-				wfMsg( 'wikilog-form-tag' ), 'tag', 'wl-tag', 40,
-				str_replace( '_', ' ', $opts->consumeValue( 'tag' ) )
-			);
+		foreach ( $formfields as $valueid => $dropdown )
+		{
+			$formvalues[$valueid] = str_replace( '_', ' ', $opts->consumeValue( $valueid ) );
+			if ($wgWikilogSearchDropdowns && $dropdown)
+			{
+				/* If drop-down lists are enabled site-wide and permitted for this field */
+				$values = $select_options[$valueid];
+				if ( count( $values ) > 0 )
+				{
+					$select = new XmlSelect( $valueid, 'wl-'.$valueid, $formvalues[$valueid] );
+					$select->addOption( wfMsg('wikilog-form-all'), '' );
+					foreach( $values as $o )
+						$select->addOption( $o[0], count($o) > 1 ? $o[1] : false );
+					$fields[$valueid] = array(
+						Xml::label( wfMsg( 'wikilog-form-'.$valueid ), 'wl-'.$valueid ),
+						$select->getHTML()
+					);
+				}
+				else
+					$fields[$valueid] = array();
+			}
+			else
+			{
+				$fields[$valueid] = Xml::inputLabelSep(
+					wfMsg( 'wikilog-form-'.$valueid ), $valueid, 'wl-'.$valueid, 40,
+					$formvalues[$valueid]
+				);
+			}
 		}
 
+		$month_select = new XmlSelect( 'month', 'wl-month', $opts->consumeValue( 'month' ) );
+		$month_select->setAttribute( 'onchange', "{var wly=document.getElementById('wl-year');if(wly&&!wly.value){wly.value='".date('Y')."';}}" );
+		$month_select->addOption( wfMsg('monthsall'), '' );
+		for ($i = 1; $i <= 12; $i++)
+			$month_select->addOption( $wgLang->getMonthName( $i ), $i );
+		$year_field = Xml::input( 'year', 4, $opts->consumeValue( 'year' ), array( 'maxlength' => 4, 'id' => 'wl-year' ) );
 		$fields['date'] = array(
 			Xml::label( wfMsg( 'wikilog-form-date' ), 'wl-month' ),
-			Xml::monthSelector( $opts->consumeValue( 'month' ), '', 'wl-month' ) .
-				" " . Xml::input( 'year', 4, $opts->consumeValue( 'year' ), array( 'maxlength' => 4 ) )
+			$month_select->getHTML() . "&nbsp;" . $year_field
 		);
 		$opts->consumeValue( 'day' );	// ignore day, not really useful
 
-		$statusSelect = new XmlSelect( 'show', 'wl-status', $opts->consumeValue( 'show' ) );
-		$statusSelect->addOption( wfMsg( 'wikilog-show-all' ), 'all' );
-		$statusSelect->addOption( wfMsg( 'wikilog-show-published' ), 'published' );
-		$statusSelect->addOption( wfMsg( 'wikilog-show-drafts' ), 'drafts' );
-		$fields['status'] = array(
-			Xml::label( wfMsg( 'wikilog-form-status' ), 'wl-status' ),
-			$statusSelect->getHTML()
-		);
+		if( $wgUser && $wgUser->getID() )
+		{
+			$statusSelect = new XmlSelect( 'show', 'wl-status', $opts->consumeValue( 'show' ) );
+			$statusSelect->addOption( wfMsg( 'wikilog-show-all' ), 'all' );
+			$statusSelect->addOption( wfMsg( 'wikilog-show-published' ), 'published' );
+			$statusSelect->addOption( wfMsg( 'wikilog-show-drafts' ), 'drafts' );
+			$fields['status'] = array(
+				Xml::label( wfMsg( 'wikilog-form-status' ), 'wl-status' ),
+				$statusSelect->getHTML()
+			);
+		}
 
 		$fields['submit'] = Xml::submitbutton( wfMsg( 'allpagessubmit' ) );
 		return $fields;
@@ -406,6 +509,9 @@ class SpecialWikilog
 		}
 		if ( ( $t = $opts['category'] ) ) {
 			$query->setCategory( $t );
+		}
+		if ( ( $t = $opts['notcategory'] ) ) {
+			$query->setNotCategory( $t );
 		}
 		if ( ( $t = $opts['author'] ) ) {
 			$query->setAuthor( $t );
