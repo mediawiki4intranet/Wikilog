@@ -124,6 +124,11 @@ $wgHooks['LinkBegin'][] = 'Wikilog::LinkBegin';
 $wgHooks['SkinTemplateTabAction'][] = 'Wikilog::SkinTemplateTabAction';
 $wgHooks['SkinTemplateTabs'][] = 'Wikilog::SkinTemplateTabs';
 
+// Calendar
+$wgEnableSidebarCache = false;
+$wgHooks['SkinBuildSidebar'][] = 'Wikilog::SkinBuildSidebar';
+$wgAutoloadClasses['WikilogCalendar'] = $dir . 'WikilogCalendar.php';
+
 // General Wikilog hooks
 $wgHooks['ArticleEditUpdates'][] = 'WikilogHooks::ArticleEditUpdates';
 $wgHooks['ArticleDeleteComplete'][] = 'WikilogHooks::ArticleDeleteComplete';
@@ -368,6 +373,24 @@ class Wikilog
 		}
 		return true;
 	}
+
+    /**
+     * SkinBuildSidebar hook handler function.
+     * Adds support for "* wikilogcalendar" on MediaWiki:Sidebar
+     */
+    static function SkinBuildSidebar($skin, &$bar)
+    {
+        global $wgTitle, $wgRequest, $wgWikilogNumArticles;
+        if (array_key_exists('wikilogcalendar', $bar))
+        {
+            global $wlCalPager;
+            if (!$wlCalPager)
+                unset($bar['wikilogcalendar']);
+            else
+                $bar['wikilogcalendar'] = WikilogCalendar::sidebarCalendar($wlCalPager);
+        }
+        return true;
+    }
 
 	# ##
 	# #  Other global wikilog functions.

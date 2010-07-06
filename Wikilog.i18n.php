@@ -18,6 +18,12 @@ $messages['en'] = array(
 	'right-wl-postcomment' => 'Post comments to wikilog articles',
 	'right-wl-moderation' => 'Moderation of wikilog article comments',
 
+	# Calendar
+	'wikilogcalendar' => 'Wikilog calendar',
+	'wikilog-calendar-archive-link-title' => '$1 posts for $2',
+	'wikilog-calendar-next' => '$1 ›',
+	'wikilog-calendar-prev' => '‹ $1',
+
 	# Special:Wikilog
 	'wikilog-specialwikilog-title' => 'Wikilogs', # Page title
 	'wikilog-specialwikilog' => 'Wikilog', # Special page name (DEPRECATED AFTER MW1.16)
@@ -4864,6 +4870,8 @@ $messages['ru'] = array(
 	'wikilog-desc' => 'Добавляет возможность ведения блогов, создания гибрида вики и блога',
 	'wikilog-auto' => 'Викилог Авто',
 	'wikilog-help' => '{{ns:Help}}:Викилог',
+	'wikilogcalendar' => 'Календарь блога',
+	'wikilog-calendar-archive-link-title' => 'Записи $1 за $2',
 	'right-wl-postcomment' => 'оставлять комментарии к статьям викилога',
 	'right-wl-moderation' => 'модерировать комментарии к статьям викилога',
 	'wikilog-specialwikilog-title' => 'Викилоги',

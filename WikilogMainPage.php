@@ -95,6 +95,9 @@ class WikilogMainPage
 			$pager = new WikilogSummaryPager( $query );
 		}
 
+		global $wlCalPager;
+		$wlCalPager = $pager;
+
 		# Display list of wikilog posts.
 		$body = $pager->getBody();
 		$body .= $pager->getNavigationBar();
