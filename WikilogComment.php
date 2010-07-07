@@ -201,8 +201,8 @@ class WikilogComment
 		}
 
 		# Save article with comment text.
+		$this->mCommentTitle = $this->getCommentArticleTitle();
 		if ( $this->mTextChanged ) {
-			$this->mCommentTitle = $this->getCommentArticleTitle();
 			$art = new Article( $this->mCommentTitle );
 			$art->doEdit( $this->mText, $this->getAutoSummary() );
 			$this->mTextChanged = false;
@@ -221,8 +221,8 @@ class WikilogComment
 		$this->mItem->updateNumComments( true );
 
 		# Mark comment posted/edited by a user already read by him
-		if ( $this->mUserID && $this->mCommentPage )
-			WikilogUtils::updateLastVisit( $this->mCommentPage, $this->mTimestamp, $this->mUserID );
+		if ( $this->mUserID )
+			WikilogUtils::updateLastVisit( $this->mCommentTitle, $this->mTimestamp, $this->mUserID );
 
 		# Commit
 		$dbw->commit();
@@ -703,7 +703,7 @@ class WikilogCommentFormatter
 		}
 
 		# Update last visit
-		WikilogUtils::updateLastVisit( $comment->mCommentPage );
+		WikilogUtils::updateLastVisit( $comment->getCommentArticleTitle() );
 
 		# Enclose everything in a div.
 		if ( $highlight ) {

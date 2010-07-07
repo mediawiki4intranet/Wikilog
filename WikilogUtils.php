@@ -46,6 +46,12 @@ class WikilogUtils
 			if ( !$userid )
 				return;
 		}
+		if ( $pageid instanceof Title )
+			$pageid = $pageid->getArticleId();
+		elseif ( $pageid instanceof Article )
+			$pageid = $pageid->getID();
+		if ( !$pageid )
+			return;
 		$timestamp = wfTimestamp( TS_MW, $timestamp );
 		$dbw = wfGetDB( DB_MASTER );
 		$where = array( 'pv_page' => $pageid, 'pv_user' => $userid );
