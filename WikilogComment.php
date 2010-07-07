@@ -59,6 +59,7 @@ class WikilogComment
 	 * General data about the comment.
 	 */
 	public  $mID			= null;		///< Comment ID.
+	public  $mPost			= null;		///< Post ID.
 	public  $mParent		= null;		///< Parent comment ID.
 	public  $mParentObj		= null;		///< Parent comment object.
 	public  $mThread		= null;		///< Comment thread.
@@ -161,9 +162,11 @@ class WikilogComment
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->begin();
 
+		$this->mPost = $this->mItem->getID();
+
 		$data = array(
 			'wlc_parent'    => $this->mParent,
-			'wlc_post'      => $this->mItem->getID(),
+			'wlc_post'      => $this->mPost,
 			'wlc_user'      => $this->mUserID,
 			'wlc_user_text' => $this->mUserText,
 			'wlc_anon_name' => $this->mAnonName,
@@ -260,35 +263,41 @@ class WikilogComment
 			'',
 			'',
 		);
-		$to_ids = array_flip( $this->mItem->mAuthors );
-		if ( $this->mParentObj )
+		$to_ids = array_flip($this->mItem->mAuthors);
+		if ($this->mParentObj)
 		{
 			$to_ids[$this->mParentObj->mUserID] = true;
 			$args[4] = $this->mParentObj->mCommentTitle->getPrefixedText();
 			$args[5] = $this->mParentObj->mUserText;
 		}
+		/* Also select subscriptions to the post */
+		$dbr = wfGetDB(DB_SLAVE);
+		$result = $dbr->select('wikilog_subscriptions', 'ws_user', array('ws_page' => $this->mItem->getID(), 'ws_yes' => 1), __METHOD__);
+		while ($u = $dbr->fetchRow($result))
+			$to_ids[$u[0]] = true;
+		$dbr->freeResult($result);
 		$saveExpUrls = WikilogParser::expandLocalUrls();
-		$popt = new ParserOptions( User::newFromId( $this->mUserID ) );
-		$subject = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-subject', $args ),
-			$this->mItem->mTitle, $popt, false, false );
-		$subject = strip_tags( $subject->getText() );
-		$body = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-body', $args ),
-			$this->mItem->mTitle, $popt, true, false );
+		$popt = new ParserOptions(User::newFromId($this->mUserID));
+		$subject = $wgParser->parse(wfMsgNoTrans('wikilog-comment-email-subject', $args),
+			$this->mItem->mTitle, $popt, false, false);
+		$subject = strip_tags($subject->getText());
+		$body = $wgParser->parse(wfMsgNoTrans('wikilog-comment-email-body', $args),
+			$this->mItem->mTitle, $popt, true, false);
 		$body = $body->getText();
-		WikilogParser::expandLocalUrls( $saveExpUrls );
+		WikilogParser::expandLocalUrls($saveExpUrls);
 		$to = array();
-		foreach( $to_ids as $id => $true )
+		foreach($to_ids as $id => $true)
 		{
-			$email = new MailAddress( User::newFromId( $id )->getEmail() );
-			if( $email )
+			$email = new MailAddress(User::newFromId($id)->getEmail());
+			if($email)
 				$to[] = $email;
 		}
-		$from = User::newFromId( $this->mUserID );
-		if ( $from && $from->getEmail() )
-			$from = new MailAddress( $from->getEmail(), $from->getRealName() );
+		$from = User::newFromId($this->mUserID);
+		if ($from && $from->getEmail())
+			$from = new MailAddress($from->getEmail(), $from->getRealName());
 		else
-			$from = new MailAddress( $wgPasswordSender, 'WikiAdmin' );
-		UserMailer::send( $to, $from, $subject, $body );
+			$from = new MailAddress($wgPasswordSender, 'WikiAdmin');
+		UserMailer::send($to, $from, $subject, $body);
 	}
 
 	/**
@@ -389,6 +398,7 @@ class WikilogComment
 		$comment->mID           = intval( $row->wlc_id );
 		$comment->mParent       = intval( $row->wlc_parent );
 		$comment->mThread       = explode( '/', $row->wlc_thread );
+		$comment->mPost         = intval( $row->wlc_post );
 		$comment->mUserID       = intval( $row->wlc_user );
 		$comment->mUserText     = strval( $row->wlc_user_text );
 		$comment->mAnonName     = strval( $row->wlc_anon_name );

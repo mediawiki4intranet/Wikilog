@@ -368,6 +368,7 @@ class WikilogHooks
 		if ( $wgDBtype == 'mysql' ) {
 			$wgExtNewTables[] = array( "wikilog_wikilogs", "{$dir}wikilog-tables.sql" );
 			$wgExtNewTables[] = array( "page_last_visit", "{$dir}archives/patch-visits.sql" );
+			$wgExtNewTables[] = array( "wikilog_subscriptions", "{$dir}archives/patch-subscriptions.sql" );
 			$wgExtNewIndexes[] = array( "wikilog_comments", "wlc_timestamp", "{$dir}archives/patch-comments-indexes.sql" );
 		} else {
 			// TODO: PostgreSQL, SQLite, etc...

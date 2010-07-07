@@ -204,6 +204,7 @@ The comment will only appear after it is reviewed by a moderator.',
 	'wikilog-show-drafts' => 'Drafts',
 	'wikilog-submit' => 'Submit',
 	'wikilog-preview' => 'Preview',	# verb
+	'wikilog-subscribe' => 'Subscribe to post comments',
 	'wikilog-edit-lc' => 'edit',		# verb
 	'wikilog-reply-lc' => 'reply',		# verb
 	'wikilog-delete-lc' => 'delete',
@@ -5042,6 +5043,7 @@ $messages['ru'] = array(
 	'wikilog-show-drafts' => 'Черновики',
 	'wikilog-submit' => 'Отправить',
 	'wikilog-preview' => 'Предпросмотр',
+	'wikilog-subscribe' => 'Подписаться на комментарии к этой записи',
 	'wikilog-edit-lc' => 'править',
 	'wikilog-reply-lc' => 'ответить',
 	'wikilog-delete-lc' => 'удалить',

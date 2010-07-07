@@ -353,9 +353,20 @@ class WikilogCommentsPage
 			$fields[] = array( '', wfMsg( 'wikilog-anonymous-moderated' ) );
 		}
 
+		if ( $wgUser->getID() )
+		{
+			$itemid = $this->mItem ? $this->mItem->getID() : $parent->mPost;
+			$dbr = wfGetDB( DB_SLAVE );
+			$subscribed = $dbr->selectField( 'wikilog_subscriptions', 'ws_yes', array( 'ws_page' => $itemid, 'ws_user' => $wgUser->getID() ), __METHOD__ );
+			if ( $subscribed === false || $subscribed === NULL )
+				$subscribed = true;
+			$subscribe_html = ' &nbsp; ' . Xml::checkLabel( wfMsg( 'wikilog-subscribe' ), 'wl-subscribe', 'wl-subscribe', $subscribed );
+		}
+
 		$fields[] = array( '',
 			Xml::submitbutton( wfMsg( 'wikilog-submit' ), array( 'name' => 'wlActionCommentSubmit' ) ) . '&nbsp;' .
-			Xml::submitbutton( wfMsg( 'wikilog-preview' ), array( 'name' => 'wlActionCommentPreview' ) )
+			Xml::submitbutton( wfMsg( 'wikilog-preview' ), array( 'name' => 'wlActionCommentPreview' ) ) .
+			$subscribe_html
 		);
 
 		$form .= WikilogUtils::buildForm( $fields );
@@ -456,6 +467,19 @@ class WikilogCommentsPage
 		}
 
 		$comment->saveComment();
+
+		if ($wgUser->getID())
+		{
+			global $wgRequest;
+			$subscribe = $wgRequest->getCheck('wl-subscribe') ? 1 : 0;
+			$dbw = wfGetDB(DB_MASTER);
+			$dbw->replace('wikilog_subscriptions', array(array('ws_page', 'ws_user')), array(
+				'ws_page' => $comment->mPost,
+				'ws_user' => $wgUser->getID(),
+				'ws_yes'  => $subscribe,
+				'ws_date' => wfTimestamp(TS_MW),
+			), __METHOD__);
+		}
 
 		$dest = $this->getTitle();
 		$dest->setFragment( "#c{$comment->mID}" );
