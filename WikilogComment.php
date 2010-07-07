@@ -221,7 +221,7 @@ class WikilogComment
 		$this->mItem->updateNumComments( true );
 
 		# Mark comment posted/edited by a user already read by him
-		if ( $this->mUserID )
+		if ( $this->mUserID && $this->mCommentPage )
 			WikilogUtils::updateLastVisit( $this->mCommentPage, $this->mTimestamp, $this->mUserID );
 
 		# Commit
