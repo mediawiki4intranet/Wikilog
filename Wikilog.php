@@ -337,7 +337,7 @@ class Wikilog
 	{
 		if ( $title->isTalkPage() && !$title->exists() ) {
 			$wi = self::getWikilogInfo( $title );
-			if ( $wi && $wi->isItem() && $wi->getItemTitle()->exists() ) {
+			if ( $wi ) {
 				$query = '';
 				if ( ( $i = array_search( 'new', $classes ) ) !== false ) {
 					array_splice( $classes, $i, 1 );
