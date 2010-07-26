@@ -406,7 +406,7 @@ class WikilogComment
 		$comment->mTimestamp    = wfTimestamp( TS_MW, $row->wlc_timestamp );
 		$comment->mUpdated      = wfTimestamp( TS_MW, $row->wlc_updated );
 		$comment->mCommentPage  = $row->wlc_comment_page;
-		$comment->mVisited      = $wgUser->getID() ? $row->wlc_last_visit && $row->wlc_last_visit >= $row->wlc_updated : true;
+		$comment->mVisited      = $wgUser->getID() ? $row->wlc_status != 'OK' || $row->wlc_last_visit && $row->wlc_last_visit >= $row->wlc_updated : true;
 
 		# This information may not be available for deleted comments.
 		if ( $row->wlc_page_title && $row->wlc_page_latest ) {

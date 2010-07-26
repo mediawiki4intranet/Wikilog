@@ -362,7 +362,7 @@ class Wikilog
 				$contentActions['wikilog'] = array(
 					'class' => ( $action == 'wikilog' ) ? 'selected' : false,
 					'text' => wfMsg( 'wikilog-tab' ),
-					'href' => $skin->mTitle->getLocalUrl( 'action=wikilog' )
+					'href' => $skin->mTitle->getSubjectPage()->getLocalUrl( 'action=wikilog' )
 				);
 			}
 			if ( $wgWikilogEnableComments && $wi->isTalk() ) {
