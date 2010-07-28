@@ -483,6 +483,13 @@ class SpecialWikilog
 		);
 		$opts->consumeValue( 'day' );	// ignore day, not really useful
 
+		$viewSelect = new XmlSelect( 'view', 'wl-view', $opts->consumeValue( 'view' ) );
+		$viewSelect->addOption( wfMsg( 'wikilog-view-summary' ), 'summary' );
+		$viewSelect->addOption( wfMsg( 'wikilog-view-archives' ), 'archives' );
+		$fields['view'] = array(
+			Xml::label( wfMsg( 'wikilog-form-view' ), 'wl-view' ),
+			$viewSelect->getHTML()
+		);
 		if( $wgUser && $wgUser->getID() )
 		{
 			$statusSelect = new XmlSelect( 'show', 'wl-status', $opts->consumeValue( 'show' ) );
