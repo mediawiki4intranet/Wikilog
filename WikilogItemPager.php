@@ -59,6 +59,7 @@ class WikilogSummaryPager
 	# Local variables.
 	public $mQuery = null;			///< Wikilog item query data
 	public $mIncluding = false;		///< If pager is being included
+	public $noActions = false;		///< Hide "Actions" column, used in SpecialWikilog.php
 
 	/**
 	 * Constructor.
@@ -548,7 +549,8 @@ class WikilogArchivesPager
 		if ( $wgWikilogEnableComments )
 			$fields['wlp_num_comments']	= wfMsgHtml( 'wikilog-comments' );
 
-		$fields['_wl_actions']			= wfMsgHtml( 'wikilog-actions' );
+		if ( !$this->noActions )
+			$fields['_wl_actions']			= wfMsgHtml( 'wikilog-actions' );
 
 		$fields['wlp_talk_updated'] = wfMsgHtml( 'wikilog-talk-updated' );
 
