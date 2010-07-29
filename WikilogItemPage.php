@@ -51,6 +51,7 @@ class WikilogItemPage
 		parent::__construct( $title );
 		wfLoadExtensionMessages( 'Wikilog' );
 		$this->mItem = WikilogItem::newFromInfo( $wi );
+		$this->wikilogInfo = $wi;
 	}
 
 	/**
@@ -128,6 +129,12 @@ class WikilogItemPage
 						'href' => $this->mItem->mParentTitle->getLocalUrl( "feed={$format}" )
 					) );
 				}
+			}
+
+			if ( $wgWikilogCommentsOnItemPage )
+			{
+				$comments = new WikilogCommentsPage( $this->getTitle()->getTalkPage(), $this->wikilogInfo );
+				$comments->view();
 			}
 		} else {
 			# Display article.
