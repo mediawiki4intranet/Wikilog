@@ -66,15 +66,6 @@ class WikilogItemPage
 		if ( $this->mItem ) {
 			$params = $this->mItem->getMsgParams( true );
 
-			# Set page subtitle
-			$subtitleTxt = wfMsgExt( 'wikilog-entry-sub',
-				array( 'parsemag', 'content' ),
-				$params
-			);
-			if ( !empty( $subtitleTxt ) ) {
-				$wgOut->setSubtitle( $wgOut->parse( $subtitleTxt ) );
-			}
-
 			# Display draft notice.
 			if ( !$this->mItem->getIsPublished() ) {
 				$wgOut->wrapWikiMsg( '<div class="mw-warning">$1</div>', array( 'wikilog-reading-draft' ) );
@@ -95,15 +86,6 @@ class WikilogItemPage
 			# Update last visit
 			if ( $this->mItem )
 				WikilogUtils::updateLastVisit( $this->mItem->getID() );
-
-			# Override page title.
-			# NOTE (MW1.16+): Must come after parent::view().
-			$fullPageTitle = wfMsg( 'wikilog-title-item-full',
-					$this->mItem->mName,
-					$this->mItem->mParentTitle->getPrefixedText()
-			);
-			$wgOut->setPageTitle( $this->mItem->mName );
-			$wgOut->setHTMLTitle( wfMsg( 'pagetitle', $fullPageTitle ) );
 
 			# Item page footer.
 			$footerTxt = wfMsgExt( 'wikilog-entry-footer',
@@ -135,6 +117,26 @@ class WikilogItemPage
 			{
 				$comments = new WikilogCommentsPage( $this->getTitle()->getTalkPage(), $this->wikilogInfo );
 				$comments->view();
+			}
+
+			# Override page title.
+			# NOTE (MW1.16+): Must come after parent::view().
+			$fullPageTitle = wfMsg( 'wikilog-title-item-full',
+					$this->mItem->mName,
+					$this->mItem->mParentTitle->getPrefixedText()
+			);
+			$wgOut->setPageTitle( $this->mItem->mName );
+			$wgOut->setHTMLTitle( wfMsg( 'pagetitle', $fullPageTitle ) );
+
+			# Set page subtitle
+			$subtitleTxt = wfMsgExt( 'wikilog-entry-sub',
+				array( 'parsemag', 'content' ),
+				$params
+			);
+			if ( !empty( $subtitleTxt ) ) {
+				$wgOut->setSubtitle( $wgOut->parse( $subtitleTxt ) );
+			} else {
+				$wgOut->setSubtitle( '' );
 			}
 		} else {
 			# Display article.
