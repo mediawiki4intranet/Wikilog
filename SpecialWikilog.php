@@ -154,10 +154,20 @@ class SpecialWikilog
 		}
 
 		# Create the pager object that will create the list of articles.
-		if ( $opts['view'] == 'archives' ) {
+		if ( $opts['view'] == 'archives' )
+		{
+			if ( !$this->including() && preg_match( '/^\d{14,}$/s', $markallread_time = $wgRequest->getVal( 'markallread' ) ) )
+			{
+				$this->markAllRead( $query, $markallread_time );
+				$vals = $wgRequest->getValues();
+				unset( $vals['markallread'] );
+				$wgOut->redirect( $wgTitle->getFullUrl( $vals ) );
+				return;
+			}
 			$pager = new WikilogArchivesPager( $query, $this->including() );
 			$pager->noActions = true;
-		} else if ( $opts['template'] ) {
+		}
+		else if ( $opts['template'] ) {
 			$templ = Title::makeTitle( NS_TEMPLATE, $opts['template'] );
 			$pager = new WikilogTemplatePager( $query, $templ, $opts['limit'], $this->including() );
 		} else {
@@ -185,6 +195,9 @@ class SpecialWikilog
 
 			# Display query options.
 			$body = $this->getHeader( $opts );
+
+			# Display "Mark all read" link
+			$body .= $this->getMarkAllReadLink();
 
 			# Get pager body.
 			$body .= $pager->getBody();
@@ -220,6 +233,36 @@ class SpecialWikilog
 				) );
 			}
 		}
+	}
+
+	/**
+	 * Mark all items with last update time before $time='YYYYMMDDHHMMSS' as read.
+	 */
+	public function markAllRead( $query, $time )
+	{
+		global $wgUser;
+		$dbw = wfGetDB( DB_MASTER );
+		$p = $dbw->tablePrefix();
+		$sql = $query->selectSQLText( $dbw, array(), "wlp_page", array("wlp_pubdate <= $time"), __METHOD__ );
+		$userid = $wgUser->getId();
+		$dbw->query("DELETE FROM {$p}page_last_visit WHERE (pv_user, pv_page) IN (SELECT $userid, wlp_page FROM ($sql) t1)", __METHOD__);
+		$dbw->query("DELETE FROM {$p}page_last_visit WHERE (pv_user, pv_page) IN (SELECT $userid, t2.wlc_comment_page FROM ($sql) t1 JOIN wikilog_comments t2 ON t2.wlc_post=t1.wlp_page AND t2.wlc_updated <= $time)", __METHOD__);
+		$dbw->query("INSERT INTO {$p}page_last_visit (pv_user, pv_page, pv_date) SELECT $userid, wlp_page, $time FROM ($sql) t1", __METHOD__);
+		$dbw->query("INSERT INTO {$p}page_last_visit (pv_user, pv_page, pv_date) SELECT $userid, t2.wlc_comment_page, $time FROM ($sql) t1 JOIN wikilog_comments t2 ON t2.wlc_post=t1.wlp_page AND t2.wlc_updated <= $time", __METHOD__);
+	}
+
+	/**
+	 * Output a Mark all read link.
+	 */
+	public function getMarkAllReadLink()
+	{
+		global $wgRequest, $wgTitle;
+		$query = $wgRequest->getValues();
+		$query['markallread'] = wfTimestamp( TS_MW );
+		return Xml::wrapClass(
+			Xml::element( 'a', array( 'href' => $wgTitle->getFullUrl( $query ) ), wfMsg( 'wikilog-mark-all-read' ) ),
+			'markallread', 'p'
+		);
 	}
 
 	/**

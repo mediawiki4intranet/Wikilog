@@ -27,6 +27,7 @@ $messages['en'] = array(
 	# Special:Wikilog
 	'wikilog-specialwikilog-title' => 'Wikilogs', # Page title
 	'wikilog-specialwikilog' => 'Wikilog', # Special page name (DEPRECATED AFTER MW1.16)
+	'wikilog-mark-all-read' => 'Mark all items read',
 
 	# Logs
 	'wikilog-log-pagename' => 'Wikilog actions log',
@@ -4903,6 +4904,7 @@ $messages['ru'] = array(
 	'right-wl-moderation' => 'модерировать комментарии к статьям викилога',
 	'wikilog-specialwikilog-title' => 'Викилоги',
 	'wikilog-specialwikilog' => 'Викилог',
+	'wikilog-mark-all-read' => 'Отметить все записи как прочитанные',
 	'wikilog-log-pagename' => 'Журнал действий викилога',
 	'wikilog-log-pagetext' => 'Ниже приведен список действия викилога.',
 	'wikilog-log-cmt-approve' => 'утвердил комментарий [[$1]]',
