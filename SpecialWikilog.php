@@ -196,8 +196,11 @@ class SpecialWikilog
 			# Display query options.
 			$body = $this->getHeader( $opts );
 
-			# Display "Mark all read" link
-			$body .= $this->getMarkAllReadLink();
+			if ( $opts['view'] == 'archives' )
+			{
+				# Display "Mark all read" link
+				$body .= $this->getMarkAllReadLink();
+			}
 
 			# Get pager body.
 			$body .= $pager->getBody();
