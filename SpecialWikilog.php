@@ -136,7 +136,7 @@ class SpecialWikilog
 	 * @param $opts Form options, such as wikilog name, category, date, etc.
 	 */
 	public function webOutput( FormOptions $opts ) {
-		global $wgRequest, $wgOut, $wgMimeType, $wgTitle, $wgParser;
+		global $wgRequest, $wgOut, $wgMimeType, $wgTitle, $wgParser, $wgUser;
 
 		# Set page title, html title, nofollow, noindex, etc...
 		$this->setHeaders();
@@ -196,7 +196,7 @@ class SpecialWikilog
 			# Display query options.
 			$body = $this->getHeader( $opts );
 
-			if ( $opts['view'] == 'archives' )
+			if ( $opts['view'] == 'archives' && $wgUser->getId() )
 			{
 				# Display "Mark all read" link
 				$body .= $this->getMarkAllReadLink();
