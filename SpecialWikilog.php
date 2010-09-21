@@ -164,7 +164,7 @@ class SpecialWikilog
 				$wgOut->redirect( $wgTitle->getFullUrl( $vals ) );
 				return;
 			}
-			$pager = new WikilogArchivesPager( $query, $this->including() );
+			$pager = new WikilogArchivesPager( $query, $this->including(), $opts['limit'] );
 			$pager->noActions = true;
 		}
 		else if ( $opts['template'] ) {

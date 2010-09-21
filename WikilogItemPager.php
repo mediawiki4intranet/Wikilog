@@ -218,7 +218,7 @@ class WikilogSummaryPager
 	protected function parse( $text ) {
 		global $wgTitle, $wgParser, $wgOut;
 		if ( $this->mIncluding ) {
-			return $wgParser->recursiveTagParse( $text );
+			return $wgParser->recursiveTagParse( $text ) . "\n";
 		} else {
 			$popts = $wgOut->parserOptions();
 			$output = $wgParser->parse( $text, $wgTitle, $popts, true, false );
@@ -269,12 +269,14 @@ class WikilogTemplatePager
 	 * Constructor.
 	 */
 	function __construct( WikilogItemQuery $query, Title $template, $limit = false, $including = false ) {
-		global $wgParser;
+		global $wgParser, $wgUser;
 
 		# Parent constructor.
 		parent::__construct( $query, $limit, $including );
 
 		# Load template
+		if ( !$wgParser->mOptions )
+			$wgParser->parse( '', $template, ParserOptions::newFromUser( $wgUser ) );
 		list( $this->mTemplate, $this->mTemplateTitle ) =
 			$wgParser->getTemplateDom( $template );
 		if ( $this->mTemplate === false )
@@ -381,7 +383,7 @@ class WikilogArchivesPager
 	/**
 	 * Constructor.
 	 */
-	function __construct( WikilogItemQuery $query, $including = false ) {
+	function __construct( WikilogItemQuery $query, $including = false, $limit = false ) {
 		# WikilogItemQuery object drives our queries.
 		$this->mQuery = $query;
 		$this->mQuery->setOption( 'last-visit-date', true );
@@ -389,6 +391,21 @@ class WikilogArchivesPager
 
 		# Parent constructor.
 		parent::__construct();
+
+		# Fix our limits, Pager's defaults are too high.
+		global $wgUser, $wgWikilogNumArticles;
+		$this->mDefaultLimit = $wgWikilogNumArticles;
+
+		if ( $limit ) {
+			$this->mLimit = $limit;
+		} else {
+			$this->mLimit = $wgWikilogNumArticles;
+		}
+
+		# This is too expensive, limit listing.
+		global $wgWikilogExpensiveLimit;
+		if ( $this->mLimit > $wgWikilogExpensiveLimit )
+			$this->mLimit = $wgWikilogExpensiveLimit;
 	}
 
 	/**
