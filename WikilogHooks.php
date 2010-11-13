@@ -391,7 +391,7 @@ class WikilogHooks
 		return true;
 	}
 
-	static function EnhancedRecentChangesGroupBy( &$rc, &$title, &$secureName )
+	static function EnhancedChangesListGroupBy( &$rc, &$title, &$secureName )
 	{
 		if( defined( 'NS_BLOG' ) &&
 			$title->getNamespace() == MWNamespace::getTalk(NS_BLOG) &&
