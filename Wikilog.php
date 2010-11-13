@@ -139,6 +139,7 @@ $wgHooks['EditPage::showEditForm:fields'][] = 'WikilogHooks::EditPageEditFormFie
 $wgHooks['EditPage::importFormData'][] = 'WikilogHooks::EditPageImportFormData';
 $wgHooks['LoadExtensionSchemaUpdates'][] = 'WikilogHooks::ExtensionSchemaUpdates';
 $wgHooks['UnknownAction'][] = 'WikilogHooks::UnknownAction';
+$wgHooks['EnhancedRecentChangesGroupBy'][] = 'WikilogHooks::EnhancedRecentChangesGroupBy';
 
 // WikilogLinksUpdate hooks
 $wgHooks['LinksUpdate'][] = 'WikilogLinksUpdate::LinksUpdate';
