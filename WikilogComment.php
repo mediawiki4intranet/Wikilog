@@ -681,9 +681,7 @@ class WikilogCommentFormatter
 
 		# If user is has moderator privileges and the comment is pending
 		# approval, highlight it.
-		if ( $this->mAllowModeration && $comment->mStatus == WikilogComment::S_PENDING ) {
-			$highlight = true;
-		}
+		$highlight = !$comment->mVisited || $this->mAllowModeration && $comment->mStatus == WikilogComment::S_PENDING;
 
 		if ( !$comment->isVisible() && !$this->mAllowModeration ) {
 			# Placeholder.
