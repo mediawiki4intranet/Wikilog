@@ -248,7 +248,10 @@ class WikilogUtils
 		if ( !isset( $authorSigCache[$author] ) )
 		{
 			$user = User::newFromName( $author );
-			$authorSigCache[$author] = wfMsgForContent( 'wikilog-author-signature', $user->getName(), $user->getRealName() );
+			$n = $user->getRealName();
+			if ( !$n )
+				$n = $author;
+			$authorSigCache[$author] = wfMsgForContent( 'wikilog-author-signature', $user->getName(), $n );
 		}
 		return $authorSigCache[$author];
 	}
