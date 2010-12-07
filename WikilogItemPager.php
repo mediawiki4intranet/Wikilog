@@ -597,10 +597,14 @@ class WikilogArchivesPager
 	 * @param $name Username of the author.
 	 * @return Resulting HTML fragment.
 	 */
-	private function authorLink( $name ) {
+	private function authorLink( $name )
+	{
 		$skin = $this->getSkin();
-		$title = Title::makeTitle( NS_USER, $name );
-		return $skin->makeLinkObj( $title, $name );
+		$user = User::newFromName( $name );
+		$name = $user->getRealName();
+		if ( !$name )
+			$name = $user->getName();
+		return $skin->link( $user->getUserPage(), $name );
 	}
 
 	/**
