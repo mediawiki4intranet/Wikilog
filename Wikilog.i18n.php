@@ -52,6 +52,16 @@ In order to publish articles and enable other wikilog features, it has to be cre
 	'wikilog-new-item' => 'Create new wikilog article',
 	'wikilog-new-item-go' => 'Create',
 	'wikilog-item-name' => 'Article name:',
+	'wikilog-import' => 'Import for Blogger.com blogs',
+	'wikilog-import-go' => 'Import',
+	'wikilog-import-file' => 'Select XML file for import:',
+	'wikilog-import-aliases' => 'User aliases ([[User:WikiUserName|Blogger Alias]], [[User:WikiUserName|Blogger Alias]], ...)',
+	'wikilog-import-ok' => 'Successfully imported $1 wiki pages into blog  [{{fullurl:$2}} $2].
+
+[{{fullurl:{{FULLPAGENAME}}|action=wikilog}} Return to Wikilog actions]
+
+You can copy-paste following [http://httpd.apache.org/docs/2.0/mod/mod_rewrite.html RewriteRule]s into your <tt>.htaccess</tt> to redirect users from old post URLs to Wikilog:',
+	'wikilog-import-failed' => 'Importing failed.',
 
 	# Generic strings
 	'wikilog-published' => 'Published',
@@ -4925,6 +4935,16 @@ $messages['ru'] = array(
 	'wikilog-new-item' => 'Создать новую статью викилога',
 	'wikilog-new-item-go' => 'Создать',
 	'wikilog-item-name' => 'Название статьи:',
+	'wikilog-import' => 'Импорт для блогов blogger.com',
+	'wikilog-import-go' => 'Импортировать',
+	'wikilog-import-file' => 'Выберите XML-файл для импорта:',
+	'wikilog-import-aliases' => 'Blogger-псевдонимы пользователей: ([[User:Имя_В_Вики|Имя_В_Blogger]], [[User:Имя_В_Вики|Имя_В_Blogger]], ...)',
+	'wikilog-import-ok' => 'Импорт успешно завершён, добавлено $1 страниц в блог [{{fullurl:$2}} $2].
+
+[{{fullurl:{{FULLPAGENAME}}|action=wikilog}} Вернуться к действиям викилога]
+
+Вы можете скопировать следующие [http://httpd.apache.org/docs/2.0/mod/mod_rewrite.html RewriteRule] в свой <tt>.htaccess</tt> для перенаправления со старых адресов постов на новые Wikilog-адреса:',
+	'wikilog-import-failed' => 'Ошибка импорта.',
 	'wikilog-published' => 'Опубликована',
 	'wikilog-updated' => 'Обновлена',
 	'wikilog-draft' => 'Черновик',

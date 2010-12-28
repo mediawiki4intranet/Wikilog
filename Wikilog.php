@@ -103,6 +103,10 @@ $wgAutoloadClasses += array(
 	// Captcha adapter
 	'WlCaptcha'                 => $dir . 'WlCaptchaAdapter.php',
 	'WlCaptchaAdapter'          => $dir . 'WlCaptchaAdapter.php',
+
+	// Wikifier and Blogger import
+	'HtmlToMediaWiki'           => $dir . 'HtmlToMediaWiki.php',
+	'WikilogBloggerImport'      => $dir . 'WikilogBloggerImport.php',
 );
 
 /*

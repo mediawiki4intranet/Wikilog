@@ -71,7 +71,9 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_posts (
   INDEX wlp_parent (wlp_parent),
   INDEX wlp_title (wlp_title),
   INDEX wlp_pubdate (wlp_pubdate),
-  INDEX wlp_updated (wlp_updated)
+  INDEX wlp_updated (wlp_updated),
+
+  CONSTRAINT wikilog_posts_wlp_page_page_id FOREIGN KEY (wlp_page) REFERENCES /*$wgDBprefix*/page (page_id) ON DELETE CASCADE ON UPDATE CASCADE
 
 ) /*$wgDBTableOptions*/;
 
@@ -181,6 +183,9 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_comments (
   INDEX wlc_post_thread (wlc_post, wlc_thread),
   INDEX wlc_timestamp (wlc_timestamp),
   INDEX wlc_updated (wlc_updated),
-  INDEX wlc_comment_page (wlc_comment_page)
+  INDEX wlc_comment_page (wlc_comment_page),
+
+  CONSTRAINT wikilog_comments_wlc_post_page_id FOREIGN KEY (wlc_post) REFERENCES /*$wgDBprefix*/page (page_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT wikilog_comments_wlc_comment_page_page_id FOREIGN KEY (wlc_comment_page) REFERENCES /*$wgDBprefix*/page (page_id) ON DELETE CASCADE ON UPDATE CASCADE
 
 ) /*$wgDBTableOptions*/;

@@ -139,6 +139,9 @@ class WikilogMainPage
 		if ( $this->mTitle->exists() && $wgRequest->getBool( 'wlActionNewItem' ) )
 			return $this->actionNewItem();
 
+		if ( $this->mTitle->exists() && $wgRequest->getBool( 'wlActionImport' ) )
+			return $this->actionImport();
+
 		$wgOut->setPageTitle( wfMsg( 'wikilog-tab-title' ) );
 		$wgOut->setRobotpolicy( 'noindex,nofollow' );
 
@@ -148,6 +151,7 @@ class WikilogMainPage
 			$wgOut->addHTML( $this->formatWikilogInformation( $skin ) );
 			if ( $this->mTitle->quickUserCan( 'edit' ) ) {
 				$wgOut->addHTML( $this->formNewItem() );
+				$wgOut->addHTML( $this->formImport() );
 			}
 		} else if ( $this->mTitle->userCan( 'create' ) ) {
 			$text = wfMsgExt( 'wikilog-missing-wikilog', 'parse' );
@@ -267,6 +271,93 @@ class WikilogMainPage
 		);
 
 		return Xml::fieldset( wfMsg( 'wikilog-new-item' ), $form ) . "\n";
+	}
+
+	/**
+	 * Returns a form for blog import (currently only Blogger.com).
+	 */
+	protected function formImport() {
+		global $wgScript;
+
+		$fields = array();
+		$fields[] = Xml::hidden( 'title', $this->mTitle->getPrefixedText() );
+		$fields[] = Xml::hidden( 'action', 'wikilog' );
+		$fields[] = Xml::hidden( 'wikilog-import', 'blogger' );
+		$fields[] = Xml::inputLabel( wfMsg('wikilog-import-file'), 'wlFile', 'wl-import-file', false, false, array('type' => 'file') );
+		$fields[] = Xml::submitButton( wfMsg( 'wikilog-import-go' ),
+			array( 'name' => 'wlActionImport' ) );
+		$fields[] = '<br />' . Xml::label( wfMsg('wikilog-import-aliases'), 'wl-user-aliases' ) .
+			Xml::textarea( 'wlUserAliases', '', 40, 5, array( 'id' => 'wl-user-aliases' ) );
+
+		$form = Xml::tags( 'form',
+			array( 'action' => $wgScript, 'method' => 'POST', 'enctype' => 'multipart/form-data' ),
+			implode( "\n", $fields )
+		);
+
+		return Xml::fieldset( wfMsg( 'wikilog-import' ), $form ) . "\n";
+	}
+
+	/**
+	 * Wikilog "import" action handler.
+	 */
+	protected function actionImport() {
+		global $wgOut, $wgRequest;
+		$wgOut->setPageTitle( wfMsg( 'wikilog-import' ) );
+
+		if ( !$this->mTitle->quickUserCan( 'edit' ) ) {
+			$wgOut->loginToUse();
+			$wgOut->output();
+			exit;
+		}
+
+		$file = $_FILES[ 'wlFile' ];
+		if ( !empty( $_FILES['wlFile']['error'] ) )
+		{
+			switch( $_FILES['wlFile']['error'] )
+			{
+				case 1: # The uploaded file exceeds the upload_max_filesize directive in php.ini.
+					$wgOut->addWikiMsg( 'importuploaderrorsize' );
+				case 2: # The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.
+					$wgOut->addWikiMsg( 'importuploaderrorsize' );
+				case 3: # The uploaded file was only partially uploaded
+					$wgOut->addWikiMsg( 'importuploaderrorpartial' );
+				case 6: #Missing a temporary folder. Introduced in PHP 4.3.10 and PHP 5.0.3.
+					$wgOut->addWikiMsg( 'importuploaderrortemp' );
+				# case else: # Currently impossible
+			}
+			return;
+		}
+		elseif ( is_uploaded_file( $_FILES['wlFile']['tmp_name'] ) )
+		{
+			$users = array();
+			preg_match_all( '/\[\[([^\]\|]+)\|([^\]\|]+)\]\]/is', $wgRequest->getText( 'wlUserAliases' ), $matches, PREG_SET_ORDER );
+			foreach ( $matches as $m )
+				if (( $user = Title::newFromText( trim($m[1]), NS_USER )) &&
+				    ( $user = User::newFromName( $user->getText() ) ))
+					$users[ trim($m[2]) ] = $user->getName();
+			$params = array(
+				'blog' => $this->mTitle->getText(),
+				'users' => $users,
+			);
+			$out = WikilogBloggerImport::parse_blogger_xml( file_get_contents( $_FILES['wlFile']['tmp_name'] ), $params );
+			if ( $out )
+				$result = WikilogBloggerImport::import_parsed_blogger( $out );
+			if ( $result )
+			{
+				$wgOut->addWikiMsg( 'wikilog-import-ok', count( $result ), $this->mTitle->getPrefixedText() );
+				/* Print RewriteRules */
+				$rewrite = array_reverse( $out['rewrite'] );
+				foreach ( $rewrite as &$r )
+				{
+					$u = preg_quote(preg_replace('#^[a-z]+://[^/]*/#', '', $r[0]));
+					$r = "RewriteRule ^$u ".Title::newFromText($r[1])->getLocalUrl()." [R=301,L,NE]";
+				}
+				$rewrite = implode( "\n", $rewrite );
+				$wgOut->addHTML( Xml::textarea( 'htaccess', $rewrite, 100, 10 ) );
+			}
+			else
+				$wgOut->addWikiMsg( 'wikilog-import-failed' );
+		}
 	}
 
 	/**
