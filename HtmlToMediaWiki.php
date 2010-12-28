@@ -122,6 +122,7 @@ class HtmlToMediaWiki
 
     static function html2wiki($html)
     {
+        $html = preg_replace_callback('#(<pre[^<>]*>)(.*?)(</pre>)#is', create_function('$m', 'return $m[1].str_replace(array("<", ">"), array("&lt;", "&gt;"), $m[2]).$m[3];'), $html);
         $dom = self::loadDOM($html);
         $wiki = self::dom2wiki($dom->documentElement);
         $wiki = preg_replace('#\s*\x01#', '', $wiki);
