@@ -150,7 +150,7 @@ class WikilogMainPage
 			$wgOut->addHTML( $this->formatWikilogDescription( $skin ) );
 			$wgOut->addHTML( $this->formatWikilogInformation( $skin ) );
 			if ( $this->mTitle->quickUserCan( 'edit' ) ) {
-				$wgOut->addHTML( $this->formNewItem() );
+				$wgOut->addHTML( self::formNewItem( $this->mTitle ) );
 				$wgOut->addHTML( $this->formImport() );
 			}
 		} else if ( $this->mTitle->userCan( 'create' ) ) {
@@ -254,11 +254,34 @@ class WikilogMainPage
 	/**
 	 * Returns a form for new item creation.
 	 */
-	protected function formNewItem() {
+	static function formNewItem( $title ) {
 		global $wgScript;
 
 		$fields = array();
-		$fields[] = Xml::hidden( 'title', $this->mTitle->getPrefixedText() );
+		if ( $title )
+			$fields[] = Xml::hidden( 'title', $title->getPrefixedText() );
+		else
+		{
+			global $wgWikilogNamespaces;
+			$dbr = wfGetDB( DB_SLAVE );
+			$r = $dbr->select( 'page', 'page_id', array(
+				'page_namespace' => $wgWikilogNamespaces,
+				'page_title NOT LIKE \'%/%\'',
+			), __METHOD__ );
+			$opts = array();
+			foreach ( $r as $obj )
+			{
+				$t = Title::newFromID( $obj->page_id );
+				if ( $t->userCanEdit() )
+					$opts[] = $t->getPrefixedText();
+			}
+			if ( !$opts )
+				return '';
+			$wikilog_select = new XmlSelect( 'title', 'wl-newitem-wikilog' );
+			foreach ( $opts as $o )
+				$wikilog_select->addOption( $o, $o );
+			$fields[] = Xml::label( wfMsg( 'wikilog-form-wikilog' ), 'wl-wikilog' ) . '&nbsp;' . $wikilog_select->getHTML();
+		}
 		$fields[] = Xml::hidden( 'action', 'wikilog' );
 		$fields[] = Xml::inputLabel( wfMsg( 'wikilog-item-name' ),
 			'wlItemName', 'wl-item-name', 70, date('Y-m-d ') );
@@ -270,7 +293,8 @@ class WikilogMainPage
 			implode( "\n", $fields )
 		);
 
-		return Xml::fieldset( wfMsg( 'wikilog-new-item' ), $form ) . "\n";
+		$form = Xml::fieldset( wfMsg( 'wikilog-new-item' ), $form, array( 'id' => 'wl-new-item' ) ) . "\n";
+		return $form;
 	}
 
 	/**

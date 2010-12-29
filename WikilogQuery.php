@@ -714,14 +714,6 @@ class WikilogCommentQuery
 			$q_joins['wikilog_posts'] = array( 'JOIN', 'wlp_page = wlc_post' );
 		}
 
-		# Last visit date
-		global $wgUser;
-		if ( $wgUser->getID() ) {
-			$q_tables[] = 'page_last_visit';
-			$q_fields[] = 'pv_date wlc_last_visit';
-			$q_joins['page_last_visit'] = array( 'LEFT JOIN', array( 'pv_page = wlc_comment_page', 'pv_user' => $wgUser->getID() ) );
-		}
-
 		return array(
 			'tables' => $q_tables,
 			'fields' => $q_fields,

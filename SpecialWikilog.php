@@ -358,6 +358,7 @@ class SpecialWikilog
 		$out = Xml::fieldset( wfMsg( 'wikilog-form-legend' ), $out,
 			array( 'class' => 'wl-options' )
 		);
+		$out .= WikilogMainPage::formNewItem( NULL );
 		return $out;
 	}
 

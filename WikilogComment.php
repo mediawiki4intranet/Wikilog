@@ -569,15 +569,22 @@ class WikilogComment
 	public static function selectTables( $dbr = null ) {
 		if ( !$dbr ) $dbr = wfGetDB( DB_SLAVE );
 		$page = $dbr->tableName( 'page' );
-		return array(
+		global $wgUser;
+		$r = array(
 			'tables' => array(
 				'wikilog_comments',
-				"{$page} AS c"
+				"{$page} AS c",
 			),
 			'join_conds' => array(
-				"{$page} AS c" => array( 'LEFT JOIN', 'c.page_id = wlc_comment_page' )
+				"{$page} AS c" => array( 'LEFT JOIN', 'c.page_id = wlc_comment_page' ),
 			)
 		);
+		if ( $wgUser->getId() )
+		{
+			$r['join_conds'][$r['tables'][] = 'page_last_visit AS cv'] =
+				array( 'LEFT JOIN', 'cv.pv_page = wlc_comment_page', 'pv_user' => $wgUser->getId() );
+		}
+		return $r;
 	}
 
 	/**
@@ -585,6 +592,7 @@ class WikilogComment
 	 * WikilogComment.
 	 */
 	public static function selectFields() {
+		global $wgUser;
 		return array(
 			'wlc_id',
 			'wlc_parent',
@@ -599,7 +607,8 @@ class WikilogComment
 			'wlc_comment_page',
 			'c.page_namespace AS wlc_page_namespace',
 			'c.page_title AS wlc_page_title',
-			'c.page_latest AS wlc_page_latest'
+			'c.page_latest AS wlc_page_latest',
+			$wgUser->getId() ? 'cv.pv_date AS wlc_last_visit' : 'NULL AS wlc_last_visit',
 		);
 	}
 }
