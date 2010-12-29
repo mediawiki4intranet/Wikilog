@@ -7,21 +7,21 @@
 class HtmlToMediaWiki
 {
     static $tags = array(
-        'br' => array('empty' => 1, 'attr' => array('style' => 1, 'clear' => 1)),
-        'pre' => array('prefix' => "\1\n", 'notrim' => 1, 'pre' => 1),
+        'br' => array('empty' => 1, 'attr' => array('style' => 1, 'clear' => 1, 'class' => 1)),
+        'pre' => array('prefix' => "\1\n", 'notrim' => 1, 'pre' => 1, 'attr' => array('style' => 1, 'class' => 1)),
         'ul' => array('replacebegin' => "\1\n"),
         'ol' => array('replacebegin' => "\1\n"),
         'li' => array('replacebegin' => ""),
-        'p' => array('replacebegin' => "\1\n\n", 'attr' => array('style' => 1, 'clear' => 1)),
-        'a' => array('replacebegin' => '[$href ', 'replaceend' => ']', 'attr' => array('title' => 1)),
+        'p' => array('replacebegin' => "\1\n\n", 'attr' => array('style' => 1, 'class' => 1)),
+        'a' => array('replacebegin' => '[$href ', 'replaceend' => ']'),
         'b' => array('replacebegin' => "'''", 'replaceend' => "'''"),
         'i' => array('replacebegin' => "''", 'replaceend' => "''"),
         'img' => array('html' => 1),
         'object' => array('prefix' => "\1\n\n", 'html' => 1),
         'iframe' => array('prefix' => "\1\n\n", 'html' => 1),
         'table' => array('html' => 1),
-        'div' => array('attr' => array('style' => 1, 'clear' => 1)),
-        'blockquote' => array('prefix' => "\1\n", 'attr' => array('style' => 1, 'clear' => 1)),
+        'div' => array('attr' => array('style' => 1, 'class' => 1)),
+        'blockquote' => array('prefix' => "\1\n", 'attr' => array('style' => 1, 'class' => 1)),
     );
 
     static function loadDOM($html)
