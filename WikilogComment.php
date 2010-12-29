@@ -582,7 +582,7 @@ class WikilogComment
 		if ( $wgUser->getId() )
 		{
 			$r['join_conds'][$r['tables'][] = 'page_last_visit AS cv'] =
-				array( 'LEFT JOIN', 'cv.pv_page = wlc_comment_page', 'pv_user' => $wgUser->getId() );
+				array( 'LEFT JOIN', array( 'cv.pv_page = wlc_comment_page', 'cv.pv_user' => $wgUser->getId() ) );
 		}
 		return $r;
 	}
