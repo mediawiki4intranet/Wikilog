@@ -242,7 +242,7 @@ class WikilogUtils
 	 * @param $author String, author name.
 	 * @return Wikitext-formatted author signature.
 	 */
-	public static function authorSig( $author )
+	public static function authorSig( $author, $parse = false )
 	{
 		static $authorSigCache = array();
 		if ( !isset( $authorSigCache[$author] ) )
@@ -251,9 +251,11 @@ class WikilogUtils
 			$n = $user->getRealName();
 			if ( !$n )
 				$n = $author;
-			$authorSigCache[$author] = wfMsgForContent( 'wikilog-author-signature', $user->getName(), $n );
+			$authorSigCache[$author . ($parse ? '/1' : '/0')] = $parse
+				? wfMsgExt( 'wikilog-author-signature', array( 'parseinline' ), $user->getName(), $n )
+				: wfMsgForContent( 'wikilog-author-signature', $user->getName(), $n );
 		}
-		return $authorSigCache[$author];
+		return $authorSigCache[$author . ($parse ? '/1' : '/0')];
 	}
 
 	/**
