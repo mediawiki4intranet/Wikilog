@@ -797,7 +797,7 @@ class WikilogCommentFormatter
 
 		if ( $comment->mUserID ) {
 			$authorPlain = htmlspecialchars( $comment->mUserText );
-			$authorFmt = wfMsgExt( 'wikilog-author-signature', array( 'parseinline' ), $comment->mUserText );
+			$authorFmt = WikilogUtils::authorSig( $comment->mUserText );
 		} else {
 			$authorPlain = htmlspecialchars( $comment->mAnonName );
 			$authorFmt = wfMsgForContent( 'wikilog-comment-anonsig',
