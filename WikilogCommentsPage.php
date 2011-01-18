@@ -142,9 +142,9 @@ class WikilogCommentsPage
 			# Normal page view, show talk page contents followed by comments.
 			parent::view();
 
-			# Set a more human-friendly title to the comments page.
-			# NOTE (MW1.16+): Must come after parent::view().
-			# Note: Sorry for the three-level cascade of wfMsg()'s...
+			// Set a more human-friendly title to the comments page.
+			// NOTE (MW1.16+): Must come after parent::view().
+			// Note: Sorry for the three-level cascade of wfMsg()'s...
 			$fullPageTitle = wfMsg( 'wikilog-title-item-full',
 				$this->mItem->mName,
 				$this->mWikilog->getPrefixedText()
@@ -173,7 +173,7 @@ class WikilogCommentsPage
 	 * them in threads.
 	 */
 	protected function viewComments( WikilogCommentQuery $query ) {
-		global $wgOut, $wgRequest;
+		global $wgOut, $wgRequest, $wgUser;
 
 		# Prepare query and pager objects.
 		$replyTo = $wgRequest->getInt( 'wlParent' );
@@ -205,10 +205,13 @@ class WikilogCommentsPage
 		# Display comments/replies.
 		$wgOut->addHtml( $pager->getBody() . $pager->getNavigationBar() );
 
+		# Display subscribe/unsubscribe link.
+		if ( $wgUser->getId() && !$this->mSingleComment )
+			$wgOut->addHtml( $this->getSubscribeLink() );
+
 		# Display "post new comment" form, if appropriate.
-		if ( $this->mUserCanPost ) {
+		if ( $this->mUserCanPost )
 			$wgOut->addHtml( $this->getPostCommentForm( $this->mSingleComment ) );
-		}
 
 		# Close div.
 		$wgOut->addHtml( Xml::closeElement( 'div' ) );
@@ -218,13 +221,23 @@ class WikilogCommentsPage
 	 * Handler for action=wikilog requests.
 	 * Enabled via WikilogHooks::UnknownAction() hook handler.
 	 */
-	public function wikilog() {
+	public function wikilog()
+	{
 		global $wgOut, $wgUser, $wgRequest;
 
 		if ( !$this->mItem || !$this->mItem->exists() ) {
 			$wgOut->showErrorPage( 'wikilog-error', 'wikilog-no-such-article' );
 			return;
 		}
+
+		if ( $wgRequest->getBool( 'wlActionSubscribe' ) )
+		{
+			$s = $this->subscribe( $this->mItem->getId() ) ? 'yes' : 'no';
+			$wgOut->setPageTitle( wfMsg( "wikilog-subscribed-title-$s" ) );
+			$wgOut->addWikiText( wfMsgNoTrans( "wikilog-subscribed-text-$s", $this->mItem->mTitle->getPrefixedText() ) );
+			return;
+		}
+
 		if ( !$wgUser->matchEditToken( $wgRequest->getVal( 'wpEditToken' ) ) ) {
 			$wgOut->showErrorPage( 'wikilog-error', 'sessionfailure' );
 			return;
@@ -280,6 +293,41 @@ class WikilogCommentsPage
 	public function hasViewableContent() {
 		return parent::hasViewableContent() ||
 			( $this->mItem !== null && $this->mItem->exists() );
+	}
+
+	/**
+	 * Generates and returns a subscribe/unsubscribe link.
+	 */
+	public function getSubscribeLink()
+	{
+		global $wgScript, $wgUser;
+		$isa = array_flip( $this->mItem->mAuthors );
+		if ( !$wgUser->getId() )
+			return '';
+		elseif ( $isa[ $wgUser->getId() ] )
+			return wfMsgNoTrans( 'wikilog-subscribed-as-author' );
+		$sub = !$this->is_subscribed( $this->mItem->getId() );
+		return wfMsgNoTrans( $sub ? 'wikilog-do-subscribe' : 'wikilog-do-unsubscribe',
+			$wgScript.'?'.http_build_query( array(
+				'title' => $this->getTitle()->getPrefixedText(),
+				'action' => 'wikilog',
+				'wlActionSubscribe' => 1,
+				'wl-subscribe' => $sub ? 1 : 0,
+			) ) );
+	}
+
+	/* Returns:
+	   1 if current user is subcribed to post $itemid comments
+	   0 if unsubscribed
+	   NULL if didn't care */
+	public function is_subscribed( $itemid )
+	{
+		global $wgUser;
+		$dbr = wfGetDB( DB_SLAVE );
+		$r = $dbr->selectField( 'wikilog_subscriptions', 'ws_yes', array( 'ws_page' => $itemid, 'ws_user' => $wgUser->getID() ), __METHOD__ );
+		if ( $r === false )
+			$r = NULL;
+		return $r;
 	}
 
 	/**
@@ -356,9 +404,8 @@ class WikilogCommentsPage
 		if ( $wgUser->getID() )
 		{
 			$itemid = $this->mItem ? $this->mItem->getID() : $parent->mPost;
-			$dbr = wfGetDB( DB_SLAVE );
-			$subscribed = $dbr->selectField( 'wikilog_subscriptions', 'ws_yes', array( 'ws_page' => $itemid, 'ws_user' => $wgUser->getID() ), __METHOD__ );
-			if ( $subscribed === false || $subscribed === NULL )
+			$subscribed = $this->is_subscribed( $itemid );
+			if ( $subscribed === NULL )
 				$subscribed = true;
 			$subscribe_html = ' &nbsp; ' . Xml::checkLabel( wfMsg( 'wikilog-subscribe' ), 'wl-subscribe', 'wl-subscribe', $subscribed );
 		}
@@ -423,6 +470,27 @@ class WikilogCommentsPage
 	}
 
 	/**
+	 * Subscribes/unsubscribes current user to/from comments to some post
+	 */
+	protected function subscribe( $page_id )
+	{
+		global $wgUser, $wgRequest;
+		if ($wgUser->getID())
+		{
+			$subscribe = $wgRequest->getBool('wl-subscribe') ? 1 : 0;
+			$dbw = wfGetDB(DB_MASTER);
+			$dbw->replace('wikilog_subscriptions', array(array('ws_page', 'ws_user')), array(
+				'ws_page' => $page_id,
+				'ws_user' => $wgUser->getID(),
+				'ws_yes'  => $subscribe,
+				'ws_date' => wfTimestamp(TS_MW),
+			), __METHOD__);
+			return $subscribe;
+		}
+		return NULL;
+	}
+
+	/**
 	 * Validates and saves a new comment. Redirects back to the comments page.
 	 * @param $comment Posted comment.
 	 */
@@ -468,18 +536,7 @@ class WikilogCommentsPage
 
 		$comment->saveComment();
 
-		if ($wgUser->getID())
-		{
-			global $wgRequest;
-			$subscribe = $wgRequest->getCheck('wl-subscribe') ? 1 : 0;
-			$dbw = wfGetDB(DB_MASTER);
-			$dbw->replace('wikilog_subscriptions', array(array('ws_page', 'ws_user')), array(
-				'ws_page' => $comment->mPost,
-				'ws_user' => $wgUser->getID(),
-				'ws_yes'  => $subscribe,
-				'ws_date' => wfTimestamp(TS_MW),
-			), __METHOD__);
-		}
+		$this->subscribe( $comment->mPost );
 
 		$dest = $this->getTitle();
 		$dest->setFragment( "#c{$comment->mID}" );

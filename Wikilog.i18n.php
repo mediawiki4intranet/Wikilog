@@ -134,9 +134,18 @@ Uncheck this box to keep the article as a draft.',
 	'wikilog-newtalk-text' => '<!-- blank page created by Wikilog -->',
 	'wikilog-newtalk-summary' => 'created automatically by Wikilog',
 
+	'wikilog-subscribe' => 'Subscribe to comments to this entry',
+	'wikilog-do-subscribe' => '<p>You are not yet subscribed to all comments to this post. <a href="$1">Subscribe</a>.</p><hr />',
+	'wikilog-do-unsubscribe' => '<p>You are <b>subscribed</b> to all comments to this post. <a href="$1">Unsubscribe</a>.</p><hr />',
+	'wikilog-subscribed-title-yes' => 'Subscribed to comments',
+	'wikilog-subscribed-title-no' => 'Unsubscribed from comments',
+	'wikilog-subscribed-text-yes' => 'You are now subcribed to all comments to Wikilog entry [[$1]] by e-mail.',
+	'wikilog-subscribed-text-no' => 'You are now unsubcribed from comments to Wikilog entry [[$1]] except the answers to your ones.',
+	'wikilog-subscribed-as-author' => '<p>You will receive all comments to this entry by e-mail, because you are the author.</p><hr />',
+
 	/* These messages are parsed inside the context of item page, so {{SUBPAGENAME}} refers to the item,
 	   and <a href=""> is a crunch to output links instead of just bold text. */
-	'wikilog-comment-email-subject' => '$2 - A new comment to {{SUBPAGENAME}}',
+	'wikilog-comment-email-subject' => '[Wikilog] $2 - A new comment to {{SUBPAGENAME}}',
 	'wikilog-comment-email-body' =>
 'A new reply {{#if:$6|was added by [[{{ns:User}}:$2|$2]] to the following [[{{ns:User}}:$6|$6]]\'s
 comment to the post <html><a href="$3"></html>{{SUBPAGENAME}}<html></a></html>:
@@ -155,7 +164,8 @@ Available actions:
 
 * [[{{TALKPAGENAME}}#$4|Read the whole discussion]] of the post {{SUBPAGENAME}}.
 * <html><a href="$3"></html>Read the post {{SUBPAGENAME}}<html></a></html>.
-* [[$1|Read discussion thread]] beginning with this specific comment.',
+* [[$1|Reply to this comment]] and/or read discussion thread.',
+	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Unsubscribe</a> from comments to $1.</p>',
 
 	# Atom and RSS feeds
 	'wikilog-feed-title' => '{{SITENAME}} - $1 [$2]', # $1 = title, $2 = content language
@@ -216,7 +226,6 @@ The comment will only appear after it is reviewed by a moderator.',
 	'wikilog-show-drafts' => 'Drafts',
 	'wikilog-submit' => 'Submit',
 	'wikilog-preview' => 'Preview',	# verb
-	'wikilog-subscribe' => 'Subscribe to post comments',
 	'wikilog-edit-lc' => 'edit',		# verb
 	'wikilog-reply-lc' => 'reply',		# verb
 	'wikilog-delete-lc' => 'delete',
@@ -4995,6 +5004,16 @@ $messages['ru'] = array(
 	'wikilog-comment-reject' => 'Отклонить этот комментарий (незамедлительное действие)',
 	'wikilog-newtalk-text' => '<!-- пустая страница создана викилогом -->',
 	'wikilog-newtalk-summary' => 'создана автоматически викилогом',
+
+	'wikilog-subscribe' => 'Подписаться на комментарии к этой записи',
+	'wikilog-do-subscribe' => '<p>Вы ещё не подписаны на все комментарии к этой записи. <a href="$1">Подписаться</a>.</p><hr />',
+	'wikilog-do-unsubscribe' => '<p>Вы <b>подписаны</b> на все комментарии к этой записи. <a href="$1">Отписаться</a>.</p><hr />',
+	'wikilog-subscribed-title-yes' => 'Вы подписаны на комментарии',
+	'wikilog-subscribed-title-no' => 'Вы отписаны от комментариев',
+	'wikilog-subscribed-text-yes' => 'Теперь вы подписаны по e-mail на все комментарии к записи [[$1]].',
+	'wikilog-subscribed-text-no' => 'Теперь вы отписаны от комментариев к записи [[$1]], кроме ответов на лично ваши.',
+	'wikilog-subscribed-as-author' => '<p>Вы будете получать все комментарии к этой записи по e-mail, потому что вы её автор.</p><hr />',
+
 	'wikilog-feed-description' => 'Читать последние сообщения на этом канале.',
 	'wikilog-comment-feed-title1' => 'Комментарии от $2 (#$1)',
 	'wikilog-comment-feed-title2' => 'Комментарий от $2 к $3 (#$1)',
@@ -5002,7 +5021,7 @@ $messages['ru'] = array(
 
 	/* These messages are parsed inside the context of item page, so {{SUBPAGENAME}} refers to the item,
 	   and <a href=""> is a crunch to output links instead of just bold text. */
-	'wikilog-comment-email-subject' => '$2 - Новый комментарий к {{SUBPAGENAME}}',
+	'wikilog-comment-email-subject' => '[Wikilog] $2 - Новый комментарий к {{SUBPAGENAME}}',
 	'wikilog-comment-email-body' =>
 'Пользователь [[{{ns:User}}:$2|$2]] ответил на {{#if:$6|комментарий, оставленный
 [[{{ns:User}}:$6|$6]] к записи <html><a href="$3"></html>{{SUBPAGENAME}}<html></a></html>:
@@ -5021,7 +5040,8 @@ $messages['ru'] = array(
 
 * [[{{TALKPAGENAME}}#$4|Просмотреть полное обсуждение]] записи {{SUBPAGENAME}}.
 * <html><a href="$3"></html>Прочитать запись {{SUBPAGENAME}}<html></a></html>.
-* [[$1|Просмотреть ветвь обсуждения]], содержащую данный комментарий, с начала.',
+* [[$1|Ответить на этот комментарий]] и/или просмотреть ветвь обсуждения.',
+	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Отписаться</a> от комментариев к записи $1.</p>',
 
 	'wikilog-title-comments' => 'Комментарии — $1',
 	'wikilog-error-msg' => 'Викилог: $1',
@@ -5067,7 +5087,6 @@ $messages['ru'] = array(
 	'wikilog-show-drafts' => 'Черновики',
 	'wikilog-submit' => 'Отправить',
 	'wikilog-preview' => 'Предпросмотр',
-	'wikilog-subscribe' => 'Подписаться на комментарии к этой записи',
 	'wikilog-edit-lc' => 'править',
 	'wikilog-reply-lc' => 'ответить',
 	'wikilog-delete-lc' => 'удалить',

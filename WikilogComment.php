@@ -263,41 +263,81 @@ class WikilogComment
 			'',
 			'',
 		);
-		$to_ids = array_flip($this->mItem->mAuthors);
-		if ($this->mParentObj)
+		/* $to_ids = array( userid => TRUE|FALSE (can unsubscribe | cannot) ) */
+		$to_ids = array();
+		if ( $this->mParentObj )
 		{
-			$to_ids[$this->mParentObj->mUserID] = true;
+			/* Always notify parent comment author */
+			$to_ids[ $this->mParentObj->mUserID ] = false;
 			$args[4] = $this->mParentObj->mCommentTitle->getPrefixedText();
 			$args[5] = $this->mParentObj->mUserText;
 		}
-		/* Also select subscriptions to the post */
-		$dbr = wfGetDB(DB_SLAVE);
-		$result = $dbr->select('wikilog_subscriptions', 'ws_user', array('ws_page' => $this->mItem->getID(), 'ws_yes' => 1), __METHOD__);
-		while ($u = $dbr->fetchRow($result))
-			$to_ids[$u[0]] = true;
+		/* Notify users subscribed to the post */
+		$dbr = wfGetDB( DB_SLAVE );
+		$result = $dbr->select(
+			'wikilog_subscriptions',
+			'ws_user',
+			array('ws_page' => $this->mItem->getID(), 'ws_yes' => 1),
+			__METHOD__
+		);
+		while ( $u = $dbr->fetchRow( $result ) )
+			if ( !array_key_exists( $u[0], $to_ids ) )
+				$to_ids[ $u[0] ] = true;
+		/* Always notify post author(s), and they cannot unsubscribe */
+		foreach ( $this->mItem->mAuthors as $k => $v )
+			$to_ids[ $v ] = false;
 		$dbr->freeResult($result);
+		/* Build message subject, body and unsubscribe link */
 		$saveExpUrls = WikilogParser::expandLocalUrls();
-		$popt = new ParserOptions(User::newFromId($this->mUserID));
-		$subject = $wgParser->parse(wfMsgNoTrans('wikilog-comment-email-subject', $args),
-			$this->mItem->mTitle, $popt, false, false);
-		$subject = strip_tags($subject->getText());
-		$body = $wgParser->parse(wfMsgNoTrans('wikilog-comment-email-body', $args),
-			$this->mItem->mTitle, $popt, true, false);
+		$popt = new ParserOptions( User::newFromId( $this->mUserID ) );
+		$subject = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-subject', $args ),
+			$this->mItem->mTitle, $popt, false, false );
+		$subject = strip_tags( $subject->getText() );
+		$body = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-body', $args),
+			$this->mItem->mTitle, $popt, true, false );
 		$body = $body->getText();
 		WikilogParser::expandLocalUrls($saveExpUrls);
-		$to = array();
-		foreach($to_ids as $id => $true)
+		/* Unsubscribe link is appended to e-mails of users that can unsubscribe */
+		global $wgServer, $wgScript;
+		$unsubscribe = wfMsgNoTrans(
+			'wikilog-comment-email-unsubscribe',
+			$this->mItem->mTitle->getSubpageText(),
+			$wgServer.$wgScript.'?'.http_build_query( array(
+				'title' => $this->mItem->mTitle->getTalkPage()->getPrefixedText(),
+				'action' => 'wikilog',
+				'wlActionSubscribe' => 1,
+				'wl-subscribe' => 0,
+			) )
+		);
+		/* Build e-mail lists (with unsubscribe link, without unsubscribe link) */
+		$to_with = array();
+		$to_without = array();
+		foreach ( $to_ids as $id => $can_unsubcribe )
 		{
-			$email = new MailAddress(User::newFromId($id)->getEmail());
-			if($email)
-				$to[] = $email;
+			/* Do not send user his own comments */
+			if ( $id != $this->mUserID )
+			{
+				$email = new MailAddress( User::newFromId( $id )->getEmail() );
+				if ( $email )
+				{
+					if ( $can_unsubcribe )
+						$to_with[] = $email;
+					else
+						$to_without[] = $email;
+				}
+			}
 		}
-		$from = User::newFromId($this->mUserID);
-		if ($from && $from->getEmail())
-			$from = new MailAddress($from->getEmail(), $from->getRealName());
+		/* Build "From:" address */
+		$from = User::newFromId( $this->mUserID );
+		if ( $from && $from->getEmail() )
+			$from = new MailAddress( $from->getEmail(), $from->getRealName() );
 		else
-			$from = new MailAddress($wgPasswordSender, 'WikiAdmin');
-		UserMailer::send($to, $from, $subject, $body);
+			$from = new MailAddress( $wgPasswordSender, 'Wikilog' );
+		/* Send e-mails */
+		if ( $to_with )
+			UserMailer::send( $to_with, $from, $subject, $body . $unsubscribe );
+		if ( $to_without )
+			UserMailer::send( $to_without, $from, $subject, $body );
 	}
 
 	/**
