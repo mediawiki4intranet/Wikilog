@@ -145,13 +145,12 @@ class WikilogCommentsPage
 			// Set a more human-friendly title to the comments page.
 			// NOTE (MW1.16+): Must come after parent::view().
 			// Note: Sorry for the three-level cascade of wfMsg()'s...
-			$fullPageTitle = wfMsg( 'wikilog-title-item-full',
-				$this->mItem->mName,
-				$this->mWikilog->getPrefixedText()
-			);
-			$fullPageTitle = wfMsg( 'wikilog-title-comments', $fullPageTitle );
 			$wgOut->setPageTitle( wfMsg( 'wikilog-title-comments', $this->mItem ? $this->mItem->mName : $this->mWikilog->getPrefixedText() ) );
-			$wgOut->setHTMLTitle( wfMsg( 'pagetitle', $fullPageTitle ) );
+			if ( $this->mItem )
+				$wgOut->setHTMLTitle( wfMsg( 'wikilog-title-comments',
+					wfMsg( 'wikilog-title-item-full',
+						$this->mWikilog->getPrefixedText(), $this->mItem->mName
+					) ) );
 		}
 
 		# Add a backlink to the original article.
@@ -301,10 +300,10 @@ class WikilogCommentsPage
 	public function getSubscribeLink()
 	{
 		global $wgScript, $wgUser;
-		$isa = array_flip( $this->mItem->mAuthors );
-		if ( !$wgUser->getId() )
+		if ( !$wgUser->getId() || !$this->mItem || !$this->mItem->exists() )
 			return '';
-		elseif ( $isa[ $wgUser->getId() ] )
+		$isa = array_flip( $this->mItem->mAuthors );
+		if ( $isa[ $wgUser->getId() ] )
 			return wfMsgNoTrans( 'wikilog-subscribed-as-author' );
 		$sub = !$this->is_subscribed( $this->mItem->getId() );
 		return wfMsgNoTrans( $sub ? 'wikilog-do-subscribe' : 'wikilog-do-unsubscribe',

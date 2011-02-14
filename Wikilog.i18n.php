@@ -5044,6 +5044,7 @@ $messages['ru'] = array(
 	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Отписаться</a> от комментариев к записи $1.</p>',
 
 	'wikilog-title-comments' => 'Комментарии — $1',
+	'wikilog-title-item-full' => '$1 — $2',
 	'wikilog-error-msg' => 'Викилог: $1',
 	'wikilog-error-title' => 'Ошибка викилога',
 	'wikilog-invalid-param' => 'Неверный параметр: $1.',
