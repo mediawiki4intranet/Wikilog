@@ -267,6 +267,8 @@ table.wl-calendar {
 	margin: 4px 0 0 0;
 }
 
+body.skin-vector #p-wikilogcalendar { font-size: 70%; }
+
 table.wl-archives td, table.wl-archives th { padding: 2px 5px; }
 table.wl-archives th { white-space: nowrap; }
 .TablePager_col_wlp_talk_updated, .TablePager_col_wlp_pubdate { font-family: monospace; font-size: 90%; white-space: nowrap; text-align: center; }

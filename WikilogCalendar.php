@@ -112,18 +112,45 @@ class WikilogCalendar
     static function sidebarCalendar($pager)
     {
         global $wgRequest, $wgWikilogNumArticles;
+        $dbr = wfGetDB(DB_SLAVE);
+        // Make limit and offset work, but only in the terms of
+        // selecting displayed MONTHS, not DATES. I.e. if there
+        // are posts selected from 2011-01-15 to 2011-02-15,
+        // make calendar for full january and february months,
+        // not for the first half of february and second of january
         list($limit) = $wgRequest->getLimitOffset($wgWikilogNumArticles, '');
         $offset = $wgRequest->getVal('offset');
         $dir = $wgRequest->getVal('dir') == 'prev';
-        $dbr = wfGetDB(DB_SLAVE);
+        // First limit is taken from the query
+        $firstOffset = substr($offset, 0, -8); // allow 5-digit year O_O
+        $firstOffset .= ($dir ? '01000000' : '31240000');
+        // The second limit needs to be selected from the DB
         $sql = $pager->mQuery->selectSQLText($dbr,
-            array(), 'wikilog_posts.*',
+            array(), 'wlp_pubdate',
             $offset ? array('wlp_pubdate' . ($dir ? '>' : '<') . $dbr->addQuotes($offset)) : array(),
-            __FUNCTION__,
+            __METHOD__,
             array('LIMIT' => $limit, 'ORDER BY' => 'wlp_pubdate' . ($dir ? ' ASC' : ' DESC'))
         );
+        $sql = "SELECT ".($dir ? 'MAX' : 'MIN')."(wlp_pubdate) o FROM ($sql) derived";
+        $res = $dbr->query($sql, __METHOD__);
+        $row = $res->fetchObject();
+        if ($row)
+        {
+            $otherOffset = substr($row->o, 0, -8);
+            $otherOffset .= ($dir ? '31240000' : '01000000');
+        }
+        // Then select posts grouped by date
+        $where = array();
+        if ($firstOffset)
+            $where[] = 'wlp_pubdate' . ($dir ? '>' : '<') . $dbr->addQuotes($firstOffset);
+        if ($otherOffset)
+            $where[] = 'wlp_pubdate' . ($dir ? '<' : '>') . $dbr->addQuotes($otherOffset);
+        $sql = $pager->mQuery->selectSQLText($dbr,
+            array(), 'wikilog_posts.*', $where, __METHOD__,
+            array('ORDER BY' => 'wlp_pubdate' . ($dir ? ' ASC' : ' DESC'))
+        );
         $sql = "SELECT wlp_page, wlp_pubdate, COUNT(wlp_page) numposts FROM ($sql) derived GROUP BY SUBSTR(wlp_pubdate,1,8)";
-        /* build date hash */
+        // Build hash table based on date
         $sp = Title::newFromText('Special:Wikilog');
         $dates = array();
         $res = $dbr->query($sql, __FUNCTION__);
@@ -144,10 +171,10 @@ class WikilogCalendar
                 /* link to archive page if there's more than one post for that date */
                 $dates[$date] = array(
                     'link'  => $sp->getLocalUrl(array(
-                        view  => 'archives',
-                        year  => substr($date, 0, 4),
-                        month => substr($date, 4, 2),
-                        day   => substr($date, 6, 2),
+                        'view'  => 'archives',
+                        'year'  => substr($date, 0, -4),
+                        'month' => substr($date, 4, 2),
+                        'day'   => substr($date, 6, 2),
                     )),
                     'title' => wfMsgExt('wikilog-calendar-archive-link-title', 'parseinline',
                         $sp->getPrefixedText(),

@@ -272,7 +272,7 @@ class WikilogMainPage
 			foreach ( $r as $obj )
 			{
 				$t = Title::newFromID( $obj->page_id );
-				if ( $t->userCanEdit() )
+				if ( $t->userCan( 'edit' ) )
 					$opts[] = $t->getPrefixedText();
 			}
 			if ( !$opts )
