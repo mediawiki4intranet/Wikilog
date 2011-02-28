@@ -427,15 +427,15 @@ class WikilogArchivesPager
 		return 'wl-archives TablePager';
 	}
 
+	static $sortableFields = array(
+		'wlp_pubdate',
+		'wlp_updated',
+		'wlw_title',
+		'wlp_title',
+		'wlp_talk_updated',
+	);
 	function isFieldSortable( $field ) {
-		static $sortableFields = array(
-			'wlp_pubdate',
-			'wlp_updated',
-			'wlw_title',
-			'wlp_title',
-			'wlp_talk_updated',
-		);
-		return in_array( $field, $sortableFields );
+		return in_array( $field, self::$sortableFields );
 	}
 
 	function getNavigationBar() {

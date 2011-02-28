@@ -121,6 +121,11 @@ class WikilogCalendar
         list($limit) = $wgRequest->getLimitOffset($wgWikilogNumArticles, '');
         $offset = $wgRequest->getVal('offset');
         $dir = $wgRequest->getVal('dir') == 'prev';
+        // FIXME this is a problem: when sorted by a different field,
+        // month limits may be very large... So, we are always sorting on wlp_pubdate.
+        //$sort = $wgRequest->getVal('sort');
+        //if (!in_array($sort, WikilogArchivesPager::$sortableFields))
+        $sort = 'wlp_pubdate';
         // First limit is taken from the query
         $firstOffset = substr($offset, 0, -8); // allow 5-digit year O_O
         $firstOffset .= ($dir ? '01000000' : '31240000');
@@ -129,7 +134,7 @@ class WikilogCalendar
             array(), 'wlp_pubdate',
             $offset ? array('wlp_pubdate' . ($dir ? '>' : '<') . $dbr->addQuotes($offset)) : array(),
             __METHOD__,
-            array('LIMIT' => $limit, 'ORDER BY' => 'wlp_pubdate' . ($dir ? ' ASC' : ' DESC'))
+            array('LIMIT' => $limit, 'ORDER BY' => $sort . ($dir ? ' ASC' : ' DESC'))
         );
         $sql = "SELECT ".($dir ? 'MAX' : 'MIN')."(wlp_pubdate) o FROM ($sql) derived";
         $res = $dbr->query($sql, __METHOD__);
