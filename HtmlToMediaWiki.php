@@ -6,13 +6,24 @@
 
 class HtmlToMediaWiki
 {
+    /* Tag translation rules:
+       empty        : true to copy empty tag as-is
+       html         : true to copy tag as HTML code (<html>...</html>)
+       prefix       : tag is prepended with this text, \1 removes all whitespace before itself
+       notrim       : true to not trim tag contents
+       pre          : true to copy tag contents as-is
+       attr         : hash of xml attributes (name => 1) allowed to copy as-is (has effect only when replacebegin is clear)
+       replacebegin : start tag is replaced with this text, attribute substitutions are allowed (like '$href')
+       replaceend   : end tag is replaced with this text
+    */
+
     static $tags = array(
         'br' => array('empty' => 1, 'attr' => array('style' => 1, 'clear' => 1, 'class' => 1)),
         'pre' => array('prefix' => "\1\n", 'notrim' => 1, 'pre' => 1, 'attr' => array('style' => 1, 'class' => 1)),
         'ul' => array('replacebegin' => "\1\n"),
         'ol' => array('replacebegin' => "\1\n"),
-        'li' => array('replacebegin' => ""),
-        'p' => array('replacebegin' => "\1\n\n", 'attr' => array('style' => 1, 'class' => 1)),
+        'li' => array('replacebegin' => "", 'disallow' => array('p' => 1, 'h1' => 1, 'h2' => 2, 'h3' => 3, 'h4' => 4, 'h5' => 5, 'h6' => 6)),
+        'p' => array('replacebegin' => "\1\n\n"),
         'a' => array('replacebegin' => '[$href ', 'replaceend' => ']'),
         'b' => array('replacebegin' => "'''", 'replaceend' => "'''"),
         'i' => array('replacebegin' => "''", 'replaceend' => "''"),
@@ -68,7 +79,7 @@ class HtmlToMediaWiki
         return $xml;
     }
 
-    static function dom2wiki($e)
+    static function dom2wiki($e, $disallow = array())
     {
         if ($e->nodeType == XML_TEXT_NODE)
         {
@@ -82,7 +93,9 @@ class HtmlToMediaWiki
             return ($t['prefix'] !== NULL ? $t['prefix'] : '').'<html>'.self::domhtml($e).'</html>';
         if (!$e->childNodes->length)
         {
-            if ($s = $t['replaceempty'])
+            if ($t['disallow'])
+                return '';
+            elseif ($s = $t['replaceempty'])
                 return self::domattr($e, $s);
             elseif ($t['empty'])
                 return self::domnodeopen($e) . ' />';
@@ -96,8 +109,11 @@ class HtmlToMediaWiki
             self::$tags['li']['replacebegin'] = "\n".trim($old_r).($e->nodeName == 'ol' ? '#' : '*').' ';
         }
         if (!$t['pre'])
+        {
+            $disallow_child = $t['disallow'] ? $t['disallow'] : array();
             foreach ($e->childNodes as $n)
-                $s .= self::dom2wiki($n);
+                $s .= self::dom2wiki($n, $disallow_child);
+        }
         else
             $s = $e->nodeValue;
         if ($old_r !== NULL)
@@ -108,7 +124,7 @@ class HtmlToMediaWiki
             $s = trim($s);
         if ($s == '' && !$t['empty'])
             return '';
-        if (!$t) {}
+        if (!$t || $disallow[$e->nodeName]) {}
         elseif (!array_key_exists('replacebegin', $t))
         {
             $s = self::domnodeopen($e).'>'.$s.'</'.$e->nodeName.'>';
