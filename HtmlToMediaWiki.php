@@ -15,6 +15,10 @@ class HtmlToMediaWiki
        attr         : hash of xml attributes (name => 1) allowed to copy as-is (has effect only when replacebegin is clear)
        replacebegin : start tag is replaced with this text, attribute substitutions are allowed (like '$href')
        replaceend   : end tag is replaced with this text
+
+       Additional rules:
+       <br /><br /> -> \n\n
+       <li>'s replacebegin is changed on each entry/exit to/from <ol> and <ul>
     */
 
     static $tags = array(
@@ -25,8 +29,8 @@ class HtmlToMediaWiki
         'li' => array('replacebegin' => "", 'disallow' => array('p' => 1, 'h1' => 1, 'h2' => 2, 'h3' => 3, 'h4' => 4, 'h5' => 5, 'h6' => 6)),
         'p' => array('replacebegin' => "\1\n\n"),
         'a' => array('replacebegin' => '[$href ', 'replaceend' => ']'),
-        'b' => array('replacebegin' => "'''", 'replaceend' => "'''"),
-        'i' => array('replacebegin' => "''", 'replaceend' => "''"),
+        'b' => array('replacebegin' => "\1'''", 'replaceend' => "'''"),
+        'i' => array('replacebegin' => "\1''", 'replaceend' => "''"),
         'img' => array('html' => 1),
         'object' => array('prefix' => "\1\n\n", 'html' => 1),
         'iframe' => array('prefix' => "\1\n\n", 'html' => 1),
@@ -113,6 +117,7 @@ class HtmlToMediaWiki
             $disallow_child = $t['disallow'] ? $t['disallow'] : array();
             foreach ($e->childNodes as $n)
                 $s .= self::dom2wiki($n, $disallow_child);
+            $s = str_replace('<br /><br />', "\n\n", $s);
         }
         else
             $s = $e->nodeValue;
@@ -141,6 +146,7 @@ class HtmlToMediaWiki
         $html = preg_replace_callback('#(<pre[^<>]*>)(.*?)(</pre>)#is', create_function('$m', 'return $m[1].str_replace(array("<", ">"), array("&lt;", "&gt;"), $m[2]).$m[3];'), $html);
         $dom = self::loadDOM($html);
         $wiki = self::dom2wiki($dom->documentElement);
+        $wiki = preg_replace('#\'\x01\'#', '\' \'', $wiki);
         $wiki = preg_replace('#\s*\x01#', '', $wiki);
         $wiki = trim($wiki);
         return $wiki;
