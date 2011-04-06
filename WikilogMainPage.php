@@ -16,12 +16,13 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  */
 
 /**
- * @addtogroup Extensions
+ * @file
+ * @ingroup Extensions
  * @author Juliano F. Ravasi < dev juliano info >
  */
 
@@ -45,6 +46,7 @@ class WikilogMainPage
 	public    $mWikilogIcon       = false;
 	public    $mWikilogLogo       = false;
 	public    $mWikilogAuthors    = false;
+	public    $mWikilogUpdated    = false;
 	public    $mWikilogPubdate    = false;
 
 	/**
@@ -52,7 +54,6 @@ class WikilogMainPage
 	 */
 	public function __construct( &$title, &$wi ) {
 		parent::__construct( $title );
-		wfLoadExtensionMessages( 'Wikilog' );
 	}
 
 	/**
@@ -178,7 +179,7 @@ class WikilogMainPage
 			);
 		}
 		$s .= Xml::tags( 'div', array( 'class' => 'wl-title' ),
-			$skin->makeKnownLinkObj( $this->mTitle ) );
+			$skin->link( $this->mTitle, null, array(), array(), array( 'known', 'noclasses' ) ) );
 
 		$st =& $this->mWikilogSubtitle;
 		if ( is_array( $st ) ) {
@@ -227,14 +228,11 @@ class WikilogMainPage
 		global $wgWikilogFeedClasses;
 
 		// Uses messages 'wikilog-post-count-published', 'wikilog-post-count-drafts', 'wikilog-post-count-all'
-		$s = $skin->makeKnownLinkObj(
-			$this->mTitle,
-			wfMsgExt(
-				"wikilog-post-count-{$type}",
-				array( 'parsemag' ),
-				$num
-			),
-			"view=archives&show={$type}"
+		$s = $skin->link( $this->mTitle,
+			wfMsgExt( "wikilog-post-count-{$type}", array( 'parsemag' ), $num ),
+			array(),
+			array( 'view' => "archives", 'show' => $type ),
+			array( 'knwon', 'noclasses' )
 		);
 		if ( !empty( $wgWikilogFeedClasses ) ) {
 			$f = array();
@@ -243,7 +241,7 @@ class WikilogMainPage
 					wfMsg( "feed-{$format}" ),
 					array( 'class' => "feedlink", 'type' => "application/{$format}+xml" ),
 					array( 'view' => "archives", 'show' => $type, 'feed' => $format ),
-					'known'
+					array( 'known', 'noclasses' )
 				);
 			}
 			$s .= ' (' . implode( ', ', $f ) . ')';
@@ -418,7 +416,7 @@ class WikilogMainPage
 	 */
 	private function loadWikilogData() {
 		if ( !$this->mWikilogDataLoaded ) {
-			$dbr = $this->getDB();
+			$dbr = wfGetDB( DB_SLAVE );
 			$data = $this->getWikilogDataFromId( $dbr, $this->getId() );
 			if ( $data ) {
 				$this->mWikilogSubtitle = unserialize( $data->wlw_subtitle );

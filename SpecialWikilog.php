@@ -16,12 +16,13 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  */
 
 /**
- * @addtogroup Extensions
+ * @file
+ * @ingroup Extensions
  * @author Juliano F. Ravasi < dev juliano info >
  */
 
@@ -50,7 +51,6 @@ class SpecialWikilog
 	 */
 	function __construct( ) {
 		parent::__construct( 'Wikilog' );
-		wfLoadExtensionMessages( 'Wikilog' );
 	}
 
 	/**
@@ -124,7 +124,7 @@ class SpecialWikilog
 		global $wgWikilogDefaultNotCategory;
 
 		$opts = $this->getDefaultOptions();
-		$opts->fetchValuesFromRequest( $wgRequest, array( 'show', 'limit' ) );
+		$opts->fetchValuesFromRequest( $wgRequest );
 		if ( is_null( $wgRequest->getVal('notcategory') ) )
 			$opts['notcategory'] = $wgWikilogDefaultNotCategory;
 		$opts->validateIntBounds( 'limit', 0, $wgFeedLimit );
@@ -218,8 +218,8 @@ class SpecialWikilog
 
 		# Add feed links.
 		$wgOut->setSyndicated();
-		if ( isset( $qarr['show'] ) ) {
 			$altquery = wfArrayToCGI( array_intersect_key( $qarr, WikilogItemFeed::$paramWhitelist ) );
+		if ( $altquery ) {
 			$wgOut->setFeedAppendQuery( $altquery );
 		}
 
@@ -560,10 +560,21 @@ class SpecialWikilog
 	 * @return Wikilog query object.
 	 */
 	public static function getQuery( $opts ) {
+		global $wgWikilogNamespaces;
+
 		$query = new WikilogItemQuery();
 		$query->setPubStatus( $opts['show'] );
-		if ( ( $t = $opts['wikilog'] ) ) {
-			$query->setWikilogTitle( Title::newFromText( $t ) );
+		if ( $opts['wikilog'] ) {
+			$t = Title::newFromText( $opts['wikilog'] );
+			if ( $t && in_array( $t->getNamespace(), $wgWikilogNamespaces ) ) {
+				if ( $t->getText() == '*' ) {
+					$query->setNamespace( $t->getNamespace() );
+				} else {
+					$query->setWikilogTitle( $t );
+				}
+			} else {
+				$query->setEmpty();
+			}
 		}
 		if ( ( $t = $opts['category'] ) ) {
 			$query->setCategory( $t );

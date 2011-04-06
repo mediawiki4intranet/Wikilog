@@ -16,17 +16,24 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  */
 
 /**
- * @addtogroup Extensions
+ * @file
+ * @ingroup Extensions
  * @author Juliano F. Ravasi < dev juliano info >
  */
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
+
+# NOTE (Mw1.16- COMPAT): GAID_FOR_UPDATE removed and replaced by
+# Title::GAID_FOR_UPDATE in Mw1.17. Remove this define and replace its
+# occurrence WikilogCommentsPage::setCommentApproval() in Wl1.3.
+if ( !defined( 'GAID_FOR_UPDATE' ) )
+	define( 'GAID_FOR_UPDATE', Title::GAID_FOR_UPDATE );
 
 /**
  * Wikilog comments namespace handler class.
@@ -71,7 +78,6 @@ class WikilogCommentsPage
 		global $wgUser, $wgRequest;
 
 		parent::__construct( $title );
-		wfLoadExtensionMessages( 'Wikilog' );
 
 		# Check if user can post.
 		$this->mUserCanPost = $wgUser->isAllowed( 'wl-postcomment' ) ||
@@ -374,8 +380,10 @@ class WikilogCommentsPage
 			);
 		} else {
 			$loginTitle = SpecialPage::getTitleFor( 'Userlogin' );
-			$loginLink = $this->mSkin->makeKnownLinkObj( $loginTitle,
-				wfMsgHtml( 'loginreqlink' ), 'returnto=' . $wgTitle->getPrefixedUrl() );
+			$loginLink = $this->mSkin->link( $loginTitle,
+				wfMsgHtml( 'loginreqlink' ), array(),
+				array( 'returnto' => $wgTitle->getPrefixedUrl() )
+			);
 			$message = wfMsg( 'wikilog-posting-anonymously', $loginLink );
 			$fields[] = array(
 				Xml::label( wfMsg( 'wikilog-form-name' ), 'wl-name' ),
@@ -410,7 +418,7 @@ class WikilogCommentsPage
 		}
 
 		$fields[] = array( '',
-			Xml::submitbutton( wfMsg( 'wikilog-submit' ), array( 'name' => 'wlActionCommentSubmit' ) ) . '&nbsp;' .
+			Xml::submitbutton( wfMsg( 'wikilog-submit' ), array( 'name' => 'wlActionCommentSubmit' ) ) . WL_NBSP .
 			Xml::submitbutton( wfMsg( 'wikilog-preview' ), array( 'name' => 'wlActionCommentPreview' ) ) .
 			$subscribe_html
 		);
@@ -431,6 +439,10 @@ class WikilogCommentsPage
 			array( 'id' => 'wl-comment-form' ) ) . "\n";
 	}
 
+	/**
+	 * @todo (In Wikilog 1.3.x) Replace GAID_FOR_UPDATE with
+	 *    Title::GAID_FOR_UPDATE.
+	 */
 	protected function setCommentApproval( $comment, $approval ) {
 		global $wgOut, $wgUser;
 

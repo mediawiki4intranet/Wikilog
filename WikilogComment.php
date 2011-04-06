@@ -16,17 +16,24 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  */
 
 /**
- * @addtogroup Extensions
+ * @file
+ * @ingroup Extensions
  * @author Juliano F. Ravasi < dev juliano info >
  */
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
+
+# NOTE (Mw1.16- COMPAT): GAID_FOR_UPDATE removed and replaced by
+# Title::GAID_FOR_UPDATE in Mw1.17. Remove this define and replace its
+# occurrence WikilogComment::getCommentArticleTitle() in Wl1.3.
+if ( !defined( 'GAID_FOR_UPDATE' ) )
+	define( 'GAID_FOR_UPDATE', Title::GAID_FOR_UPDATE );
 
 /**
  * Wikilog article comment database entry.
@@ -360,6 +367,8 @@ class WikilogComment
 
 	/**
 	 * Returns comment article title.
+	 * @todo (In Wikilog 1.3.x) Replace GAID_FOR_UPDATE with
+	 *    Title::GAID_FOR_UPDATE.
 	 */
 	public function getCommentArticleTitle() {
 		if ( $this->mCommentTitle ) {
@@ -595,9 +604,8 @@ class WikilogComment
 		if ( is_array( $thread ) ) {
 			$thread = implode( '/', $thread );
 		}
-		$thread = $dbr->escapeLike( $thread );
 		return self::fetchFromConds( $dbr,
-			array( 'wlc_post' => $itemid, "wlc_thread LIKE '{$thread}/%'" ),
+			array( 'wlc_post' => $itemid, "wlc_thread " . $dbr->buildLike( $thread . '/', $dbr->anyString() ) ),
 			array( 'ORDER BY' => 'wlc_thread, wlc_id' )
 		);
 	}
@@ -847,9 +855,8 @@ class WikilogCommentFormatter
 			);
 		}
 
-		$date = $wgLang->date( $comment->mTimestamp, true );
-		$time = $wgLang->time( $comment->mTimestamp, true );
-		$permalink = $this->getCommentPermalink( $comment, $date, $time );
+		list( $date, $time, $tz ) = WikilogUtils::getLocalDateTime( $comment->mTimestamp );
+		$permalink = $this->getCommentPermalink( $comment, $date, $time, $tz );
 
 		$extra = array();
 		if ( $this->mShowItem && $comment->mItem ) {
@@ -863,11 +870,9 @@ class WikilogCommentFormatter
 		{
 			if ( $comment->mUpdated != $comment->mTimestamp ) {
 				# Comment was edited.
+				list( $updDate, $updTime, $updTz ) = WikilogUtils::getLocalDateTime( $comment->mUpdated );
 				$extra[] = $this->mSkin->link( $comment->mCommentTitle,
-					wfMsgForContent( 'wikilog-comment-note-edited',
-						$wgLang->date( $comment->mUpdated, true ),
-						$wgLang->time( $comment->mUpdated, true )
-					),
+					wfMsgForContent( 'wikilog-comment-note-edited', $updDate, $updTime, $updTz ),
 					array( 'title' => wfMsg( 'wikilog-comment-history' ) ),
 					array( 'action' => 'history' ), 'known'
 				);
@@ -963,9 +968,10 @@ class WikilogCommentFormatter
 	 * @param $comment Comment.
 	 * @param $date Comment date.
 	 * @param $time Comment time.
+	 * @param $tz Comment timezone information.
 	 * @return HTML fragment.
 	 */
-	protected function getCommentPermalink( $comment, $date, $time ) {
+	protected function getCommentPermalink( $comment, $date, $time, $tz ) {
 		if ( $comment->mID ) {
 			if ( $this->mPermalinkTitle ) {
 				$title = $this->mPermalinkTitle;
@@ -974,11 +980,11 @@ class WikilogCommentFormatter
 				$title = $comment->mCommentTitle;
 			}
 			return $this->mSkin->link( $title,
-				wfMsgExt( 'wikilog-comment-permalink', array( 'parseinline' ), $date, $time, $comment->mVisited ? 1 : NULL ),
+				wfMsgExt( 'wikilog-comment-permalink', array( 'parseinline' ), $date, $time, $tz, $comment->mVisited ? 1 : NULL ),
 				array( 'title' => wfMsg( 'permalink' ) )
 			);
 		} else {
-			return wfMsg( 'wikilog-comment-permalink', $date, $time );
+			return wfMsg( 'wikilog-comment-permalink', $date, $time, $tz );
 		}
 	}
 

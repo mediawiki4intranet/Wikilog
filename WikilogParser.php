@@ -16,12 +16,13 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  */
 
 /**
- * @addtogroup Extensions
+ * @file
+ * @ingroup Extensions
  * @author Juliano F. Ravasi < dev juliano info >
  */
 
@@ -216,7 +217,6 @@ class WikilogParser
 	 */
 	public static function settings( &$parser /* ... */ ) {
 		global $wgOut;
-		wfLoadExtensionMessages( 'Wikilog' );
 		self::checkNamespace( $parser );
 
 		$mwIcon     =& MagicWord::get( 'wlk-icon' );
@@ -257,7 +257,6 @@ class WikilogParser
 	 * {{wl-publish:...}} parser function handler.
 	 */
 	public static function publish( &$parser, $pubdate /*, $author... */ ) {
-		wfLoadExtensionMessages( 'Wikilog' );
 		self::checkNamespace( $parser );
 
 		$parser->mExtWikilog->mPublish = true;
@@ -290,7 +289,6 @@ class WikilogParser
 	 * {{wl-author:...}} parser function handler.
 	 */
 	public static function author( &$parser /*, $author... */ ) {
-		wfLoadExtensionMessages( 'Wikilog' );
 		self::checkNamespace( $parser );
 
 		$args = array_slice( func_get_args(), 1 );
@@ -305,7 +303,6 @@ class WikilogParser
 	 * {{wl-tags:...}} parser function handler.
 	 */
 	public static function tags( &$parser /*, $tag... */ ) {
-		wfLoadExtensionMessages( 'Wikilog' );
 		self::checkNamespace( $parser );
 
 		$args = array_slice( func_get_args(), 1 );
@@ -621,11 +618,20 @@ class WikilogParserOutput
  * the cache separately. This derived class from ParserCache overloads the
  * getKey() function in order to provide a specific namespace for this
  * purpose.
+ *
+ * @deprecated In MediaWiki 1.17, in favor of $parserOpt->addExtraKey().
+ * @note MediaWiki 1.17 completely breaks this hack (in r70783). getKey() has
+ *   different parameters and very different implementation. Current version
+ *   is compatible with 1.16 and should only be used in that version, but may
+ *   issue warnings when used in 1.17. In 1.17, this class should never be
+ *   used due to the branch in WikilogUtils::parsedArticle(). It will be
+ *   removed anyways, as soon as we drop support for 1.16.
+ * @todo (In Wikilog 1.3.x) Remove this class (see also WikilogUtils::parsedArticle()).
  */
 class WikilogParserCache
 	extends ParserCache
 {
-	public static function &singleton() {
+	public static function singleton() {
 		static $instance;
 		if ( !isset( $instance ) ) {
 			global $parserMemc;
@@ -634,7 +640,7 @@ class WikilogParserCache
 		return $instance;
 	}
 
-	public function getKey( &$article, $popts ) {
+	public function getKey( $article, $popts ) {
 		if ( $popts instanceof User )	// API change in MediaWiki 1.15.
 			$popts = ParserOptions::newFromUser( $popts );
 

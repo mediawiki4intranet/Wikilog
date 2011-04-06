@@ -16,12 +16,13 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  */
 
 /**
- * @addtogroup Extensions
+ * @file
+ * @ingroup Extensions
  * @author Juliano F. Ravasi < dev juliano info >
  */
 
@@ -34,11 +35,20 @@ if ( !defined( 'MEDIAWIKI' ) )
 $wgExtensionCredits['specialpage'][] = array(
 	'path'           => __FILE__,
 	'name'           => 'Wikilog',
-	'version'        => '1.0.99.1dev',
+	'version'        => '1.1.99.1dev',
 	'author'         => 'Juliano F. Ravasi',
 	'descriptionmsg' => 'wikilog-desc',
 	'url'            => 'http://www.mediawiki.org/wiki/Extension:Wikilog',
 );
+
+/*
+ * Constant definitions.
+ */
+// For source-code readability. This ought to be defined by MediaWiki (and
+// there is actually such a definition in DifferenceEngine.php, but it is
+// not global). So, it is easier to have our own until MediaWiki provides
+// one globally. It also allows us to keep compatibility.
+define( 'WL_NBSP', '&#160;' );
 
 /*
  * Dependencies.
@@ -127,6 +137,7 @@ $wgHooks['BeforePageDisplay'][] = 'Wikilog::BeforePageDisplay';
 $wgHooks['LinkBegin'][] = 'Wikilog::LinkBegin';
 $wgHooks['SkinTemplateTabAction'][] = 'Wikilog::SkinTemplateTabAction';
 $wgHooks['SkinTemplateTabs'][] = 'Wikilog::SkinTemplateTabs';
+$wgHooks['SkinTemplateNavigation'][] = 'Wikilog::SkinTemplateNavigation';
 
 // Calendar
 $wgEnableSidebarCache = false;
@@ -156,12 +167,6 @@ $wgHooks['ParserAfterTidy'][] = 'WikilogParser::AfterTidy';
 $wgHooks['InternalParseBeforeLinks'][] = 'WikilogParser::InternalParseBeforeLinks';
 $wgHooks['GetLocalURL'][] = 'WikilogParser::GetLocalURL';
 $wgHooks['GetFullURL'][] = 'WikilogParser::GetFullURL';
-
-if ( !defined( 'MW_SUPPORTS_LOCALISATIONCACHE' ) ) {
-	/* pre Mw1.16 compatibility */
-	$wgHooks['LanguageGetMagic'][] = 'WikilogHooks::LanguageGetMagic';
-	$wgHooks['LanguageGetSpecialPageAliases'][] = 'WikilogHooks::LanguageGetSpecialPageAliases';
-}
 
 /*
  * Added rights.
@@ -358,44 +363,66 @@ class Wikilog
 	 * Suppresses the "add section" tab in comments pages.
 	 */
 	static function SkinTemplateTabs( $skin, &$contentActions ) {
-		global $wgRequest, $wgWikilogEnableComments;
-
-		$wi = self::getWikilogInfo( $skin->mTitle );
+		$wi = self::getWikilogInfo( $skin->getTitle() );
 		if ( $wi ) {
-			$action = $wgRequest->getText( 'action' );
-			if ( $wi->isMain() && $skin->mTitle->quickUserCan( 'edit' ) ) {
-				$contentActions['wikilog'] = array(
-					'class' => ( $action == 'wikilog' ) ? 'selected' : false,
-					'text' => wfMsg( 'wikilog-tab' ),
-					'href' => $skin->mTitle->getSubjectPage()->getLocalUrl( 'action=wikilog' )
-				);
-			}
-			if ( $wgWikilogEnableComments && $wi->isTalk() ) {
-				if ( isset( $contentActions['addsection'] ) ) {
-					unset( $contentActions['addsection'] );
-				}
-			}
+			self::skinConfigViewsLinks( $wi, $skin, $contentActions );
 		}
 		return true;
 	}
 
-    /**
-     * SkinBuildSidebar hook handler function.
-     * Adds support for "* wikilogcalendar" on MediaWiki:Sidebar
-     */
-    static function SkinBuildSidebar($skin, &$bar)
-    {
-        global $wgTitle, $wgRequest, $wgWikilogNumArticles;
-        if (array_key_exists('wikilogcalendar', $bar))
-        {
-            global $wlCalPager;
-            if (!$wlCalPager)
-                unset($bar['wikilogcalendar']);
-            else
-                $bar['wikilogcalendar'] = WikilogCalendar::sidebarCalendar($wlCalPager);
-        }
-        return true;
-    }
+	/**
+	 * SkinTemplateNavigation hook handler function.
+	 * Adds a wikilog action to articles in Wikilog namespaces.
+	 * This is used with newer skins, like Vector.
+	 */
+	static function SkinTemplateNavigation( $skin, &$links ) {
+		$wi = self::getWikilogInfo( $skin->getTitle() );
+		if ( $wi ) {
+			self::skinConfigViewsLinks( $wi, $skin, $links['views'] );
+		}
+		return true;
+	}
+
+	/**
+	 * Configure wikilog views links.
+	 * Helper function for SkinTemplateTabs and SkinTemplateNavigation hooks
+	 * to configure views links in wikilog pages.
+	 */
+	private static function skinConfigViewsLinks( WikilogInfo &$wi, $skin, &$views ) {
+		global $wgRequest, $wgWikilogEnableComments;
+
+		$action = $wgRequest->getText( 'action' );
+		if ( $wi->isMain() && $skin->getTitle()->quickUserCan( 'edit' ) ) {
+			$views['wikilog'] = array(
+				'class' => ( $action == 'wikilog' ) ? 'selected' : false,
+				'text' => wfMsg( 'wikilog-tab' ),
+				'href' => $skin->getTitle()->getLocalUrl( 'action=wikilog' )
+			);
+		}
+		if ( $wgWikilogEnableComments && $wi->isTalk() ) {
+			if ( isset( $views['addsection'] ) ) {
+				unset( $views['addsection'] );
+			}
+		}
+	}
+
+	/**
+	 * SkinBuildSidebar hook handler function.
+	 * Adds support for "* wikilogcalendar" on MediaWiki:Sidebar
+	 */
+	static function SkinBuildSidebar($skin, &$bar)
+	{
+		global $wgTitle, $wgRequest, $wgWikilogNumArticles;
+		if (array_key_exists('wikilogcalendar', $bar))
+		{
+			global $wlCalPager;
+			if (!$wlCalPager)
+				unset($bar['wikilogcalendar']);
+			else
+				$bar['wikilogcalendar'] = WikilogCalendar::sidebarCalendar($wlCalPager);
+		}
+		return true;
+	}
 
 	# ##
 	# #  Other global wikilog functions.
