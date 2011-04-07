@@ -50,6 +50,7 @@ class WikilogItem
 	public    $mTags        = array();	///< Array of tags.
 	public    $mNumComments = null;		///< Cached number of comments.
 	public    $mVisited     = null;		///< Is post already visited by current user?
+	public    $mTalkUpdated = null;		///< Maximum of post and its talk update date.
 
 	/**
 	 * Constructor.
@@ -93,6 +94,13 @@ class WikilogItem
 	}
 
 	/**
+	 * Returns the last update date of the article or its talk.
+	 */
+	public function getTalkUpdatedDate() {
+		return $this->mTalkUpdated;
+	}
+
+	/**
 	 * Returns the number of comments in the article.
 	 */
 	public function getNumComments() {
@@ -114,6 +122,7 @@ class WikilogItem
 				'wlp_title'   => $this->mName,
 				'wlp_publish' => $this->mPublish,
 				'wlp_pubdate' => $this->mPubDate ? $dbw->timestamp( $this->mPubDate ) : '',
+				'wlp_talk_updated' => $this->mTalkUpdated ? $dbw->timestamp( $this->mTalkUpdated ) : '', //??
 				'wlp_updated' => $this->mUpdated ? $dbw->timestamp( $this->mUpdated ) : '',
 				'wlp_authors' => serialize( $this->mAuthors ),
 				'wlp_tags'    => serialize( $this->mTags ),
@@ -148,7 +157,7 @@ class WikilogItem
 
 			$count = $row[0];
 			$talk_updated = $row[1];
-			if ( !$talk_updated )
+			if ( !$talk_updated || $this->getPublishDate() > $talk_updated )
 				$talk_updated = $this->getPublishDate();
 			$talk_updated = wfTimestamp( TS_MW, $talk_updated );
 
@@ -250,6 +259,7 @@ class WikilogItem
 		$item->mPublish     = intval( $row->wlp_publish );
 		$item->mPubDate     = $row->wlp_pubdate ? wfTimestamp( TS_MW, $row->wlp_pubdate ) : null;
 		$item->mUpdated     = $row->wlp_updated ? wfTimestamp( TS_MW, $row->wlp_updated ) : null;
+		$item->mTalkUpdated = $row->wlp_talk_updated ? wfTimestamp( TS_MW, $row->wlp_talk_updated ) : null;
 		$item->mNumComments = $row->wlp_num_comments;
 		$item->mAuthors     = unserialize( $row->wlp_authors );
 		$item->mTags        = unserialize( $row->wlp_tags );

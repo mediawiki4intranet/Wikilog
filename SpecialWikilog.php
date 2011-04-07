@@ -89,6 +89,7 @@ class SpecialWikilog
 		$opts->add( 'year',     '', FormOptions::INTNULL );
 		$opts->add( 'month',    '', FormOptions::INTNULL );
 		$opts->add( 'day',      '', FormOptions::INTNULL );
+		$opts->add( 'sort',     '' );
 		$opts->add( 'limit',    $wgWikilogNumArticles );
 		$opts->add( 'template', '' );
 		return $opts;
@@ -173,6 +174,7 @@ class SpecialWikilog
 		} else {
 			$pager = new WikilogSummaryPager( $query, $opts['limit'], $this->including() );
 		}
+		$pager->setSort( $opts['sort'] );
 
 		global $wlCalPager;
 		$wlCalPager = $pager;
@@ -207,10 +209,12 @@ class SpecialWikilog
 
 			# Add navigation bars.
 			$body .= $pager->getNavigationBar();
+
+			# Wrap only when not including
+			$body = Xml::wrapClass( $body, 'wl-wrapper', 'div' );
 		}
 
 		# Output.
-		$body = Xml::wrapClass( $body, 'wl-wrapper', 'div' );
 		$wgOut->addHTML( $body );
 
 		# Get query parameter array, for the following links.
@@ -308,6 +312,8 @@ class SpecialWikilog
 				$opts['show'] = $par;
 			} else if ( in_array( $par, self::$views ) ) {
 				$opts['view'] = $par;
+			} else if ( preg_match( '/^sort=(.+)$/', $par, $m ) ) {
+				$opts['sort'] = $m[1];
 			} else if ( preg_match( '/^t(?:ag)?=(.+)$/', $par, $m ) ) {
 				$opts['tag'] = $m[1];
 			} else if ( preg_match( '/^y(?:ear)?=(.+)$/', $par, $m ) ) {

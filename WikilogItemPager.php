@@ -123,6 +123,12 @@ class WikilogSummaryPager
 		return 'wlp_pubdate';
 	}
 
+	function setSort( $field )
+	{
+		if ( WikilogArchivesPager::isFieldSortable( $field ) )
+			$this->mIndexField = $field;
+	}
+
 	function getStartBody() {
 		return "<div class=\"wl-roll visualClear\">\n";
 	}
@@ -312,11 +318,11 @@ class WikilogTemplatePager
 	}
 
 	function getStartBody() {
-		return "<div class=\"wl-tpl-roll\">\n";
+		return '';
 	}
 
 	function getEndBody() {
-		return "</div>\n";
+		return '';
 	}
 
 	function formatRow( $row ) {
@@ -343,9 +349,19 @@ class WikilogTemplatePager
 		list( $publishedDate, $publishedTime, $publishedTz ) =
 				WikilogUtils::getLocalDateTime( $itemPubdate );
 
+		$now = wfTimestampNow( TS_MW );
+
 		$itemUpdated = $item->getUpdatedDate();
 		list( $updatedDate, $updatedTime, ) =
 				WikilogUtils::getLocalDateTime( $itemUpdated );
+
+		$itemTalkUpdated = $item->getTalkUpdatedDate();
+		list( $talkUpdatedDate, $talkUpdatedTime, ) =
+				WikilogUtils::getLocalDateTime( $itemTalkUpdated );
+
+		$nc = $item->getNumComments();
+		if (!$nc)
+			$nc = '';
 
 		# Template parameters.
 		$vars = array(
@@ -354,17 +370,22 @@ class WikilogTemplatePager
 			'wikilogPage'   => $item->mParentTitle->getPrefixedText(),
 			'title'         => $item->mName,
 			'page'          => $item->mTitle->getPrefixedText(),
+			'talkpage'      => $item->mTitle->getTalkPage()->getPrefixedText(),
 			'authors'       => $authors,
 			'tags'          => $tags,
 			'published'     => $item->getIsPublished() ? '*' : '',
+			'dateInFuture'  => $itemPubdate > $now,
 			'date'          => $publishedDate,
 			'time'          => $publishedTime,
 			'tz'            => $publishedTz,
 			'updatedDate'   => $updatedDate,
 			'updatedTime'   => $updatedTime,
+			'talkUpdatedDate' => $talkUpdatedDate,
+			'talkUpdatedTime' => $talkUpdatedTime,
 			'summary'       => $wgParser->insertStripItem( $summary ),
 			'hasMore'       => $hasMore ? '*' : '',
-			'comments'      => $comments
+			'comments'      => $comments,
+			'ncomments'     => $nc,
 		);
 
 		$frame = $wgParser->getPreprocessor()->newCustomFrame( $vars );
@@ -445,6 +466,11 @@ class WikilogArchivesPager
 	);
 	function isFieldSortable( $field ) {
 		return in_array( $field, self::$sortableFields );
+	}
+
+	function setSort( $field ) {
+		if ( self::isFieldSortable( $field ) )
+			$this->mIndexField = $field;
 	}
 
 	function getNavigationBar() {

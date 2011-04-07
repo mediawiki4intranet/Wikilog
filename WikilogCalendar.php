@@ -154,18 +154,22 @@ class WikilogCalendar
             array(), 'wikilog_posts.*', $where, __METHOD__,
             array('ORDER BY' => 'wlp_pubdate' . ($dir ? ' ASC' : ' DESC'))
         );
+        // Count posts by dates
         $sql = "SELECT wlp_page, wlp_pubdate, COUNT(wlp_page) numposts FROM ($sql) derived GROUP BY SUBSTR(wlp_pubdate,1,8)";
+        // Join dates having only one post to page table
+        $t_page = $dbr->tableName('page');
+        $sql = "SELECT * FROM ($sql) derived2 LEFT JOIN $t_page pp ON derived2.numposts=1 AND pp.page_id=derived2.wlp_page";
         // Build hash table based on date
         $sp = Title::newFromText('Special:Wikilog');
         $dates = array();
-        $res = $dbr->query($sql, __FUNCTION__);
-        while ($row = $dbr->fetchRow($res))
+        $res = $dbr->query($sql, __METHOD__);
+        foreach ($res as $row)
         {
-            $date = substr($row['wlp_pubdate'], 0, 8);
-            if ($row['numposts'] == 1)
+            $date = substr($row->wlp_pubdate, 0, 8);
+            if ($row->numposts == 1)
             {
                 /* link to the post if it's the only one for that date */
-                $title = Title::newFromId($row['wlp_page']);
+                $title = Title::newFromRow($row);
                 $dates[$date] = array(
                     'link'  => $title->getLocalUrl(),
                     'title' => $title->getPrefixedText(),
@@ -183,7 +187,7 @@ class WikilogCalendar
                     )),
                     'title' => wfMsgExt('wikilog-calendar-archive-link-title', 'parseinline',
                         $sp->getPrefixedText(),
-                        date('Y-m-d', wfTimestamp(TS_UNIX, $row['wlp_pubdate']))
+                        date('Y-m-d', wfTimestamp(TS_UNIX, $row->wlp_pubdate))
                     ),
                 );
             }
