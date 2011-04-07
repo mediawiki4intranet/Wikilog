@@ -457,25 +457,20 @@ class WikilogUtils
 	 * @param $timestamp Timestamp.
 	 * @return Array(3) containing date, time and timezone.
 	 */
-	public static function getLocalDateTime( $timestamp ) {
+	public static function getLocalDateTime( $timestamp, $format = false ) {
 		global $wgLang, $wgLocaltimezone;
 
 		$ts = wfTimestamp( TS_UNIX, $timestamp );
-
-		if ( isset( $wgLocaltimezone ) ) {
-			$oldtz = date_default_timezone_get();
-			date_default_timezone_set( $wgLocaltimezone );
-		}
-
 		$ts = date( 'YmdHis', $ts );
 		$tz = date( 'T', $ts );
+		$ts = $wgLang->userAdjust( $ts );
 
-		if ( isset( $oldtz ) ) {
-			date_default_timezone_set( $oldtz );
-		}
-
-		$date = $wgLang->date( $ts );
-		$time = $wgLang->time( $ts );
+		if ( !$format )
+			$format = $wgLang->dateFormat( true );
+		$df = $wgLang->getDateFormatString( 'date', $format );
+		$tf = $wgLang->getDateFormatString( 'time', $format );
+		$date = $wgLang->sprintfDate( $df, $ts );
+		$time = $wgLang->sprintfDate( $tf, $ts );
 
 		# Check for translation of timezones.
 		$key = 'timezone-' . strtolower( trim( $tz ) );

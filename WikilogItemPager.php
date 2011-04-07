@@ -327,6 +327,7 @@ class WikilogTemplatePager
 
 	function formatRow( $row ) {
 		global $wgParser, $wgLang;
+		global $wgWikilogPagerDateFormat;
 
 		# Retrieve article parser output and other data.
 		$item = WikilogItem::newFromRow( $row );
@@ -347,17 +348,17 @@ class WikilogTemplatePager
 
 		$itemPubdate = $item->getPublishDate();
 		list( $publishedDate, $publishedTime, $publishedTz ) =
-				WikilogUtils::getLocalDateTime( $itemPubdate );
+				WikilogUtils::getLocalDateTime( $itemPubdate, $wgWikilogPagerDateFormat );
 
 		$now = wfTimestampNow( TS_MW );
 
 		$itemUpdated = $item->getUpdatedDate();
 		list( $updatedDate, $updatedTime, ) =
-				WikilogUtils::getLocalDateTime( $itemUpdated );
+				WikilogUtils::getLocalDateTime( $itemUpdated, $wgWikilogPagerDateFormat );
 
 		$itemTalkUpdated = $item->getTalkUpdatedDate();
 		list( $talkUpdatedDate, $talkUpdatedTime, ) =
-				WikilogUtils::getLocalDateTime( $itemTalkUpdated );
+				WikilogUtils::getLocalDateTime( $itemTalkUpdated, $wgWikilogPagerDateFormat );
 
 		$nc = $item->getNumComments();
 		if (!$nc)
