@@ -372,7 +372,7 @@ class WikilogMainPage
 				foreach ( $rewrite as &$r )
 				{
 					$u = preg_quote(preg_replace('#^[a-z]+://[^/]*/#', '', $r[0]));
-					$r = "RewriteRule ^$u ".Title::newFromText($r[1])->getLocalUrl()." [R=301,L,NE]";
+					$r = "RewriteRule ^$u ".str_replace('%', '\\%', Title::newFromText($r[1])->getLocalUrl())." [R=301,L,NE]";
 				}
 				$rewrite = implode( "\n", $rewrite );
 				$wgOut->addHTML( Xml::textarea( 'htaccess', $rewrite, 100, 10 ) );
