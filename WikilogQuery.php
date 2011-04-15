@@ -197,8 +197,10 @@ class WikilogItemQuery
 	private $mWikilogTitle = null;			///< Filter by wikilog.
 	private $mNamespace = false;			///< Filter by namespace.
 	private $mPubStatus = self::PS_ALL;		///< Filter by published status.
-	private $mCategory = false;				///< Filter by category.
-	private $mNotCategory = false;			///< Exclude items belonging to this category.
+	private $mCategory = false;				///< Include items in this category,
+											///  Include items in blogs blogs in this category.
+	private $mNotCategory = false;			///< Exclude items belonging to this category,
+											///  exclude items belonging to blog in this category.
 	private $mAuthor = false;				///< Filter by author.
 	private $mTag = false;					///< Filter by tag.
 	private $mDate = false;					///< Filter by date.
@@ -387,6 +389,7 @@ class WikilogItemQuery
 
 		# Filter by category.
 		if ( $this->mCategory ) {
+			# Items and blogs
 			$q_tables[] = '`categorylinks` clyes';
 			$q_joins['`categorylinks` clyes'] = array( 'JOIN', '(wlp_page = clyes.cl_from OR wlp_parent = clyes.cl_from)' );
 			$q_conds['clyes.cl_to'] = $this->mCategory->getDBkey();

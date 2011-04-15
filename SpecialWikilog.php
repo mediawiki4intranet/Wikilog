@@ -104,6 +104,7 @@ class SpecialWikilog
 
 		$opts = $this->getDefaultOptions();
 		$opts->fetchValuesFromRequest( $wgRequest );
+		# Default "not in category"
 		if ( is_null( $wgRequest->getVal('notcategory') ) )
 			$opts['notcategory'] = $wgWikilogDefaultNotCategory;
 
@@ -126,8 +127,10 @@ class SpecialWikilog
 
 		$opts = $this->getDefaultOptions();
 		$opts->fetchValuesFromRequest( $wgRequest );
+		# Default "not in category"
 		if ( is_null( $wgRequest->getVal('notcategory') ) )
 			$opts['notcategory'] = $wgWikilogDefaultNotCategory;
+
 		$opts->validateIntBounds( 'limit', 0, $wgFeedLimit );
 		return $opts;
 	}
@@ -448,13 +451,15 @@ class SpecialWikilog
 
 		/* Categories */
 		$query = clone $this->query;
-		$query->setCategory(NULL);
+		$query->setCategory( NULL );
 		$res = $query->select( $dbr, array('`categorylinks` wlpostcat'),
-			'DISTINCT wlpostcat.cl_to',
-			array('wlpostcat.cl_from=wlp_page'),
-			__FUNCTION__,
-			array(),
-			array( '`categorylinks` wlpostcat' => array( 'INNER JOIN', array( 'wlp_page = wlpostcat.cl_from' ) ) ) );
+			'DISTINCT wlpostcat.cl_to', array(), __FUNCTION__, array(),
+			array( '`categorylinks` wlpostcat' => array(
+				'INNER JOIN', array(
+					'wlpostcat.cl_from=wlp_page OR wlpostcat.cl_from=wlp_parent'
+				)
+			) )
+		);
 		$rows = array();
 		while( $row = $dbr->fetchRow( $res ) )
 		{
