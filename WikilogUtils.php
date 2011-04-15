@@ -461,8 +461,8 @@ class WikilogUtils
 		global $wgLang, $wgLocaltimezone;
 
 		$ts = wfTimestamp( TS_UNIX, $timestamp );
-		$ts = date( 'YmdHis', $ts );
-		$tz = date( 'T', $ts );
+		$ts = gmdate( 'YmdHis', $ts );
+		$tz = gmdate( 'T', $ts );
 		$ts = $wgLang->userAdjust( $ts );
 
 		if ( !$format )
