@@ -60,6 +60,10 @@ class WikilogBloggerImport
                     $l = $e->author->name;
                     $content = ($e->author->uri ? "[".$e->author->uri." $l]: " : "$l: ") . $content;
                 }
+                /* Append categories (tags) */
+                foreach ($e->category as $cat)
+                    if (substr($cat['term'], 0, 26) != 'http://schemas.google.com/')
+                        $content .= "\n[[Category:".$cat['term']."]]";
                 /* Append publication mark */
                 $content .= "\n{{wl-publish: ".preg_replace('/([\d-]+)T([\d:]+)[\d\.]*([^:]*):([^:]*)/', '\1 \2 \3\4', $e->published)." | $user}}";
                 $refs[$id] = array('title' => $title);
