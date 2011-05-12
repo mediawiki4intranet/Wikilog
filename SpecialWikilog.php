@@ -62,7 +62,7 @@ class SpecialWikilog
 
 		$feedFormat = $wgRequest->getVal( 'feed' );
 
-		if ( $feedFormat ) {
+		if ( $feedFormat && !$this->including() ) {
 			$opts = $this->feedSetup();
 			return $this->feedOutput( $feedFormat, $opts );
 		} else {
