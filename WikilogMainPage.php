@@ -137,9 +137,6 @@ class WikilogMainPage
 	public function wikilog() {
 		global $wgUser, $wgOut, $wgRequest;
 
-		if ( $this->mTitle->exists() && $wgRequest->getBool( 'wlActionNewItem' ) )
-			return $this->actionNewItem();
-
 		if ( $this->mTitle->exists() && $wgRequest->getBool( 'wlActionImport' ) )
 			return $this->actionImport();
 
@@ -253,11 +250,11 @@ class WikilogMainPage
 	 * Returns a form for new item creation.
 	 */
 	static function formNewItem( $title ) {
-		global $wgScript;
+		global $wgScript, $wgWikilogStylePath;
 
 		$fields = array();
 		if ( $title )
-			$fields[] = Xml::hidden( 'title', $title->getPrefixedText() );
+			$fields[] = Xml::hidden( 'wlWikilog', $title->getPrefixedText(), array( 'id' => 'wl-newitem-wikilog' ) );
 		else
 		{
 			global $wgWikilogNamespaces;
@@ -275,23 +272,27 @@ class WikilogMainPage
 			}
 			if ( !$opts )
 				return '';
-			$wikilog_select = new XmlSelect( 'title', 'wl-newitem-wikilog' );
+			$wikilog_select = new XmlSelect( 'wlWikilog', 'wl-newitem-wikilog' );
 			foreach ( $opts as $o )
 				$wikilog_select->addOption( $o, $o );
-			$fields[] = Xml::label( wfMsg( 'wikilog-form-wikilog' ), 'wl-wikilog' ) . '&nbsp;' . $wikilog_select->getHTML();
+			$fields[] = Xml::label( wfMsg( 'wikilog-form-wikilog' ), 'wl-newitem-wikilog' )
+				. '&nbsp;' . $wikilog_select->getHTML();
 		}
-		$fields[] = Xml::hidden( 'action', 'wikilog' );
+		$fields[] = Xml::hidden( 'action', 'edit' );
+		$fields[] = Xml::hidden( 'preload', '' );
+		$fields[] = Xml::hidden( 'title', '' );
 		$fields[] = Xml::inputLabel( wfMsg( 'wikilog-item-name' ),
 			'wlItemName', 'wl-item-name', 70, date('Y-m-d ') );
 		$fields[] = Xml::submitButton( wfMsg( 'wikilog-new-item-go' ),
 			array( 'name' => 'wlActionNewItem' ) );
 
 		$form = Xml::tags( 'form',
-			array( 'action' => $wgScript ),
+			array( 'action' => $wgScript, 'onsubmit' => 'return checkNewItem(this, \''.wfMsg('wikilog-new-item-subpage').'\');' ),
 			implode( "\n", $fields )
 		);
 
 		$form = Xml::fieldset( wfMsg( 'wikilog-new-item' ), $form, array( 'id' => 'wl-new-item' ) ) . "\n";
+		$form .= '<script type="text/javascript" src="'.$wgWikilogStylePath.'/wikilog.js"></script>';
 		return $form;
 	}
 
@@ -380,35 +381,6 @@ class WikilogMainPage
 			else
 				$wgOut->addWikiMsg( 'wikilog-import-failed' );
 		}
-	}
-
-	/**
-	 * Wikilog "new item" action handler.
-	 */
-	protected function actionNewItem() {
-		global $wgOut, $wgRequest;
-
-		if ( !$this->mTitle->quickUserCan( 'edit' ) ) {
-			$wgOut->loginToUse();
-			$wgOut->output();
-			exit;
-		}
-
-		$itemname = $wgRequest->getText( 'wlItemName' );
-
-		if ( strchr( $itemname, '/' ) !== false )
-			throw new ErrorPageError( 'badtitle', 'badtitletext' );
-
-		$title = Title::makeTitle( $this->mTitle->getNamespace(),
-			$this->mTitle->getText() . '/' . $itemname );
-
-		if ( $itemname == '' || !$title )
-			throw new ErrorPageError( 'badtitle', 'badtitletext' );
-
-		if ( $title->exists() )
-			throw new ErrorPageError( 'errorpagetitle', 'articleexists' );
-
-		$wgOut->redirect( $title->getFullURL( 'action=edit' ) );
 	}
 
 	/**
