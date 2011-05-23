@@ -254,7 +254,7 @@ class WikilogMainPage
 
 		$fields = array();
 		if ( $title )
-			$fields[] = Xml::hidden( 'wlWikilog', $title->getPrefixedText(), array( 'id' => 'wl-newitem-wikilog' ) );
+			$fields[] = Xml::element( 'input', array( 'type' => 'hidden', 'value' => $title->getPrefixedText(), 'id' => 'wl-newitem-wikilog' ) );
 		else
 		{
 			global $wgWikilogNamespaces;
@@ -272,7 +272,7 @@ class WikilogMainPage
 			}
 			if ( !$opts )
 				return '';
-			$wikilog_select = new XmlSelect( 'wlWikilog', 'wl-newitem-wikilog' );
+			$wikilog_select = new XmlSelect( false, 'wl-newitem-wikilog' );
 			foreach ( $opts as $o )
 				$wikilog_select->addOption( $o, $o );
 			$fields[] = Xml::label( wfMsg( 'wikilog-form-wikilog' ), 'wl-newitem-wikilog' )
@@ -282,9 +282,8 @@ class WikilogMainPage
 		$fields[] = Xml::hidden( 'preload', '' );
 		$fields[] = Xml::hidden( 'title', '' );
 		$fields[] = Xml::inputLabel( wfMsg( 'wikilog-item-name' ),
-			'wlItemName', 'wl-item-name', 70, date('Y-m-d ') );
-		$fields[] = Xml::submitButton( wfMsg( 'wikilog-new-item-go' ),
-			array( 'name' => 'wlActionNewItem' ) );
+			false, 'wl-item-name', 70, date('Y-m-d ') );
+		$fields[] = Xml::submitButton( wfMsg( 'wikilog-new-item-go' ) );
 
 		$form = Xml::tags( 'form',
 			array( 'action' => $wgScript, 'onsubmit' => 'return checkNewItem(this, \''.wfMsg('wikilog-new-item-subpage').'\');' ),
