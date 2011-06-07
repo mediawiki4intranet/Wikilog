@@ -28,7 +28,7 @@ class HtmlToMediaWiki
         'ol' => array('replacebegin' => "\1\n"),
         'li' => array('replacebegin' => "", 'disallow' => array('p' => 1, 'h1' => 1, 'h2' => 2, 'h3' => 3, 'h4' => 4, 'h5' => 5, 'h6' => 6)),
         'p' => array('replacebegin' => "\1\n\n"),
-        'a' => array('replacebegin' => '[$href ', 'replaceend' => ']'),
+        'a' => array('replacebegin' => '[$href ', 'replaceend' => ']', 'require_attr' => 'href'),
         'b' => array('replacebegin' => "\1'''", 'replaceend' => "'''"),
         'i' => array('replacebegin' => "\1''", 'replaceend' => "''"),
         'img' => array('html' => 1),
@@ -85,19 +85,23 @@ class HtmlToMediaWiki
 
     static function dom2wiki($e, $disallow = array())
     {
+        // Copy text nodes
         if ($e->nodeType == XML_TEXT_NODE)
         {
             $s = preg_replace('/\s+/', ' ', $e->nodeValue);
-            if ($s == ' ')
-                return '';
+            // Temporarily commented out
+            //if ($s == ' ')
+            //    return '';
             return htmlspecialchars($s);
         }
         $t = self::$tags[$e->nodeName];
+        // Return <html>...</html> for non-transformable nodes
         if ($t['html'])
             return ($t['prefix'] !== NULL ? $t['prefix'] : '').'<html>'.self::domhtml($e).'</html>';
+        // For empty nodes: return '' or $replaceempty or node itself if $empty == true
         if (!$e->childNodes->length)
         {
-            if ($t['disallow'])
+            if ($disallow[$e->nodeName])
                 return '';
             elseif ($s = $t['replaceempty'])
                 return self::domattr($e, $s);
@@ -106,36 +110,50 @@ class HtmlToMediaWiki
             else
                 return '';
         }
+        // Change <li> level prefix inside <ul>/<ol>
         $s = '';
         if ($e->nodeName == 'ol' || $e->nodeName == 'ul')
         {
             $old_r = self::$tags['li']['replacebegin'];
             self::$tags['li']['replacebegin'] = "\n".trim($old_r).($e->nodeName == 'ol' ? '#' : '*').' ';
         }
+        // Transform children of normal nodes
         if (!$t['pre'])
         {
             $disallow_child = $t['disallow'] ? $t['disallow'] : array();
             foreach ($e->childNodes as $n)
                 $s .= self::dom2wiki($n, $disallow_child);
-            $s = str_replace('<br /><br />', "\n\n", $s);
+            $s = preg_replace('#\s*<br\s*/>\s*<br\s*/>\s*#is', "\n\n", $s);
         }
+        // Copy content of preformatted nodes
         else
             $s = $e->nodeValue;
+        // Restore <li> level prefix
         if ($old_r !== NULL)
             self::$tags['li']['replacebegin'] = $old_r;
+        // Transform [link <html>...</html>] into <html><a>...</a></html>
         if (strpos($s, '<html>') !== false && $e->nodeName == 'a')
             return ($t['prefix'] !== NULL ? $t['prefix'] : '').'<html>'.mb_convert_encoding(self::domhtml($e), 'UTF-8', 'HTML-ENTITIES').'</html>';
+        // Trim content if not $notrim
         if (!$t['notrim'])
             $s = trim($s);
+        // Return '' for forbidden empty nodes
         if ($s == '' && !$t['empty'])
             return '';
-        if (!$t || $disallow[$e->nodeName]) {}
+        if (!$t || $disallow[$e->nodeName] ||
+            $t['require_attr'] && !strlen($e->getAttribute($t['require_attr'])))
+        {
+            // Don't wrap content of disallowed nodes
+            // and if no $require_attr attribute
+        }
+        // If not $replacebegin, wrap content as HTML
         elseif (!array_key_exists('replacebegin', $t))
         {
             $s = self::domnodeopen($e).'>'.$s.'</'.$e->nodeName.'>';
             if (array_key_exists('prefix', $t))
                 $s = $t['prefix'] . $s;
         }
+        // Wrap content into $replacebegin / $replaceend
         else
             $s = self::domattr($e, $t['replacebegin']).$s.self::domattr($e, $t['replaceend']);
         return $s;
@@ -147,7 +165,7 @@ class HtmlToMediaWiki
         $dom = self::loadDOM($html);
         $wiki = self::dom2wiki($dom->documentElement);
         $wiki = preg_replace('#\'\x01\'#', '\' \'', $wiki);
-        $wiki = preg_replace('#\s*\x01#', '', $wiki);
+        $wiki = preg_replace('#\s*\x01#', ' ', $wiki);
         $wiki = trim($wiki);
         return $wiki;
     }

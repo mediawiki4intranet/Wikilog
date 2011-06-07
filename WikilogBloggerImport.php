@@ -48,6 +48,7 @@ class WikilogBloggerImport
                 $ts = strtotime($e->published);
                 $title = str_replace(array('[', ']', '|'), array('(', ')', '-'), $params['blog']."/".date("Y-m-d ", $ts).$e->title);
                 $content = HtmlToMediaWiki::html2wiki($e->content);
+                $content = preg_replace('#<div class="blogger-post-footer">.*?</div>#is', '', $content);
                 $old_link = '';
                 foreach ($e->link as $l)
                     if ($l['rel'] == 'alternate')
