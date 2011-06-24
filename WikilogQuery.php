@@ -393,6 +393,7 @@ class WikilogItemQuery
 			$q_tables[] = '`categorylinks` clyes';
 			$q_joins['`categorylinks` clyes'] = array( 'JOIN', '(wlp_page = clyes.cl_from OR wlp_parent = clyes.cl_from)' );
 			$q_conds['clyes.cl_to'] = $this->mCategory->getDBkey();
+			$q_options['GROUP BY'] = 'wlp_page';
 		}
 
 		# Exclude items and blogs belonging to category.
