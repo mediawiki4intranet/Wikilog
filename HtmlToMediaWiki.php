@@ -18,19 +18,27 @@ class HtmlToMediaWiki
 
        Additional rules:
        <br /><br /> -> \n\n
-       <li>'s replacebegin is changed on each entry/exit to/from <ol> and <ul>
+       <li>'s and <dt>'s replacebegin is changed on each entry/exit to/from <ol>/<ul>/<dl>
     */
 
     static $tags = array(
+        'h1' => array('replacebegin' => "\1\n\n== ", 'replaceend' => " ==\n"),
+        'h2' => array('replacebegin' => "\1\n\n=== ", 'replaceend' => " ===\n"),
+        'h3' => array('replacebegin' => "\1\n\n==== ", 'replaceend' => " ====\n"),
+        'h4' => array('replacebegin' => "\1\n\n===== ", 'replaceend' => " =====\n"),
+        'h5' => array('replacebegin' => "\1\n\n====== ", 'replaceend' => " ======\n"),
         'br' => array('empty' => 1, 'attr' => array('style' => 1, 'clear' => 1, 'class' => 1)),
         'pre' => array('prefix' => "\1\n", 'notrim' => 1, 'pre' => 1, 'attr' => array('style' => 1, 'class' => 1)),
         'ul' => array('replacebegin' => "\1\n"),
         'ol' => array('replacebegin' => "\1\n"),
-        'li' => array('replacebegin' => "", 'disallow' => array('p' => 1, 'h1' => 1, 'h2' => 2, 'h3' => 3, 'h4' => 4, 'h5' => 5, 'h6' => 6)),
+        'dl' => array('replacebegin' => "\1\n"),
+        'li' => array('replacebegin' => "\1\n", 'disallow' => array('p' => 1, 'h1' => 1, 'h2' => 2, 'h3' => 3, 'h4' => 4, 'h5' => 5, 'h6' => 6)),
+        'dt' => array('replacebegin' => "\1\n", 'disallow' => array('p' => 1, 'h1' => 1, 'h2' => 2, 'h3' => 3, 'h4' => 4, 'h5' => 5, 'h6' => 6)),
+        'dd' => array('replacebegin' => ': ', 'disallow' => array('p' => 1, 'h1' => 1, 'h2' => 2, 'h3' => 3, 'h4' => 4, 'h5' => 5, 'h6' => 6)),
         'p' => array('replacebegin' => "\1\n\n"),
-        'a' => array('replacebegin' => '[$href ', 'replaceend' => ']', 'require_attr' => 'href'),
-        'b' => array('replacebegin' => "\1'''", 'replaceend' => "'''"),
-        'i' => array('replacebegin' => "\1''", 'replaceend' => "''"),
+        'a' => array('replacebegin' => '[$href ', 'replaceend' => ']', 'require' => 'HtmlToMediaWiki::checkHref'),
+        'b' => array('replacebegin' => "'''", 'replaceend' => "'''"),
+        'i' => array('replacebegin' => "''", 'replaceend' => "''"),
         'img' => array('html' => 1),
         'object' => array('prefix' => "\1\n\n", 'html' => 1),
         'iframe' => array('prefix' => "\1\n\n", 'html' => 1),
@@ -38,6 +46,12 @@ class HtmlToMediaWiki
         'div' => array('attr' => array('style' => 1, 'class' => 1)),
         'blockquote' => array('prefix' => "\1\n", 'attr' => array('style' => 1, 'class' => 1)),
     );
+
+    static function checkHref($e)
+    {
+        $h = $e->getAttribute('href');
+        return strlen($h) && $h{0} != '#';
+    }
 
     static function loadDOM($html)
     {
@@ -112,10 +126,13 @@ class HtmlToMediaWiki
         }
         // Change <li> level prefix inside <ul>/<ol>
         $s = '';
-        if ($e->nodeName == 'ol' || $e->nodeName == 'ul')
+        if (($n = $e->nodeName) == 'ol' || $n == 'ul' || $n == 'dl')
         {
             $old_r = self::$tags['li']['replacebegin'];
-            self::$tags['li']['replacebegin'] = "\n".trim($old_r).($e->nodeName == 'ol' ? '#' : '*').' ';
+            self::$tags['li']['replacebegin'] =
+                $old_r.($n == 'ol' ? '#' : ($n == 'dl' ? ':' : '*')).' ';
+            self::$tags['dt']['replacebegin'] =
+                $old_r.($n == 'ol' ? '#' : ($n == 'dl' ? ';' : '*')).' ';
         }
         // Transform children of normal nodes
         if (!$t['pre'])
@@ -128,9 +145,10 @@ class HtmlToMediaWiki
         // Copy content of preformatted nodes
         else
             $s = $e->nodeValue;
-        // Restore <li> level prefix
+        // Restore <li>/<dt> level prefix
         if ($old_r !== NULL)
-            self::$tags['li']['replacebegin'] = $old_r;
+            self::$tags['li']['replacebegin'] =
+                self::$tags['dl']['replacebegin'] = $old_r;
         // Transform [link <html>...</html>] into <html><a>...</a></html>
         if (strpos($s, '<html>') !== false && $e->nodeName == 'a')
             return ($t['prefix'] !== NULL ? $t['prefix'] : '').'<html>'.mb_convert_encoding(self::domhtml($e), 'UTF-8', 'HTML-ENTITIES').'</html>';
@@ -140,11 +158,12 @@ class HtmlToMediaWiki
         // Return '' for forbidden empty nodes
         if ($s == '' && !$t['empty'])
             return '';
-        if (!$t || $disallow[$e->nodeName] ||
-            $t['require_attr'] && !strlen($e->getAttribute($t['require_attr'])))
+        if (!$t || $disallow[$e->nodeName] || $t['require'] && !call_user_func($t['require'], $e))
         {
             // Don't wrap content of disallowed nodes
-            // and if no $require_attr attribute
+            // or if there is no $require_attr attribute
+            if ($e->nodeName == 'p')
+                $s = "$s<br>";
         }
         // If not $replacebegin, wrap content as HTML
         elseif (!array_key_exists('replacebegin', $t))
