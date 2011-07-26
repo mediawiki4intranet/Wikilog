@@ -449,25 +449,38 @@ class SpecialWikilog
 		foreach( $rows as $k => $v )
 			$select_options['author'][] = array($k);
 
-		/* Categories */
+		// Categories
+		// Make two queries instead of one with OR
+		// Otherwise it leads to fullscan of 'categorylinks'
 		$query = clone $this->query;
 		$query->setCategory( NULL );
-		$res = $query->select( $dbr, array('`categorylinks` wlpostcat'),
-			'DISTINCT wlpostcat.cl_to', array(), __FUNCTION__, array(),
-			array( '`categorylinks` wlpostcat' => array(
-				'INNER JOIN', array(
-					'wlpostcat.cl_from=wlp_page OR wlpostcat.cl_from=wlp_parent'
-				)
-			) )
+		$res = $query->select(
+			$dbr, array( $dbr->tableName( 'categorylinks' ).' wlpostcat' ),
+			'wlpostcat.cl_to', array(), __FUNCTION__, array(),
+			array( '`categorylinks` wlpostcat' =>
+				array( 'INNER JOIN', array( 'wlpostcat.cl_from=wlp_page' ) )
+			)
 		);
 		$rows = array();
-		while( $row = $dbr->fetchRow( $res ) )
+		foreach ( $res as $row )
 		{
-			$row = Title::makeTitleSafe( NS_CATEGORY, $row['cl_to'] );
-			$rows[] = array( $row->getText() );
+			$row = Title::makeTitleSafe( NS_CATEGORY, $row->cl_to )->getText();
+			$rows[ $row ] = array( $row );
 		}
-		$dbr->freeResult( $res );
-		$select_options['category'] = $rows;
+		$res = $query->select(
+			$dbr, array( $dbr->tableName( 'categorylinks' ).' wlpostcat' ),
+			'wlpostcat.cl_to', array(), __FUNCTION__, array(),
+			array( '`categorylinks` wlpostcat' =>
+				array( 'INNER JOIN', array( 'wlpostcat.cl_from=wlp_parent' ) )
+			)
+		);
+		foreach ( $res as $row )
+		{
+			$row = Title::makeTitleSafe( NS_CATEGORY, $row->cl_to )->getText();
+			$rows[ $row ] = array( $row );
+		}
+
+		$select_options['category'] = array_values( $rows );
 
 		return $select_options;
 	}
