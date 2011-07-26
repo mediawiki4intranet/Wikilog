@@ -180,8 +180,7 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_comments (
   INDEX wlc_post_thread (wlc_post, wlc_thread),
   INDEX wlc_timestamp (wlc_timestamp),
   INDEX wlc_updated (wlc_updated),
-  INDEX wlc_comment_page (wlc_comment_page),
-
+  INDEX wlc_comment_page (wlc_comment_page)
 ) /*$wgDBTableOptions*/;
 
 -- Create foreign keys (InnoDB only)
