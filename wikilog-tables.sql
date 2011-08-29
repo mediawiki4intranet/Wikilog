@@ -182,8 +182,3 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_comments (
   INDEX wlc_updated (wlc_updated),
   INDEX wlc_comment_page (wlc_comment_page)
 ) /*$wgDBTableOptions*/;
-
--- Create foreign keys (InnoDB only)
-ALTER TABLE /*$wgDBprefix*/wikilog_posts ADD FOREIGN KEY (wlp_page) REFERENCES /*$wgDBprefix*/page (page_id) ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE /*$wgDBprefix*/wikilog_comments ADD FOREIGN KEY (wlc_post) REFERENCES /*$wgDBprefix*/page (page_id) ON DELETE CASCADE ON UPDATE CASCADE,
-ALTER TABLE /*$wgDBprefix*/wikilog_comments ADD FOREIGN KEY (wlc_comment_page) REFERENCES /*$wgDBprefix*/page (page_id) ON DELETE CASCADE ON UPDATE CASCADE

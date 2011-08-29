@@ -492,17 +492,7 @@ class WikilogArchivesPager
 		if ( !$this->mCurrentItem->getIsPublished() ) {
 			$attribs['class'] = 'wl-draft';
 		}
-		foreach ( $this->getFieldNames() as $field => $name ) {
-			$value = isset( $row->$field ) ? $row->$field : null;
-			$formatted = strval( $this->formatValue( $field, $value ) );
-			if ( $formatted == '' ) {
-				$formatted = WL_NBSP;
-			}
-			$class = 'TablePager_col_' . htmlspecialchars( $field );
-			$columns[] = "<td class=\"$class\">$formatted</td>";
-		}
-		if ( $wgUser->getID() )
-		{
+		if ( $wgUser->getID() ) {
 			$dbr = wfGetDB( DB_SLAVE );
 			$result = $dbr->select(
 				array( 'wikilog_comments', 'page_last_visit' ),
@@ -512,11 +502,20 @@ class WikilogArchivesPager
 				NULL,
 				array( 'page_last_visit' => array( 'LEFT JOIN', array( 'pv_page = wlc_comment_page', 'pv_user' => $wgUser->getID() ) ) )
 			);
-			$unread_comments = $dbr->fetchRow( $result );
+			$v = $dbr->fetchRow( $result );
 			$dbr->freeResult( $result );
-			$unread_comments = $unread_comments[0];
-			if ( $row->wlp_last_visit < $row->wlp_updated || $unread_comments )
+			$row->wlp_unread_comments = $v[0];
+			if ( $row->wlp_last_visit < $row->wlp_updated || $row->wlp_unread_comments )
 				$attribs['class'] .= ' wl-unread';
+		}
+		foreach ( $this->getFieldNames() as $field => $name ) {
+			$value = isset( $row->$field ) ? $row->$field : null;
+			$formatted = strval( $this->formatValue( $field, $value ) );
+			if ( $formatted == '' ) {
+				$formatted = WL_NBSP;
+			}
+			$class = 'TablePager_col_' . htmlspecialchars( $field );
+			$columns[] = "<td class=\"$class\">$formatted</td>";
 		}
 		return Xml::tags( 'tr', $attribs, implode( "\n", $columns ) ) . "\n";
 	}
@@ -561,6 +560,8 @@ class WikilogArchivesPager
 			case 'wlp_num_comments':
 				$page = $this->mCurrentItem->mTitle->getTalkPage();
 				$text = $this->mCurrentItem->getNumComments();
+				if ( $this->mCurrentRow->wlp_unread_comments )
+					$text .= ' (' . $this->mCurrentRow->wlp_unread_comments . ')';
 				return $this->getSkin()->link( $page, $text, array(), array(),
 					array( 'known', 'noclasses' ) );
 
