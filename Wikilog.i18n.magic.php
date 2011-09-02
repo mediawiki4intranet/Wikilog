@@ -35,7 +35,7 @@ $magicWords['ar'] = array(
 	'wlk-icon' => array( 0, 'صورة_صغيرة', 'icon' ),
 	'wlk-logo' => array( 0, 'شعار', 'logo' ),
 	'wlk-subtitle' => array( 0, 'عنوان_فرعي', 'subtitle' ),
-	'wlk-summary'    => array( '1', 'ملخص', 'summary' ),
+	'wlk-summary' => array( '1', 'ملخص', 'summary' ),
 	'wlk-hidden' => array( 0, 'مخفي', 'hidden' ),
 	'wlk-more' => array( 0, 'مزيد', 'more' ),
 );
@@ -57,15 +57,15 @@ $magicWords['arz'] = array(
 
 /** Breton (Brezhoneg) */
 $magicWords['br'] = array(
-	'wl-settings' => array( 0, 'wl-arventennoù', 'wl-settings' ),
-	'wl-publish' => array( 0, 'wl-embann', 'wl-publish' ),
-	'wl-author' => array( 0, 'wl-aozer', 'wl-author' ),
-	'wl-tags' => array( 0, 'wl-balizennoù', 'wl-tags' ),
-	'wl-info' => array( 0, 'wl-keleier', 'wl-info' ),
-	'wlk-subtitle' => array( 0, 'istitl', 'subtitle' ),
-	'wlk-summary' => array( '1', 'diverrañ', 'summary' ),
-	'wlk-hidden' => array( 0, 'kuzh', 'hidden' ),
-	'wlk-more' => array( 0, 'muioc\'h', 'more' ),
+	'wl-settings' => array( 0, 'wl-arventennoù' ),
+	'wl-publish' => array( 0, 'wl-embann' ),
+	'wl-author' => array( 0, 'wl-aozer' ),
+	'wl-tags' => array( 0, 'wl-balizennoù' ),
+	'wl-info' => array( 0, 'wl-keleier' ),
+	'wlk-subtitle' => array( 0, 'istitl' ),
+	'wlk-summary' => array( 'diverrañ' ),
+	'wlk-hidden' => array( 0, 'kuzh' ),
+	'wlk-more' => array( 0, 'muioc\'h' ),
 );
 
 /** Chechen (Нохчийн) */
@@ -75,7 +75,7 @@ $magicWords['ce'] = array(
 
 /** Esperanto (Esperanto) */
 $magicWords['eo'] = array(
-	'wlk-icon' => array( 0, 'piktogramo' ),
+	'wlk-icon' => array( 0, 'bildsimbolo' ),
 	'wlk-logo' => array( 0, 'emblemo' ),
 	'wlk-hidden' => array( 0, 'kaŝi' ),
 	'wlk-more' => array( 0, 'pli' ),
@@ -92,6 +92,13 @@ $magicWords['es'] = array(
 	'wlk-summary'    => array( '1', 'resumen', 'summary' ),
 	'wlk-hidden' => array( 0, 'escondido', 'hidden' ),
 	'wlk-more' => array( 0, 'más', 'mas', 'more' ),
+);
+
+/** French (Français) */
+$magicWords['fr'] = array(
+	'wlk-subtitle' => array( 0, 'soustitre' ),
+	'wlk-summary' => array( 'sommaire' ),
+	'wlk-hidden' => array( 0, 'caché' ),
 );
 
 /** Igbo (Igbo) */
@@ -115,9 +122,36 @@ $magicWords['ja'] = array(
 	'wlk-more' => array( 0, '詳細' ),
 );
 
+/** Georgian (ქართული) */
+$magicWords['ka'] = array(
+	'wlk-logo' => array( 0, 'ლოგო' ),
+	'wlk-subtitle' => array( 0, 'ქვესათაური' ),
+);
+
+/** ‪Kurdî (latînî)‬ (‪Kurdî (latînî)‬) */
+$magicWords['ku-latn'] = array(
+	'wlk-subtitle' => array( 0, 'binnav' ),
+	'wlk-summary' => array( 'kurte' ),
+);
+
 /** Malagasy (Malagasy) */
 $magicWords['mg'] = array(
 	'wlk-hidden' => array( 0, 'voasitrika', 'hidden' ),
+);
+
+/** Macedonian (Македонски) */
+$magicWords['mk'] = array(
+	'wl-settings' => array( 0, 'вд-нагодувања' ),
+	'wl-publish' => array( 0, 'вд-објави' ),
+	'wl-author' => array( 0, 'вд-автор' ),
+	'wl-tags' => array( 0, 'вд-ознаки' ),
+	'wl-info' => array( 0, 'вд-инфо' ),
+	'wlk-icon' => array( 0, 'икона' ),
+	'wlk-logo' => array( 0, 'лого' ),
+	'wlk-subtitle' => array( 0, 'поднаслов' ),
+	'wlk-summary' => array( 'опис' ),
+	'wlk-hidden' => array( 0, 'скриена' ),
+	'wlk-more' => array( 0, 'повеќе' ),
 );
 
 /** Malayalam (മലയാളം) */
@@ -152,6 +186,16 @@ $magicWords['no'] = array(
 	'wlk-summary'    => array( '1', 'sammendrag', 'summary' ),
 	'wlk-hidden' => array( 0, 'gjemt', 'hidden' ),
 	'wlk-more' => array( 0, 'mer', 'more' ),
+);
+
+/** Oriya (ଓଡ଼ିଆ) */
+$magicWords['or'] = array(
+	'wlk-icon' => array( 0, 'ଆଇକନ' ),
+	'wlk-logo' => array( 0, 'ଲୋଗୋ' ),
+	'wlk-subtitle' => array( 0, 'ସାନନାଆଁ' ),
+	'wlk-summary' => array( 'ସାରକଥା' ),
+	'wlk-hidden' => array( 0, 'ଲୁଚିଥିବା' ),
+	'wlk-more' => array( 0, 'ବେଶୀ' ),
 );
 
 /** Pashto (پښتو) */
@@ -189,17 +233,31 @@ $magicWords['pt-br'] = array(
 
 /** Russian (Русский) */
 $magicWords['ru'] = array(
-	'wl-settings' => array( 0, 'вл_настройки', 'wl-settings' ),
-	'wl-publish' => array( 0, 'вл_публикация', 'wl-publish' ),
-	'wl-author' => array( 0, 'вл_автор', 'wl-author' ),
-	'wl-tags' => array( 0, 'вл_метки', 'wl-tags' ),
-	'wl-info' => array( 0, 'вл_сведения', 'wl-info' ),
-	'wlk-icon' => array( 0, 'вл_значок', 'icon' ),
-	'wlk-logo' => array( 0, 'лого', 'logo' ),
-	'wlk-subtitle' => array( 0, 'подзаголовок', 'subtitle' ),
-	'wlk-summary' => array( '1', 'описание', 'summary' ),
-	'wlk-hidden' => array( 0, 'скрыто', 'hidden' ),
-	'wlk-more' => array( 0, 'ещё', 'more' ),
+	'wl-settings' => array( 0, 'вл_настройки' ),
+	'wl-publish' => array( 0, 'вл_публикация' ),
+	'wl-author' => array( 0, 'вл_автор' ),
+	'wl-tags' => array( 0, 'вл_метки' ),
+	'wl-info' => array( 0, 'вл_сведения' ),
+	'wlk-icon' => array( 0, 'вл_значок' ),
+	'wlk-logo' => array( 0, 'лого' ),
+	'wlk-subtitle' => array( 0, 'подзаголовок' ),
+	'wlk-summary' => array( 'описание' ),
+	'wlk-hidden' => array( 0, 'скрыто' ),
+	'wlk-more' => array( 0, 'ещё' ),
+);
+
+/** Serbian Cyrillic ekavian (‪Српски (ћирилица)‬) */
+$magicWords['sr-ec'] = array(
+	'wl-settings' => array( 0, 'вл-поставке' ),
+	'wl-publish' => array( 0, 'вл-објава' ),
+	'wl-author' => array( 0, 'вл-аутор' ),
+	'wl-tags' => array( 0, 'вл-ознаке' ),
+	'wl-info' => array( 0, 'вл-подаци' ),
+	'wlk-logo' => array( 0, 'логотип' ),
+	'wlk-subtitle' => array( 0, 'поднаслов' ),
+	'wlk-summary' => array( 'сажетак' ),
+	'wlk-hidden' => array( 0, 'сакривено' ),
+	'wlk-more' => array( 0, 'више' ),
 );
 
 /** Swedish (Svenska) */
@@ -227,4 +285,19 @@ $magicWords['vi'] = array(
 	'wlk-summary' => array( 'tómlược' ),
 	'wlk-hidden' => array( 0, 'ẩn' ),
 	'wlk-more' => array( 0, 'thêm' ),
+);
+
+/** Simplified Chinese (‪中文(简体)‬) */
+$magicWords['zh-hans'] = array(
+	'wl-settings' => array( 0, '设置' ),
+	'wl-publish' => array( 0, '发布' ),
+	'wl-author' => array( 0, '作者' ),
+	'wl-tags' => array( 0, '标签' ),
+	'wl-info' => array( 0, '信息' ),
+	'wlk-icon' => array( 0, '图标' ),
+	'wlk-logo' => array( 0, '徽标' ),
+	'wlk-subtitle' => array( 0, '小标题' ),
+	'wlk-summary' => array( '总结' ),
+	'wlk-hidden' => array( 0, '隐藏' ),
+	'wlk-more' => array( 0, '更多' ),
 );

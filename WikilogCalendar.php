@@ -95,12 +95,12 @@ class WikilogCalendar
             if (substr($d, 0, 6) != $month)
                 $html .= 'wl-calendar-other ';
             $html .= 'wl-calendar-day';
-            if ($date = $dates[$d])
-                $html .= '"><a href="'.htmlspecialchars($date['link']).'" title="'.htmlspecialchars($date['title']).'">';
+            if (!empty($dates[$d]))
+                $html .= '"><a href="'.htmlspecialchars($dates[$d]['link']).'" title="'.htmlspecialchars($dates[$d]['title']).'">';
             else
                 $html .= '-empty">';
             $html .= date('j', $ts);
-            if ($date)
+            if (!empty($dates[$d]))
                 $html .= '</a>';
             $html .= '</td>';
         }

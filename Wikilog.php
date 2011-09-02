@@ -284,7 +284,7 @@ class Wikilog
 				} else {
 					return true;
 				}
-			} else if ( $wi->isItem() ) {
+			} elseif ( $wi->isItem() ) {
 				$article = new WikilogItemPage( $title, $wi );
 			} else {
 				$article = new WikilogMainPage( $title, $wi );

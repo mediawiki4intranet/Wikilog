@@ -18,7 +18,9 @@ are no longer supported in this release.
 
 * (mw:bug 27904) Fixed method signature compatibility with Mw1.16 for
   WikilogParserCache.
-
+* (wl:issue 12) Fixed calls to $wgParser->clearState() (which is now a private
+  function).
+* Fixed a crash when creating a new wikilog post as an unlogged user.
 
 == Wikilog 1.1.0 ==
 

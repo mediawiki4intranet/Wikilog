@@ -8,11 +8,24 @@
 
 $specialPageAliases = array();
 
-/** English (English)
- * @author Juliano F. Ravasi
- */
+/** English (English) */
 $specialPageAliases['en'] = array(
 	'Wikilog' => array( 'Wikilog', 'Wikilogs' ),
+);
+
+/** Arabic (العربية) */
+$specialPageAliases['ar'] = array(
+	'Wikilog' => array( 'سجل_الويكي', 'سجلات_الويكي' ),
+);
+
+/** Breton (Brezhoneg) */
+$specialPageAliases['br'] = array(
+	'Wikilog' => array( 'MarilhoùWiki' ),
+);
+
+/** Persian (فارسی) */
+$specialPageAliases['fa'] = array(
+	'Wikilog' => array( 'ویکی‌سیاهه' ),
 );
 
 /** Galician (Galego) */
@@ -20,9 +33,19 @@ $specialPageAliases['gl'] = array(
 	'Wikilog' => array( 'Wikilog' ),
 );
 
+/** Haitian (Kreyòl ayisyen) */
+$specialPageAliases['ht'] = array(
+	'Wikilog' => array( 'WikiJounal' ),
+);
+
 /** Japanese (日本語) */
 $specialPageAliases['ja'] = array(
 	'Wikilog' => array( 'ウィキ記録' ),
+);
+
+/** Macedonian (Македонски) */
+$specialPageAliases['mk'] = array(
+	'Wikilog' => array( 'Викидневник' ),
 );
 
 /** Malayalam (മലയാളം) */
@@ -30,9 +53,19 @@ $specialPageAliases['ml'] = array(
 	'Wikilog' => array( 'വിക്കിരേഖ', 'വിക്കിരേഖകൾ' ),
 );
 
+/** Norwegian (bokmål)‬ (‪Norsk (bokmål)‬) */
+$specialPageAliases['no'] = array(
+	'Wikilog' => array( 'Wikilogg' ),
+);
+
 /** Portuguese (Português) */
 $specialPageAliases['pt'] = array(
 	'Wikilog' => array( 'Wikilog', 'Wikilogs' ),
+);
+
+/** Turkish (Türkçe) */
+$specialPageAliases['tr'] = array(
+	'Wikilog' => array( 'VikiGünlük' ),
 );
 
 /**

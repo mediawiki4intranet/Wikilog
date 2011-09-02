@@ -251,7 +251,7 @@ abstract class WikilogFeed
 				}
 
 				return $messageMemc->get( $feedkey );
-			} else if ( $tsCache >= $tsData ) {
+			} elseif ( $tsCache >= $tsData ) {
 				wfDebug( __METHOD__ . ": loading feed from cache -- " .
 					"not modified: cache ($tsCache) >= data ($tsData)" .
 					"($feedkey)\n" );
@@ -494,7 +494,7 @@ class WikilogItemFeed
 					$st = @ unserialize( $row->wlw_subtitle );
 					if ( is_array( $st ) ) {
 						$feed->setSubtitle( new WlTextConstruct( $st[0], $st[1] ) );
-					} else if ( is_string( $st ) ) {
+					} elseif ( is_string( $st ) ) {
 						$feed->setSubtitle( $st );
 					}
 				}

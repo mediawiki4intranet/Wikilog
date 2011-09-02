@@ -171,7 +171,7 @@ class SpecialWikilog
 			$pager = new WikilogArchivesPager( $query, $this->including(), $opts['limit'] );
 			$pager->noActions = true;
 		}
-		else if ( $opts['template'] ) {
+		elseif ( $opts['template'] ) {
 			$templ = Title::makeTitle( NS_TEMPLATE, $opts['template'] );
 			$pager = new WikilogTemplatePager( $query, $templ, $opts['limit'], $this->including() );
 		} else {
@@ -311,21 +311,21 @@ class SpecialWikilog
 		foreach ( preg_split( '|[/;]|', $parameters ) as $par ) {
 			if ( is_numeric( $par ) ) {
 				$opts['limit'] = intval( $par );
-			} else if ( in_array( $par, self::$statuses ) ) {
+			} elseif ( in_array( $par, self::$statuses ) ) {
 				$opts['show'] = $par;
-			} else if ( in_array( $par, self::$views ) ) {
+			} elseif ( in_array( $par, self::$views ) ) {
 				$opts['view'] = $par;
-			} else if ( preg_match( '/^sort=(.+)$/', $par, $m ) ) {
+			} elseif ( preg_match( '/^sort=(.+)$/', $par, $m ) ) {
 				$opts['sort'] = $m[1];
-			} else if ( preg_match( '/^t(?:ag)?=(.+)$/', $par, $m ) ) {
+			} elseif ( preg_match( '/^t(?:ag)?=(.+)$/', $par, $m ) ) {
 				$opts['tag'] = $m[1];
-			} else if ( preg_match( '/^y(?:ear)?=(.+)$/', $par, $m ) ) {
+			} elseif ( preg_match( '/^y(?:ear)?=(.+)$/', $par, $m ) ) {
 				$opts['year'] = intval( $m[1] );
-			} else if ( preg_match( '/^m(?:onth)?=(.+)$/', $par, $m ) ) {
+			} elseif ( preg_match( '/^m(?:onth)?=(.+)$/', $par, $m ) ) {
 				$opts['month'] = intval( $m[1] );
-			} else if ( preg_match( '/^d(?:ay)?=(.+)$/', $par, $m ) ) {
+			} elseif ( preg_match( '/^d(?:ay)?=(.+)$/', $par, $m ) ) {
 				$opts['day'] = intval( $m[1] );
-			} else if ( preg_match( '/^date=(.+)$/', $par, $m ) ) {
+			} elseif ( preg_match( '/^date=(.+)$/', $par, $m ) ) {
 				if ( ( $date = self::parseDateParam( $m[1] ) ) ) {
 					list( $opts['year'], $opts['month'], $opts['day'] ) = $date;
 				}
@@ -334,11 +334,11 @@ class SpecialWikilog
 					$ns = $t->getNamespace();
 					if ( in_array( $ns, $wgWikilogNamespaces ) ) {
 						$opts['wikilog'] = $t->getPrefixedDBkey();
-					} else if ( $ns == NS_CATEGORY ) {
+					} elseif ( $ns == NS_CATEGORY ) {
 						$opts['category'] = $t->getDBkey();
-					} else if ( $ns == NS_USER ) {
+					} elseif ( $ns == NS_USER ) {
 						$opts['author'] = $t->getDBkey();
-					} else if ( $ns == NS_TEMPLATE ) {
+					} elseif ( $ns == NS_TEMPLATE ) {
 						$opts['template'] = $t->getDBkey();
 					}
 				}

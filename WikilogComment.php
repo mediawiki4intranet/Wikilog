@@ -373,7 +373,7 @@ class WikilogComment
 	public function getCommentArticleTitle() {
 		if ( $this->mCommentTitle ) {
 			return $this->mCommentTitle;
-		} else if ( $this->mCommentPage ) {
+		} elseif ( $this->mCommentPage ) {
 			return Title::newFromID( $this->mCommentPage, GAID_FOR_UPDATE );
 		} else {
 			$it = $this->mItem->mTitle;

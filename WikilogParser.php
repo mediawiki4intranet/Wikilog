@@ -147,7 +147,7 @@ class WikilogParser
 				self::trySetSummary( $parser, trim( $p[0] ) );
 				$anchor = $parser->insertStripItem( self::MORE_ANCHOR );
 				$text = $p[0] . $anchor . $p[1];
-			} else if ( !$parser->mExtWikilog->mSummary ) {
+			} elseif ( !$parser->mExtWikilog->mSummary ) {
 				# Otherwise, make a summary from the intro section.
 				# Why we don't use $parser->getSection()? Because it has the
 				# side-effect of clearing the parser state, which is bad here
@@ -235,11 +235,11 @@ class WikilogParser
 				if ( ( $icon = self::parseImageLink( $parser, $value ) ) ) {
 					$parser->mExtWikilog->mIcon = $icon->getTitle();
 				}
-			} else if ( $mwLogo->matchStart( $key ) ) {
+			} elseif ( $mwLogo->matchStart( $key ) ) {
 				if ( ( $logo = self::parseImageLink( $parser, $value ) ) ) {
 					$parser->mExtWikilog->mLogo = $logo->getTitle();
 				}
-			} else if ( $mwSubtitle->matchStart( $key ) ) {
+			} elseif ( $mwSubtitle->matchStart( $key ) ) {
 				$popt = $parser->getOptions();
 				$popt->enableLimitReport( false );
 				$output = $parser->parse( $value, $parser->getTitle(), $popt, true, false );
@@ -472,7 +472,7 @@ class WikilogParser
 		}
 
 		$user = User::newFromName( $name );
-		if ( !is_null( $user ) ) {
+		if ( $user ) {
 			$parser->mExtWikilog->mAuthors[$user->getName()] = $user->getID();
 		}
 		else {

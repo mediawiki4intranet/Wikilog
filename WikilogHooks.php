@@ -62,7 +62,7 @@ class WikilogHooks
 				$wi->getItemTitle()->invalidateCache();
 				$wi->getItemTitle()->purgeSquid();
 			}
-		} else if ( $wi->isItem() ) {
+		} elseif ( $wi->isItem() ) {
 			# ::WikilogItemPage::
 			$item = WikilogItem::newFromInfo( $wi );
 			if ( !$item ) {
@@ -226,14 +226,14 @@ class WikilogHooks
 				$item->mParent = $item->mParentTitle->getArticleId();
 				$item->saveData();
 			}
-		} else if ( $newwl ) {
+		} elseif ( $newwl ) {
 			# Moving from normal namespace to wikilog namespace.
 			# Create wikilog data.
 			wfDebug( __METHOD__ . ": Moving from another namespace to wikilog " .
 				"namespace ($oldns, $newns). Creating wikilog data.\n" );
 			# FIXME: This needs a reparse of the wiki text in order to
 			# populate wikilog metadata. Or forbid this action.
-		} else if ( $oldwl ) {
+		} elseif ( $oldwl ) {
 			# Moving from wikilog namespace to normal namespace.
 			# Purge wikilog data.
 			wfDebug( __METHOD__ . ": Moving from wikilog namespace to another " .

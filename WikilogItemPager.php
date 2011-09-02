@@ -619,7 +619,7 @@ class WikilogArchivesPager
 		if ( is_string( $list ) ) {
 			return $this->authorLink( $list );
 		}
-		else if ( is_array( $list ) ) {
+		elseif ( is_array( $list ) ) {
 			$list = array_keys( $list );
 			return implode( ', ', array_map( array( &$this, 'authorLink' ), $list ) );
 		}

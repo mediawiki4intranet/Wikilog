@@ -87,7 +87,6 @@ class WikilogCommentsPage
 		# Prepare the skin and the comment formatter.
 		$this->mSkin = $wgUser->getSkin();
 		$this->mFormatter = new WikilogCommentFormatter( $this->mSkin, $this->mUserCanPost );
-		$this->mFormatter->setPermalinkTitle( new Title() );
 
 		# Get item object relative to this comments page.
 		$this->mItem = WikilogItem::newFromInfo( $wi );
