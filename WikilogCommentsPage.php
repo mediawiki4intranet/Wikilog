@@ -216,6 +216,8 @@ class WikilogCommentsPage
 		# Display "post new comment" form, if appropriate.
 		if ( $this->mUserCanPost )
 			$wgOut->addHtml( $this->getPostCommentForm( $this->mSingleComment ) );
+		elseif ( $wgUser->isAnon() )
+			$wgOut->addWikiMsg( 'wikilog-login-to-comment' );
 
 		# Close div.
 		$wgOut->addHtml( Xml::closeElement( 'div' ) );
