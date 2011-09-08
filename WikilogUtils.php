@@ -324,17 +324,22 @@ class WikilogUtils
 				$summary = new DOMDocument();
 				$h = false;
 				# Dive straight into imported <html><body>
-				foreach ($dom->documentElement->childNodes->item(0)->childNodes as $node)
+				foreach ( $dom->documentElement->childNodes->item(0)->childNodes as $node )
 				{
 					# Cut summary at first heading
-					if (preg_match('/^h\d$/is', $node->nodeName))
+					if ( preg_match( '/^h\d$/is', $node->nodeName ) )
 					{
 						$h = true;
 						break;
 					}
-					if ($node->nodeName == 'table' && $node->attributes->getNamedItem('id')->textContent == 'toc' ||
-						$node->nodeName == 'script')
+					if ( $node->nodeName == 'script' )
 						continue;
+					if ( $node->nodeName == 'table' )
+					{
+						$id = $node->attributes->getNamedItem( 'id' );
+						if ( $id && $id->textContent == 'toc' )
+							continue;
+					}
 					$summary->appendChild($summary->importNode($node, true));
 				}
 			}
