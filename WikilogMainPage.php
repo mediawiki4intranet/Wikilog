@@ -268,13 +268,13 @@ class WikilogMainPage
 			{
 				$t = Title::newFromID( $obj->page_id );
 				if ( $t->userCan( 'edit' ) )
-					$opts[] = $t->getPrefixedText();
+					$opts[] = $t;
 			}
 			if ( !$opts )
 				return '';
 			$wikilog_select = new XmlSelect( false, 'wl-newitem-wikilog' );
 			foreach ( $opts as $o )
-				$wikilog_select->addOption( $o, $o );
+				$wikilog_select->addOption( $o->getText(), $o->getPrefixedText() );
 			$fields[] = Xml::label( wfMsg( 'wikilog-form-wikilog' ), 'wl-newitem-wikilog' )
 				. '&nbsp;' . $wikilog_select->getHTML();
 		}
