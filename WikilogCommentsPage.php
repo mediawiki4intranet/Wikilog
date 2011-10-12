@@ -310,7 +310,7 @@ class WikilogCommentsPage
 		if ( !$wgUser->getId() || !$this->mItem || !$this->mItem->exists() )
 			return '';
 		$isa = array_flip( $this->mItem->mAuthors );
-		if ( $isa[ $wgUser->getId() ] )
+		if ( isset( $isa[ $wgUser->getId() ] ) )
 			return wfMsgNoTrans( 'wikilog-subscribed-as-author' );
 		$sub = !$this->is_subscribed( $this->mItem->getId() );
 		return wfMsgNoTrans( $sub ? 'wikilog-do-subscribe' : 'wikilog-do-unsubscribe',
