@@ -29,6 +29,8 @@ $messages['en'] = array(
 	'wikilog-specialwikilog-title' => 'Wikilogs', # Page title
 
 	'wikilog-mark-all-read' => 'Mark all items read',
+	'wikilog-sessionfailure' => 'There seems to be a problem with your login session;
+this action has been canceled as a precaution against session hijacking. Please retry posting the comment.',
 
 	# Logs
 	'wikilog-log-pagename' => 'Wikilog actions log',
@@ -6228,6 +6230,9 @@ $messages['ru'] = array(
 	'wikilog-specialwikilog-title' => 'Викилоги',
 
 	'wikilog-mark-all-read' => 'Отметить все записи как прочитанные',
+	'wikilog-sessionfailure' => 'Похоже, возникли проблемы с текущим сеансом работы;
+это действие было отменено в целях предотвращения «захвата сеанса».
+Пожалуйста, попробуйте отправить комментарий ещё раз.',
 
 	'wikilog-log-pagename' => 'Журнал действий викилога',
 	'wikilog-log-pagetext' => 'Ниже приведен список действия викилога.',

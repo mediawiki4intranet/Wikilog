@@ -236,16 +236,10 @@ class WikilogCommentsPage
 			return;
 		}
 
-		if ( $wgRequest->getBool( 'wlActionSubscribe' ) )
-		{
+		if ( $wgRequest->getBool( 'wlActionSubscribe' ) ) {
 			$s = $this->subscribe( $this->mItem->getId() ) ? 'yes' : 'no';
 			$wgOut->setPageTitle( wfMsg( "wikilog-subscribed-title-$s" ) );
 			$wgOut->addWikiText( wfMsgNoTrans( "wikilog-subscribed-text-$s", $this->mItem->mTitle->getPrefixedText() ) );
-			return;
-		}
-
-		if ( !$wgUser->matchEditToken( $wgRequest->getVal( 'wpEditToken' ) ) ) {
-			$wgOut->showErrorPage( 'wikilog-error', 'sessionfailure' );
 			return;
 		}
 
@@ -256,16 +250,22 @@ class WikilogCommentsPage
 
 		if ( $wgRequest->wasPosted() ) {
 			# HTTP post: either comment preview or submission.
-			if ( !$this->mUserCanPost ) {
-				$wgOut->permissionRequired( 'wl-postcomment' );
-				return;
-			}
 			$this->mPostedComment = $this->getPostedComment();
 			if ( $this->mPostedComment ) {
-				if ( $wgRequest->getBool( 'wlActionCommentSubmit' ) ) {
-					return $this->postComment( $this->mPostedComment );
+				$submit = $wgRequest->getBool( 'wlActionCommentSubmit' );
+				$preview = $wgRequest->getBool( 'wlActionCommentPreview' );
+				if ( $submit ) {
+					if ( !$wgUser->matchEditToken( $wgRequest->getVal( 'wpEditToken' ) ) ) {
+						$wgOut->wrapWikiMsg( "<div class='error'>\n$1</div>", 'wikilog-sessionfailure' );
+						$preview = true;
+					} elseif ( !$this->mUserCanPost ) {
+						$wgOut->permissionRequired( 'wl-postcomment' );
+						$preview = true;
+					} else {
+						return $this->postComment( $this->mPostedComment );
+					}
 				}
-				if ( $wgRequest->getBool( 'wlActionCommentPreview' ) ) {
+				if ( $preview ) {
 					return $this->view();
 				}
 			}
@@ -277,6 +277,10 @@ class WikilogCommentsPage
 				$permerrors = $title->getUserPermissionsErrors( 'wl-moderation', $wgUser );
 				if ( count( $permerrors ) > 0 ) {
 					$wgOut->showPermissionsErrorPage( $permerrors );
+					return;
+				}
+				if ( !$wgUser->matchEditToken( $wgRequest->getVal( 'wpEditToken' ) ) ) {
+					$wgOut->showErrorPage( 'wikilog-error', 'sessionfailure' );
 					return;
 				}
 
