@@ -524,7 +524,6 @@ class WikilogCommentsPage
 		if ( !WlCaptcha::confirmEdit( $this->getTitle(), $comment->getText() ) ) {
 			$this->mCaptchaForm = WlCaptcha::getCaptchaForm();
 			$wgOut->setPageTitle( $this->mTitle->getPrefixedText() );
-			$wgOut->setRobotPolicy( 'noindex,nofollow' );
 			$wgOut->addHtml( $this->getPostCommentForm( $comment->mParent ) );
 			return;
 		}
