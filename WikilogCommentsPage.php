@@ -170,18 +170,20 @@ class WikilogCommentsPage
 			// NOTE (MW1.16+): Must come after parent::view().
 			// Note: Sorry for the three-level cascade of wfMsg()'s...
 			$wgOut->setPageTitle( wfMsg( 'wikilog-title-comments', $this->mItem ? $this->mItem->mName : $this->mWikilog->getPrefixedText() ) );
-			if ( $this->mItem )
+			if ( $this->mItem ) {
 				$wgOut->setHTMLTitle( wfMsg( 'wikilog-title-comments',
 					wfMsg( 'wikilog-title-item-full',
 						$this->mWikilog->getPrefixedText(), $this->mItem->mName
 					) ) );
+			}
 		}
 
 		# Add a backlink to the original article.
-		if ($this->mItem)
+		if ( $this->mItem ) {
 			$link = $this->mSkin->link( $this->mItem->mTitle, $this->mItem->mName );
-		else
+		} else {
 			$link = $this->mSkin->link( $this->mWikilog, $this->mWikilog->getPrefixedText() );
+		}
 		$wgOut->setSubtitle( wfMsg( 'wikilog-backlink', $link ) );
 
 		# Retrieve comments (or replies) from database and display them.
