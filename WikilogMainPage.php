@@ -141,6 +141,7 @@ class WikilogMainPage
 			return $this->actionImport();
 
 		$wgOut->setPageTitle( wfMsg( 'wikilog-tab-title' ) );
+		$wgOut->setRobotpolicy( 'noindex,nofollow' );
 
 		if ( $this->mTitle->exists() ) {
 			$skin = $wgUser->getSkin();
