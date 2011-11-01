@@ -113,10 +113,9 @@ class WikilogItemPage
 				}
 			}
 
-			if ( $wgWikilogCommentsOnItemPage )
-			{
+			if ( $wgWikilogCommentsOnItemPage ) {
 				$comments = new WikilogCommentsPage( $this->getTitle()->getTalkPage(), $this->wikilogInfo );
-				$comments->view();
+				$comments->outputComments();
 			}
 
 			# Override page title.

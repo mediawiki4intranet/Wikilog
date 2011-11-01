@@ -109,6 +109,25 @@ class WikilogCommentsPage
 	}
 
 	/**
+	 * Override getRobotPolicy()
+	 */
+	public function getRobotPolicy( $action ) {
+		if ( $this->mSingleComment ) {
+			// Do not index individual comment pages
+			return array( 'index' => 'noindex', 'follow' => 'nofollow' );
+		}
+		return array( 'index' => 'index', 'follow' => 'follow' );
+	}
+
+	/**
+	 * Just show the comments without other page details
+	 */
+	public function outputComments() {
+		$query = new WikilogCommentQuery( $this->mItem ? $this->mItem : $this->mWikilog );
+		$this->viewComments( $query );
+	}
+
+	/**
 	 * Handler for action=view requests.
 	 */
 	public function view() {
