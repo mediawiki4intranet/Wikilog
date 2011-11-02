@@ -251,8 +251,7 @@ class WikilogComment
 	/**
 	 * Notify about new comment by email
 	 */
-	public function sendCommentEmails()
-	{
+	public function sendCommentEmails() {
 		global $wgParser, $wgPasswordSender;
 		/* Message arguments:
 		 * $1 = full page name of comment page
@@ -270,31 +269,38 @@ class WikilogComment
 			'',
 			'',
 		);
-		/* $to_ids = array( userid => TRUE|FALSE (can unsubscribe | cannot) ) */
+		// $to_ids = array( userid => TRUE|FALSE (can unsubscribe | cannot) )
 		$to_ids = array();
-		if ( $this->mParentObj )
-		{
-			/* Always notify parent comment author */
+		if ( $this->mParentObj ) {
+			// Always notify parent comment author
 			$to_ids[ $this->mParentObj->mUserID ] = false;
 			$args[4] = $this->mParentObj->mCommentTitle->getPrefixedText();
 			$args[5] = $this->mParentObj->mUserText;
 		}
-		/* Notify users subscribed to the post */
+		// Notify users subscribed to the single post,
+		// plus ones subscribed to the whole wikilog,
+		// except ones unsubscribed from the single post
 		$dbr = wfGetDB( DB_SLAVE );
-		$result = $dbr->select(
-			'wikilog_subscriptions',
-			'ws_user',
-			array('ws_page' => $this->mItem->getID(), 'ws_yes' => 1),
+		$id = $this->mItem->getID();
+		$wlid = $this->mItem->mParent;
+		$s = $dbr->tableName( 'wikilog_subscriptions' );
+		$result = $dbr->query(
+			"SELECT ws_user FROM $s WHERE ws_page=$id AND ws_yes=1 UNION ALL".
+			" SELECT s1.ws_user FROM $s s1 LEFT JOIN $s s2 ON s2.ws_user=s1.ws_user".
+			" AND s2.ws_page=$id AND s2.ws_yes=0 WHERE s1.ws_page=$wlid AND s1.ws_yes=1 AND s2.ws_user IS NULL",
 			__METHOD__
 		);
-		while ( $u = $dbr->fetchRow( $result ) )
-			if ( !array_key_exists( $u[0], $to_ids ) )
+		while ( $u = $dbr->fetchRow( $result ) ) {
+			if ( !array_key_exists( $u[0], $to_ids ) ) {
 				$to_ids[ $u[0] ] = true;
-		/* Always notify post author(s), and they cannot unsubscribe */
-		foreach ( $this->mItem->mAuthors as $k => $v )
+			}
+		}
+		// Always notify post author(s), and they cannot unsubscribe
+		foreach ( $this->mItem->mAuthors as $k => $v ) {
 			$to_ids[ $v ] = false;
+		}
 		$dbr->freeResult($result);
-		/* Build message subject, body and unsubscribe link */
+		// Build message subject, body and unsubscribe link
 		$saveExpUrls = WikilogParser::expandLocalUrls();
 		$popt = new ParserOptions( User::newFromId( $this->mUserID ) );
 		$subject = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-subject', $args ),
@@ -304,7 +310,7 @@ class WikilogComment
 			$this->mItem->mTitle, $popt, true, false );
 		$body = $body->getText();
 		WikilogParser::expandLocalUrls($saveExpUrls);
-		/* Unsubscribe link is appended to e-mails of users that can unsubscribe */
+		// Unsubscribe link is appended to e-mails of users that can unsubscribe
 		global $wgServer, $wgScript;
 		$unsubscribe = wfMsgNoTrans(
 			'wikilog-comment-email-unsubscribe',
@@ -316,35 +322,36 @@ class WikilogComment
 				'wl-subscribe' => 0,
 			) )
 		);
-		/* Build e-mail lists (with unsubscribe link, without unsubscribe link) */
+		// Build e-mail lists (with unsubscribe link, without unsubscribe link)
 		$to_with = array();
 		$to_without = array();
-		foreach ( $to_ids as $id => $can_unsubcribe )
-		{
-			/* Do not send user his own comments */
-			if ( $id != $this->mUserID )
-			{
+		foreach ( $to_ids as $id => $can_unsubcribe ) {
+			// Do not send user his own comments
+			if ( $id != $this->mUserID ) {
 				$email = new MailAddress( User::newFromId( $id )->getEmail() );
-				if ( $email )
-				{
-					if ( $can_unsubcribe )
+				if ( $email ) {
+					if ( $can_unsubcribe ) {
 						$to_with[] = $email;
-					else
+					} else {
 						$to_without[] = $email;
+					}
 				}
 			}
 		}
-		/* Build "From:" address */
+		// Build "From:" address
 		$from = User::newFromId( $this->mUserID );
-		if ( $from && $from->getEmail() )
+		if ( $from && $from->getEmail() ) {
 			$from = new MailAddress( $from->getEmail(), $from->getRealName() );
-		else
+		} else {
 			$from = new MailAddress( $wgPasswordSender, 'Wikilog' );
-		/* Send e-mails */
-		if ( $to_with )
+		}
+		// Send e-mails
+		if ( $to_with ) {
 			UserMailer::send( $to_with, $from, $subject, $body . $unsubscribe );
-		if ( $to_without )
+		}
+		if ( $to_without ) {
 			UserMailer::send( $to_without, $from, $subject, $body );
+		}
 	}
 
 	/**

@@ -231,14 +231,16 @@ class WikilogCommentsPage
 		$wgOut->addHtml( $pager->getBody() . $pager->getNavigationBar() );
 
 		# Display subscribe/unsubscribe link.
-		if ( $wgUser->getId() && !$this->mSingleComment )
+		if ( $wgUser->getId() && !$this->mSingleComment ) {
 			$wgOut->addHtml( $this->getSubscribeLink() );
+		}
 
 		# Display "post new comment" form, if appropriate.
-		if ( $this->mUserCanPost )
+		if ( $this->mUserCanPost ) {
 			$wgOut->addHtml( $this->getPostCommentForm( $this->mSingleComment ) );
-		elseif ( $wgUser->isAnon() )
+		} elseif ( $wgUser->isAnon() ) {
 			$wgOut->addWikiMsg( 'wikilog-login-to-comment' );
+		}
 
 		# Close div.
 		$wgOut->addHtml( Xml::closeElement( 'div' ) );
@@ -252,15 +254,21 @@ class WikilogCommentsPage
 	{
 		global $wgOut, $wgUser, $wgRequest;
 
-		if ( !$this->mItem || !$this->mItem->exists() ) {
-			$wgOut->showErrorPage( 'wikilog-error', 'wikilog-no-such-article' );
+		if ( $wgRequest->getBool( 'wlActionSubscribe' ) &&
+			( !$this->mItem || $this->mItem->exists() ) ) {
+			$id = $this->mItem ? $this->mItem->getId() : $this->mWikilog->getArticleId();
+			$s = $this->subscribe( $id ) ? 'yes' : 'no';
+			$wgOut->setPageTitle( wfMsg( "wikilog-subscribed-title-$s" ) );
+			if ( $this->mItem ) {
+				$wgOut->addWikiText( wfMsgNoTrans( "wikilog-subscribed-text-$s", $this->mItem->mTitle->getPrefixedText() ) );
+			} else {
+				$wgOut->addWikiText( wfMsgNoTrans( "wikilog-subscribed-all-$s", $this->mWikilog->getPrefixedText() ) );
+			}
 			return;
 		}
 
-		if ( $wgRequest->getBool( 'wlActionSubscribe' ) ) {
-			$s = $this->subscribe( $this->mItem->getId() ) ? 'yes' : 'no';
-			$wgOut->setPageTitle( wfMsg( "wikilog-subscribed-title-$s" ) );
-			$wgOut->addWikiText( wfMsgNoTrans( "wikilog-subscribed-text-$s", $this->mItem->mTitle->getPrefixedText() ) );
+		if ( !$this->mItem || !$this->mItem->exists() ) {
+			$wgOut->showErrorPage( 'wikilog-error', 'wikilog-no-such-article' );
 			return;
 		}
 
@@ -329,21 +337,38 @@ class WikilogCommentsPage
 	/**
 	 * Generates and returns a subscribe/unsubscribe link.
 	 */
-	public function getSubscribeLink()
-	{
+	public function getSubscribeLink() {
 		global $wgScript, $wgUser;
-		if ( !$wgUser->getId() || !$this->mItem || !$this->mItem->exists() )
+		if ( !$wgUser->getId() ) {
 			return '';
-		$isa = array_flip( $this->mItem->mAuthors );
-		if ( isset( $isa[ $wgUser->getId() ] ) )
-			return wfMsgNoTrans( 'wikilog-subscribed-as-author' );
-		$sub = !$this->is_subscribed( $this->mItem->getId() );
-		return wfMsgNoTrans( $sub ? 'wikilog-do-subscribe' : 'wikilog-do-unsubscribe',
+		}
+		// Is the user subscribed to all entries of the wikilog?
+		$all = $this->is_subscribed( $this->mWikilog->getArticleId() );
+		if ( $this->mItem && $this->mItem->exists() ) {
+			$isa = array_flip( $this->mItem->mAuthors );
+			if ( isset( $isa[ $wgUser->getId() ] ) ) {
+				return wfMsgNoTrans( 'wikilog-subscribed-as-author' );
+			}
+			$sub = $this->is_subscribed( $this->mItem->getId() );
+			if ( $sub === NULL && $all ) {
+				// User is subcribed to all entries and didn't care about this one explicitly
+				$sub = true;
+				$msg = 'wikilog-do-unsubscribe-one';
+			} else {
+				$msg = $sub ? 'wikilog-do-unsubscribe' : 'wikilog-do-subscribe';
+			}
+		} elseif ( $this->mWikilog->exists() ) {
+			$sub = $all;
+			$msg = $sub ? 'wikilog-do-unsubscribe-all' : 'wikilog-do-subscribe-all';
+		} else {
+			return '';
+		}
+		return wfMsgNoTrans( $msg,
 			$wgScript.'?'.http_build_query( array(
 				'title' => $this->getTitle()->getPrefixedText(),
 				'action' => 'wikilog',
 				'wlActionSubscribe' => 1,
-				'wl-subscribe' => $sub ? 1 : 0,
+				'wl-subscribe' => $sub ? 0 : 1,
 			) ) );
 	}
 
@@ -351,13 +376,13 @@ class WikilogCommentsPage
 	   1 if current user is subcribed to post $itemid comments
 	   0 if unsubscribed
 	   NULL if didn't care */
-	public function is_subscribed( $itemid )
-	{
+	public function is_subscribed( $itemid ) {
 		global $wgUser;
 		$dbr = wfGetDB( DB_SLAVE );
 		$r = $dbr->selectField( 'wikilog_subscriptions', 'ws_yes', array( 'ws_page' => $itemid, 'ws_user' => $wgUser->getID() ), __METHOD__ );
-		if ( $r === false )
+		if ( $r === false ) {
 			$r = NULL;
+		}
 		return $r;
 	}
 
@@ -509,19 +534,17 @@ class WikilogCommentsPage
 	/**
 	 * Subscribes/unsubscribes current user to/from comments to some post
 	 */
-	protected function subscribe( $page_id )
-	{
+	protected function subscribe( $page_id ) {
 		global $wgUser, $wgRequest;
-		if ($wgUser->getID())
-		{
-			$subscribe = $wgRequest->getBool('wl-subscribe') ? 1 : 0;
-			$dbw = wfGetDB(DB_MASTER);
-			$dbw->replace('wikilog_subscriptions', array(array('ws_page', 'ws_user')), array(
+		if ( $wgUser->getID() ) {
+			$subscribe = $wgRequest->getBool( 'wl-subscribe' ) ? 1 : 0;
+			$dbw = wfGetDB( DB_MASTER );
+			$dbw->replace( 'wikilog_subscriptions', array( array( 'ws_page', 'ws_user' ) ), array(
 				'ws_page' => $page_id,
 				'ws_user' => $wgUser->getID(),
 				'ws_yes'  => $subscribe,
 				'ws_date' => wfTimestamp(TS_MW),
-			), __METHOD__);
+			), __METHOD__ );
 			return $subscribe;
 		}
 		return NULL;

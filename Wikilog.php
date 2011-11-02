@@ -481,17 +481,16 @@ class WikilogInfo
 
 		# If title contains a '/', treat as a wikilog article title.
 		$parts = explode('/', $title->getText());
-		if (count($parts) > 1 && ($this->mIsTalk || count($parts) == 2))
-		{
-			$this->mWikilogName = array_shift($parts);
-			$this->mItemName = array_shift($parts);
-			$this->mTrailing = implode('/', $parts);
+		if ( count( $parts ) > 1 && ( $this->mIsTalk || count( $parts ) == 2 ) ) {
+			$this->mWikilogName = array_shift( $parts );
+			$this->mItemName = array_shift( $parts );
+			$this->mTrailing = implode( '/', $parts );
 			$rawtitle = "{$this->mWikilogName}/{$this->mItemName}";
 			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
 			$this->mItemTitle = Title::makeTitle( $ns, $rawtitle );
 			$this->mItemTalkTitle = Title::makeTitle( $tns, $rawtitle );
-		} elseif (count($parts) == 1) {
-			# Title doesn't contain a '/', treat as a wikilog name.
+		} elseif ( count( $parts ) == 1 ) {
+			// Title doesn't contain a '/', treat as a wikilog name.
 			$this->mWikilogName = $title->getText();
 			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
 			$this->mItemName = null;

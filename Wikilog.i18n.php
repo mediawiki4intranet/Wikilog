@@ -143,10 +143,19 @@ Uncheck this box to keep the article as a draft.',
 	'wikilog-subscribe' => 'Subscribe to comments to this entry',
 	'wikilog-do-subscribe' => '<p>You are not yet subscribed to all comments to this post. <a href="$1">Subscribe</a>.</p><hr />',
 	'wikilog-do-unsubscribe' => '<p>You are <b>subscribed</b> to all comments to this post. <a href="$1">Unsubscribe</a>.</p><hr />',
+	'wikilog-do-unsubscribe-one' => '<p>You are subscribed to comments to <b>the whole blog</b>. <a href="$1">Unsubscribe from this single entry</a>.</p><hr />',
+	'wikilog-do-subscribe-all' => '<p>Auto-subscription to comments to new entries of this Wikilog is off. <a href="$1">Subscribe to new entries automatically</a>.</p><hr />',
+	'wikilog-do-unsubscribe-all' => '<p>Auto-subscription to comments to new entries of this is <b>on</b>. <a href="$1">Don\'t subscribe to new entries</a>.</p><hr />',
 	'wikilog-subscribed-title-yes' => 'Subscribed to comments',
 	'wikilog-subscribed-title-no' => 'Unsubscribed from comments',
 	'wikilog-subscribed-text-yes' => 'You are now subcribed to all comments to Wikilog entry [[$1]] by e-mail.',
 	'wikilog-subscribed-text-no' => 'You are now unsubcribed from comments to Wikilog entry [[$1]] except the answers to your ones.',
+	'wikilog-subscribed-all-yes' => 'Subscription to all comments in Wikilog [[$1]] is now \'\'\'active\'\'\'.
+
+From now, you will be notified about all comments by default. You won\'t receive the notification only if you\'ll unsubscribe from an individual entry explicitly.',
+	'wikilog-subscribed-all-no' => 'Subscription to all comments in Wikilog [[$1]] is \'\'\'disabled\'\'\'.
+
+From now, you will be notified only if subscribed explicitly or if you\'re the author of post or the comment being replied.',
 	'wikilog-subscribed-as-author' => '<p>You will receive all comments to this entry by e-mail, because you are the author.</p><hr />',
 
 	/* These messages are parsed inside the context of item page, so {{SUBPAGENAME}} refers to the item,
@@ -6322,10 +6331,19 @@ $messages['ru'] = array(
 	'wikilog-subscribe' => 'Подписаться на комментарии к этой записи',
 	'wikilog-do-subscribe' => '<p>Вы ещё не подписаны на все комментарии к этой записи. <a href="$1">Подписаться</a>.</p><hr />',
 	'wikilog-do-unsubscribe' => '<p>Вы <b>подписаны</b> на все комментарии к этой записи. <a href="$1">Отписаться</a>.</p><hr />',
+	'wikilog-do-unsubscribe-one' => '<p>Вы подписаны на комментарии <b>ко всем записям викилога</b>. <a href="$1">Отписаться от этой конкретной записи</a>.</p><hr />',
+	'wikilog-do-subscribe-all' => '<p>Сейчас вы подписываетесь отдельно на комментарии к каждой записи данного викилога. <a href="$1">Включить подписку на все комментарии по умолчанию</a>.</p><hr />',
+	'wikilog-do-unsubscribe-all' => '<p>Вы подписаны по e-mail на <b>все комментарии</b> к записям данного викилога. <a href="$1">Выключить подписку по умолчанию</a>.</p><hr />',
 	'wikilog-subscribed-title-yes' => 'Вы подписаны на комментарии',
 	'wikilog-subscribed-title-no' => 'Вы отписаны от комментариев',
 	'wikilog-subscribed-text-yes' => 'Теперь вы подписаны по e-mail на все комментарии к записи [[$1]].',
 	'wikilog-subscribed-text-no' => 'Теперь вы отписаны от комментариев к записи [[$1]], кроме ответов на лично ваши.',
+	'wikilog-subscribed-all-yes' => 'Теперь вы подписаны по e-mail на \'\'\'все комментарии\'\'\' к записям викилога [[$1]].
+
+С текущего момента вы будете получать уведомления обо всех комментариях ко всем записям этого блога, за исключением тех, от которых явно отписались.',
+	'wikilog-subscribed-all-no' => 'Теперь вы отписаны от комментариев к записям викилога [[$1]] по умолчанию.
+
+С текущего момента вы будете получать уведомления, только если явно подписывались на запись, или вы автор этой записи, или вы автор комментария, на который оставлен ответ.',
 	'wikilog-subscribed-as-author' => '<p>Вы будете получать все комментарии к этой записи по e-mail, потому что вы её автор.</p><hr />',
 
 	'wikilog-feed-description' => 'Читать последние сообщения на этом канале.',
