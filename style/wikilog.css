@@ -159,9 +159,17 @@ div.wl-comment-footer {
 	color: #EEEEEE;
 }
 
-div.wl-comment:hover .wl-comment-tools,
-div.wl-comment-highlight .wl-comment-tools {
-	display: block;
+@media screen {
+	div.wl-comment:hover .wl-comment-tools,
+	div.wl-comment-highlight .wl-comment-tools {
+		display: block;
+	}
+}
+
+@media print {
+	#wl-comment-form {
+		display: none;
+	}
 }
 
 div.wl-comment-pending .wl-comment-text,
