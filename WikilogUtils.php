@@ -317,40 +317,40 @@ class WikilogUtils
 			$summary = Sanitizer::removeHTMLcomments( $parserOutput->mExtWikilog->mSummary );
 		} else {
 			# Use DOM to extract summary from the content text.
-			try
-			{
+			try {
 				$dom = new DOMDocument();
 				@$dom->loadHTML('<?xml encoding="UTF-8">' . $content);
 				$summary = new DOMDocument();
 				$h = false;
-				# Dive straight into imported <html><body>
-				foreach ( $dom->documentElement->childNodes->item(0)->childNodes as $node )
-				{
-					# Cut summary at first heading
-					if ( preg_match( '/^h\d$/is', $node->nodeName ) )
-					{
-						$h = true;
-						break;
-					}
-					if ( $node->nodeName == 'script' )
-						continue;
-					if ( $node->nodeName == 'table' )
-					{
-						$id = $node->attributes->getNamedItem( 'id' );
-						if ( $id && $id->textContent == 'toc' )
+				# Dive into imported <html><body>
+				$ch = $dom->documentElement->childNodes;
+				if ( $ch ) {
+					foreach ( $ch->item( 0 )->childNodes as $node ) {
+						# Cut summary at first heading
+						if ( preg_match( '/^h\d$/is', $node->nodeName ) ) {
+							$h = true;
+							break;
+						}
+						if ( $node->nodeName == 'script' ) {
 							continue;
+						}
+						if ( $node->nodeName == 'table' ) {
+							$id = $node->attributes->getNamedItem( 'id' );
+							if ( $id && $id->textContent == 'toc' ) {
+								continue;
+							}
+						}
+						$summary->appendChild( $summary->importNode( $node, true ) );
 					}
-					$summary->appendChild($summary->importNode($node, true));
 				}
-			}
-			catch(Exception $e)
-			{
+			} catch( Exception $e ) {
 				$h = false;
 			}
-			if ($h)
+			if ( $h ) {
 				$summary = $summary->saveHTML();
-			else
+			} else {
 				$summary = null;
+			}
 		}
 
 		return array( $summary, $content );
