@@ -485,7 +485,7 @@ class WikilogArchivesPager
 
 	function formatRow( $row ) {
 		global $wgUser;
-		$attribs = array();
+		$attribs = array( 'class' => '' );
 		$columns = array();
 		$this->mCurrentRow = $row;
 		$this->mCurrentItem = WikilogItem::newFromRow( $row );
@@ -505,8 +505,9 @@ class WikilogArchivesPager
 			$v = $dbr->fetchRow( $result );
 			$dbr->freeResult( $result );
 			$row->wlp_unread_comments = $v[0];
-			if ( $row->wlp_last_visit < $row->wlp_updated || $row->wlp_unread_comments )
+			if ( $row->wlp_last_visit < $row->wlp_updated || $row->wlp_unread_comments ) {
 				$attribs['class'] .= ' wl-unread';
+			}
 		}
 		foreach ( $this->getFieldNames() as $field => $name ) {
 			$value = isset( $row->$field ) ? $row->$field : null;
@@ -560,8 +561,9 @@ class WikilogArchivesPager
 			case 'wlp_num_comments':
 				$page = $this->mCurrentItem->mTitle->getTalkPage();
 				$text = $this->mCurrentItem->getNumComments();
-				if ( $this->mCurrentRow->wlp_unread_comments )
+				if ( !empty( $this->mCurrentRow->wlp_unread_comments ) ) {
 					$text .= ' (' . $this->mCurrentRow->wlp_unread_comments . ')';
+				}
 				return $this->getSkin()->link( $page, $text, array(), array(),
 					array( 'known', 'noclasses' ) );
 
@@ -602,7 +604,7 @@ class WikilogArchivesPager
 		if ( $wgWikilogEnableComments )
 			$fields['wlp_num_comments']	= wfMsgHtml( 'wikilog-comments' );
 
-		if ( !$this->noActions )
+		if ( empty( $this->noActions ) )
 			$fields['_wl_actions']			= wfMsgHtml( 'wikilog-actions' );
 
 		$fields['wlp_talk_updated'] = wfMsgHtml( 'wikilog-talk-updated' );
