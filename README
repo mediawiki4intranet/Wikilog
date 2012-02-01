@@ -14,6 +14,14 @@ Mailing list for user support and developer discussion:
 
   http://groups.google.com/group/mediawiki-wikilog
 
+= MediaWiki4Intranet =
+
+This is MediaWiki4Intranet's variant of Wikilog extensions.
+It contains several improvements as compared to standard Wikilog.
+Yet you can use it as usual. See the following link for more details:
+
+  http://wiki.4intra.net/Mediawiki4Intranet
+
 == License ==
 
    Wikilog is free software; you can redistribute it and/or modify
@@ -33,7 +41,7 @@ Mailing list for user support and developer discussion:
 
 == Requirements ==
 
-* MediaWiki 1.16 or higher.
+* MediaWiki 1.17 or higher.
 * A MySQL database backend.
 
 == Installation ==

@@ -43,6 +43,11 @@ $specialPageAliases['ja'] = array(
 	'Wikilog' => array( 'ウィキ記録' ),
 );
 
+/** Luxembourgish (Lëtzebuergesch) */
+$specialPageAliases['lb'] = array(
+	'Wikilog' => array( 'Wiki-Logbicher' ),
+);
+
 /** Macedonian (Македонски) */
 $specialPageAliases['mk'] = array(
 	'Wikilog' => array( 'Викидневник' ),
@@ -53,8 +58,8 @@ $specialPageAliases['ml'] = array(
 	'Wikilog' => array( 'വിക്കിരേഖ', 'വിക്കിരേഖകൾ' ),
 );
 
-/** Norwegian (bokmål)‬ (‪Norsk (bokmål)‬) */
-$specialPageAliases['no'] = array(
+/** Norwegian Bokmål (‪Norsk (bokmål)‬) */
+$specialPageAliases['nb'] = array(
 	'Wikilog' => array( 'Wikilogg' ),
 );
 
@@ -67,8 +72,3 @@ $specialPageAliases['pt'] = array(
 $specialPageAliases['tr'] = array(
 	'Wikilog' => array( 'VikiGünlük' ),
 );
-
-/**
- * For backwards compatibility with MediaWiki 1.15 and earlier.
- */
-$aliases =& $specialPageAliases;

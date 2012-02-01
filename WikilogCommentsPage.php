@@ -29,12 +29,6 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
-# NOTE (Mw1.16- COMPAT): GAID_FOR_UPDATE removed and replaced by
-# Title::GAID_FOR_UPDATE in Mw1.17. Remove this define and replace its
-# occurrence WikilogCommentsPage::setCommentApproval() in Wl1.3.
-if ( !defined( 'GAID_FOR_UPDATE' ) )
-	define( 'GAID_FOR_UPDATE', Title::GAID_FOR_UPDATE );
-
 /**
  * Wikilog comments namespace handler class.
  *
@@ -180,9 +174,11 @@ class WikilogCommentsPage
 
 		# Add a backlink to the original article.
 		if ( $this->mItem ) {
-			$link = $this->mSkin->link( $this->mItem->mTitle, $this->mItem->mName );
+			$link = $this->mSkin->link( $this->mItem->mTitle,
+				Sanitizer::escapeHtmlAllowEntities( $this->mItem->mName ) );
 		} else {
-			$link = $this->mSkin->link( $this->mWikilog, $this->mWikilog->getPrefixedText() );
+			$link = $this->mSkin->link( $this->mWikilog,
+				Sanitizer::escapeHtmlAllowEntities( $this->mWikilog->getPrefixedText() ) );
 		}
 		$wgOut->setSubtitle( wfMsg( 'wikilog-backlink', $link ) );
 
@@ -417,10 +413,10 @@ class WikilogCommentsPage
 		}
 
 		$form =
-			Xml::hidden( 'title', ( $parent ? $parent->mCommentTitle : $this->getTitle()->getPrefixedText() ) ) .
-			Xml::hidden( 'action', 'wikilog' ) .
-			Xml::hidden( 'wpEditToken', $wgUser->editToken() ) .
-			( $parent ? Xml::hidden( 'wlParent', $parent->mID ) : '' );
+			Html::hidden( 'title', ( $parent ? $parent->mCommentTitle : $this->getTitle()->getPrefixedText() ) ) .
+			Html::hidden( 'action', 'wikilog' ) .
+			Html::hidden( 'wpEditToken', $wgUser->editToken() ) .
+			( $parent ? Html::hidden( 'wlParent', $parent->mID ) : '' );
 
 		$fields = array();
 
@@ -477,7 +473,7 @@ class WikilogCommentsPage
 		$form .= WikilogUtils::buildForm( $fields );
 
 		foreach ( $opts->getUnconsumedValues() as $key => $value ) {
-			$form .= Xml::hidden( $key, $value );
+			$form .= Html::hidden( $key, $value );
 		}
 
 		$form = Xml::tags( 'form', array(
@@ -516,7 +512,7 @@ class WikilogCommentsPage
 				array( 'content', 'parsemag' ),
 				$comment->mUserText
 			);
-			$id = $title->getArticleID( GAID_FOR_UPDATE );
+			$id = $title->getArticleID( Title::GAID_FOR_UPDATE );
 			if ( $this->doDeleteArticle( $reason, false, $id ) ) {
 				$comment->deleteComment();
 				$log->addEntry( 'c-reject', $title, '' );
@@ -626,7 +622,7 @@ class WikilogCommentsPage
 	/**
 	 * Checks if the given comment is valid for posting.
 	 * @param $comment Comment to validate.
-	 * @returns False if comment is valid, error message identifier otherwise.
+	 * @return False if comment is valid, error message identifier otherwise.
 	 */
 	protected static function validateComment( WikilogComment &$comment ) {
 		global $wgWikilogMaxCommentSize;

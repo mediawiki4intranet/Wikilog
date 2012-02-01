@@ -2,7 +2,7 @@
 
 # Wikilog Calendar
 # Календарь для расширения Wikilog
-# Copyright (c) Vitaliy Filippov, 2010
+# Copyright (c) Vitaliy Filippov, 2010+
 
 class WikilogCalendar
 {
@@ -58,14 +58,14 @@ class WikilogCalendar
     /* Make HTML code for paging links */
     static function makePagingLinks($months, $pager)
     {
-        if ($pager->mIsFirst && $pager->mIsLast)
+        if (!empty($pager->mIsFirst) && !empty($pager->mIsLast))
             return '';
         $urlLimit = $pager->mLimit == $pager->mDefaultLimit ? '' : $pager->mLimit;
-        if ($pager->mIsFirst)
+        if (!empty($pager->mIsFirst))
             $next = false;
         else
             $next = array('dir' => 'prev', 'offset' => ($nextmonth = self::nextMonth($months[0])).'01000000', 'limit' => $urlLimit);
-        if ($pager->mIsLast)
+        if (!empty($pager->mIsLast))
             $prev = false;
         else
             $prev = array('dir' => 'next', 'offset' => ($prevmonth = $months[count($months)-1]).'01000000', 'limit' => $urlLimit );

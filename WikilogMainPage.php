@@ -163,7 +163,7 @@ class WikilogMainPage
 	/**
 	 * Returns wikilog description as formatted HTML.
 	 */
-	protected function formatWikilogDescription( Linker $skin ) {
+	protected function formatWikilogDescription( $skin ) {
 		$this->loadWikilogData();
 
 		$s = '';
@@ -192,7 +192,7 @@ class WikilogMainPage
 	/**
 	 * Returns wikilog information as formatted HTML.
 	 */
-	protected function formatWikilogInformation( Linker $skin ) {
+	protected function formatWikilogInformation( $skin ) {
 		$dbr = wfGetDB( DB_SLAVE );
 
 		$row = $dbr->selectRow(
@@ -278,9 +278,9 @@ class WikilogMainPage
 			$fields[] = Xml::label( wfMsg( 'wikilog-form-wikilog' ), 'wl-newitem-wikilog' )
 				. '&nbsp;' . $wikilog_select->getHTML();
 		}
-		$fields[] = Xml::hidden( 'action', 'edit' );
-		$fields[] = Xml::hidden( 'preload', '' );
-		$fields[] = Xml::hidden( 'title', '' );
+		$fields[] = Html::hidden( 'action', 'edit' );
+		$fields[] = Html::hidden( 'preload', '' );
+		$fields[] = Html::hidden( 'title', '' );
 		$fields[] = Xml::inputLabel( wfMsg( 'wikilog-item-name' ),
 			false, 'wl-item-name', 70, date('Y-m-d ') );
 		$fields[] = Xml::submitButton( wfMsg( 'wikilog-new-item-go' ) );
@@ -302,9 +302,9 @@ class WikilogMainPage
 		global $wgScript;
 
 		$fields = array();
-		$fields[] = Xml::hidden( 'title', $this->mTitle->getPrefixedText() );
-		$fields[] = Xml::hidden( 'action', 'wikilog' );
-		$fields[] = Xml::hidden( 'wikilog-import', 'blogger' );
+		$fields[] = Html::hidden( 'title', $this->mTitle->getPrefixedText() );
+		$fields[] = Html::hidden( 'action', 'wikilog' );
+		$fields[] = Html::hidden( 'wikilog-import', 'blogger' );
 		$fields[] = Xml::inputLabel( wfMsg('wikilog-import-file'), 'wlFile', 'wl-import-file', false, false, array('type' => 'file') );
 		$fields[] = Xml::submitButton( wfMsg( 'wikilog-import-go' ),
 			array( 'name' => 'wlActionImport' ) );

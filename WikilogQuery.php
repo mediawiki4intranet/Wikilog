@@ -390,8 +390,8 @@ class WikilogItemQuery
 		# Filter by category.
 		if ( $this->mCategory ) {
 			# Items and blogs
-			$q_tables[] = '`categorylinks` clyes';
-			$q_joins['`categorylinks` clyes'] = array( 'JOIN', '(wlp_page = clyes.cl_from OR wlp_parent = clyes.cl_from)' );
+			$q_tables['clyes'] = 'categorylinks';
+			$q_joins['clyes'] = array( 'JOIN', '(wlp_page = clyes.cl_from OR wlp_parent = clyes.cl_from)' );
 			$q_conds['clyes.cl_to'] = $this->mCategory->getDBkey();
 			$q_options['GROUP BY'] = 'wlp_page';
 		}
@@ -399,12 +399,12 @@ class WikilogItemQuery
 		# Exclude items and blogs belonging to category.
 		if ( $this->mNotCategory ) {
 			# Items
-			$q_tables[] = '`categorylinks` clno';
-			$q_joins['`categorylinks` clno'] = array( 'LEFT JOIN', array( 'wlp_page = clno.cl_from', 'clno.cl_to' => $this->mNotCategory->getDBkey() ) );
+			$q_tables['clno'] = 'categorylinks';
+			$q_joins['clno'] = array( 'LEFT JOIN', array( 'wlp_page = clno.cl_from', 'clno.cl_to' => $this->mNotCategory->getDBkey() ) );
 			$q_conds[] = 'clno.cl_to IS NULL';
 			# Blogs
-			$q_tables[] = '`categorylinks` clnob';
-			$q_joins['`categorylinks` clnob'] = array( 'LEFT JOIN', array( 'wlp_parent = clnob.cl_from', 'clnob.cl_to' => $this->mNotCategory->getDBkey() ) );
+			$q_tables['clnob'] = 'categorylinks';
+			$q_joins['clnob'] = array( 'LEFT JOIN', array( 'wlp_parent = clnob.cl_from', 'clnob.cl_to' => $this->mNotCategory->getDBkey() ) );
 			$q_conds[] = 'clnob.cl_to IS NULL';
 		}
 

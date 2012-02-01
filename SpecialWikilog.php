@@ -195,7 +195,7 @@ class SpecialWikilog
 				$article = new Article( $title );
 				$content = $article->getContent();
 				$wgOut->setPageTitle( $title->getPrefixedText() );
-				$wgOut->addWikiTextWithTitle( $content, $title );
+				$wgOut->addWikiTextTitle( $content, $title );
 			}
 
 			# Display query options.
@@ -354,13 +354,13 @@ class SpecialWikilog
 	protected function getHeader( FormOptions $opts ) {
 		global $wgScript;
 
-		$out = Xml::hidden( 'title', $this->getTitle()->getPrefixedText() );
+		$out = Html::hidden( 'title', $this->getTitle()->getPrefixedText() );
 
 		$out .= $this->getQueryForm( $opts );
 
 		$unconsumed = $opts->getUnconsumedValues();
 		foreach ( $unconsumed as $key => $value ) {
-			$out .= Xml::hidden( $key, $value );
+			$out .= Html::hidden( $key, $value );
 		}
 
 		$out = Xml::tags( 'form', array( 'action' => $wgScript ), $out );
@@ -455,9 +455,9 @@ class SpecialWikilog
 		$query = clone $this->query;
 		$query->setCategory( NULL );
 		$res = $query->select(
-			$dbr, array( $dbr->tableName( 'categorylinks' ).' wlpostcat' ),
+			$dbr, array( 'wlpostcat' => 'categorylinks' ),
 			'wlpostcat.cl_to', array(), __FUNCTION__, array(),
-			array( '`categorylinks` wlpostcat' =>
+			array( 'wlpostcat' =>
 				array( 'INNER JOIN', array( 'wlpostcat.cl_from=wlp_page' ) )
 			)
 		);
@@ -468,9 +468,9 @@ class SpecialWikilog
 			$rows[ $row ] = array( $row );
 		}
 		$res = $query->select(
-			$dbr, array( $dbr->tableName( 'categorylinks' ).' wlpostcat' ),
+			$dbr, array( 'wlpostcat' => 'categorylinks' ),
 			'wlpostcat.cl_to', array(), __FUNCTION__, array(),
-			array( '`categorylinks` wlpostcat' =>
+			array( 'wlpostcat' =>
 				array( 'INNER JOIN', array( 'wlpostcat.cl_from=wlp_parent' ) )
 			)
 		);

@@ -29,19 +29,19 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
-/*
+/**
  * General extension information.
  */
 $wgExtensionCredits['specialpage'][] = array(
 	'path'           => __FILE__,
 	'name'           => 'Wikilog',
-	'version'        => '1.1.99.1dev',
+	'version'        => '1.2.0',
 	'author'         => 'Juliano F. Ravasi',
 	'descriptionmsg' => 'wikilog-desc',
-	'url'            => 'http://www.mediawiki.org/wiki/Extension:Wikilog',
+	'url'            => 'https://www.mediawiki.org/wiki/Extension:Wikilog',
 );
 
-/*
+/**
  * Constant definitions.
  */
 // For source-code readability. This ought to be defined by MediaWiki (and
@@ -50,12 +50,12 @@ $wgExtensionCredits['specialpage'][] = array(
 // one globally. It also allows us to keep compatibility.
 define( 'WL_NBSP', '&#160;' );
 
-/*
+/**
  * Dependencies.
  */
 require_once( dirname( __FILE__ ) . '/WlFeed.php' );
 
-/*
+/**
  * Messages.
  */
 $dir = dirname( __FILE__ ) . '/';
@@ -63,7 +63,7 @@ $wgExtensionMessagesFiles['Wikilog'] = $dir . 'Wikilog.i18n.php';
 $wgExtensionMessagesFiles['WikilogMagic'] = $dir . 'Wikilog.i18n.magic.php';
 $wgExtensionMessagesFiles['WikilogAlias'] = $dir . 'Wikilog.i18n.alias.php';
 
-/*
+/**
  * Autoloaded classes.
  */
 $wgAutoloadClasses += array(
@@ -82,7 +82,6 @@ $wgAutoloadClasses += array(
 	// WikilogParser.php
 	'WikilogParser'             => $dir . 'WikilogParser.php',
 	'WikilogParserOutput'       => $dir . 'WikilogParser.php',
-	'WikilogParserCache'        => $dir . 'WikilogParser.php',
 
 	// WikilogItemPager.php
 	'WikilogItemPager'          => $dir . 'WikilogItemPager.php',
@@ -108,6 +107,7 @@ $wgAutoloadClasses += array(
 	// Namespace pages
 	'WikilogMainPage'           => $dir . 'WikilogMainPage.php',
 	'WikilogItemPage'           => $dir . 'WikilogItemPage.php',
+	'WikilogWikiItemPage'       => $dir . 'WikilogItemPage.php',
 	'WikilogCommentsPage'       => $dir . 'WikilogCommentsPage.php',
 
 	// Captcha adapter
@@ -119,13 +119,13 @@ $wgAutoloadClasses += array(
 	'WikilogBloggerImport'      => $dir . 'WikilogBloggerImport.php',
 );
 
-/*
+/**
  * Special pages.
  */
 $wgSpecialPages['Wikilog'] = 'SpecialWikilog';
 $wgSpecialPageGroups['Wikilog'] = 'changes';
 
-/*
+/**
  * Hooks.
  */
 $wgExtensionFunctions[] = array( 'Wikilog', 'ExtensionInit' );
@@ -168,7 +168,7 @@ $wgHooks['InternalParseBeforeLinks'][] = 'WikilogParser::InternalParseBeforeLink
 $wgHooks['GetLocalURL'][] = 'WikilogParser::GetLocalURL';
 $wgHooks['GetFullURL'][] = 'WikilogParser::GetFullURL';
 
-/*
+/**
  * Added rights.
  */
 $wgAvailableRights[] = 'wl-postcomment';
@@ -176,12 +176,12 @@ $wgAvailableRights[] = 'wl-moderation';
 $wgGroupPermissions['user']['wl-postcomment'] = true;
 $wgGroupPermissions['sysop']['wl-moderation'] = true;
 
-/*
+/**
  * Reserved usernames.
  */
 $wgReservedUsernames[] = 'msg:wikilog-auto';
 
-/*
+/**
  * Logs.
  */
 $wgLogTypes[] = 'wikilog';
@@ -190,7 +190,7 @@ $wgLogHeaders['wikilog'] = 'wikilog-log-pagetext';
 $wgLogActions['wikilog/c-approv'] = 'wikilog-log-cmt-approve';
 $wgLogActions['wikilog/c-reject'] = 'wikilog-log-cmt-reject';
 
-/*
+/**
  * Default settings.
  */
 require_once( dirname( __FILE__ ) . '/WikilogDefaultSettings.php' );
@@ -285,7 +285,8 @@ class Wikilog
 					return true;
 				}
 			} elseif ( $wi->isItem() ) {
-				$article = new WikilogItemPage( $title, $wi );
+				$item = WikilogItem::newFromInfo( $wi );
+				$article = new WikilogItemPage( $title, $item );
 			} else {
 				$article = new WikilogMainPage( $title, $wi );
 			}
@@ -434,7 +435,7 @@ class Wikilog
 	 * namespace, and returns an appropriate WikilogInfo instance if so.
 	 *
 	 * @param $title Article title object.
-	 * @returns WikilogInfo instance, or NULL.
+	 * @return WikilogInfo instance, or NULL.
 	 */
 	static function getWikilogInfo( $title ) {
 		global $wgWikilogNamespaces;

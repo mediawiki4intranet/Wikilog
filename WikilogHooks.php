@@ -75,6 +75,17 @@ class WikilogHooks
 			$item->mParentTitle = $wi->getTitle();
 			$item->mParent = $item->mParentTitle->getArticleId();
 
+			# Override item name if {{DISPLAYTITLE:...}} was used.
+			$dtText = $editInfo->output->getDisplayTitle();
+			if ( $dtText ) {
+				# Tags are stripped on purpose.
+				$dtText = Sanitizer::stripAllTags( $dtText );
+				$dtParts = explode( '/', $dtText, 2 );
+				if ( count( $dtParts ) > 1 ) {
+					$item->mName = $dtParts[1];
+				}
+			}
+
 			$item->resetID( $article->getId() );
 
 			# Check if we have any wikilog metadata available.
@@ -220,6 +231,7 @@ class WikilogHooks
 			$item = WikilogItem::newFromID( $pageid );
 			if ( $wi && $wi->isItem() && !$wi->isTalk() && $item ) {
 				$item->mName = $wi->getItemName();
+				# FIXME: need to reparse due to {{DISPLAYTITLE:...}}.
 				$item->mTitle = $wi->getItemTitle();
 				$item->mParentName = $wi->getName();
 				$item->mParentTitle = $wi->getTitle();
