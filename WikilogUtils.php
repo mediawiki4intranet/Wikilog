@@ -117,7 +117,7 @@ class WikilogUtils
 
 		if ( $useParserCache ) {
 			# Look for the parsed article output in the parser cache.
-			$parserOutput = $parserCache->get( $article, $wgUser );
+			$parserOutput = $parserCache->get( $article, $parserOpt );
 
 			# On success, return the object retrieved from the cache.
 			if ( $parserOutput ) {
