@@ -429,11 +429,11 @@ class WikilogHooks
 	static function EnhancedChangesListGroupBy( &$rc, &$title, &$secureName )
 	{
 		if( defined( 'NS_BLOG' ) &&
-			$title->getNamespace() == MWNamespace::getTalk(NS_BLOG) &&
+			$title->getNamespace() == MWNamespace::getTalk( NS_BLOG ) &&
 			substr_count( $secureName, '/' ) == 2 )
 		{
 			// Wikilog comments are grouped by post
-			$secureName = $title->prefix( $title->getBaseText() );
+			$secureName = $title->getNsText() . ':' . $title->getBaseText();
 			return false;
 		}
 		return true;
