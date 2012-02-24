@@ -938,10 +938,7 @@ class WikilogCommentFormatter
 
 		# Create omitted comment thread(s).
 		for ( ; $i < $thread-1; $i++ ) {
-			$msg = wfMsgExt( 'wikilog-comment-omitted-x', array( 'parseinline' ), $comment->mThread[$i] );
-			$msg = WikilogUtils::wrapDiv( 'wl-comment-placeholder', $msg );
-			$msg = WikilogUtils::wrapDiv( 'wl-comment wl-comment-omitted', $msg );
-			$html .= '<div class="wl-thread">' . $msg;
+			$html .= '<div class="wl-thread">';
 			array_push( $this->mThreadStack, $comment->mThread[$i] );
 		}
 
