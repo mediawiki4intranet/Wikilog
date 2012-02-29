@@ -190,6 +190,10 @@ div.wl-comment-placeholder {
 	text-align: center;
 }
 
+.wl-comments {
+	clear: both;
+}
+
 .wl-comment-tools li.wl-comment-action-reply,
 .wl-comment-tools li.wl-comment-action-approve {
 	color: #009900;
