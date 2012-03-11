@@ -177,10 +177,6 @@ div.wl-comment-deleted .wl-comment-text {
 	color: #999999;
 }
 
-div.wl-comment-by-author .wl-comment-author {
-	font-weight: bold;
-}
-
 div.wl-comment-placeholder {
 	background-color: #EEEEEE;
 	border: 1px solid #CCCCCC;

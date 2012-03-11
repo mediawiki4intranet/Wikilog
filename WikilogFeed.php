@@ -177,35 +177,12 @@ abstract class WikilogFeed
 		$fname = __METHOD__ . ' (' . get_class( $this ) . ')';
 		wfProfileIn( $fname );
 
-		$this->mResult = $this->reallyDoQuery( $this->mLimit );
+		$this->mResult = $this->mQuery->select( $this->mDb, false, false, false, $fname, array(
+			'ORDER BY' => $this->mIndexField . ' DESC',
+			'LIMIT'    => intval( $this->mLimit ),
+		) );
 
 		wfProfileOut( $fname );
-	}
-
-	/**
-	 * Performs the database query and return the result wrapper.
-	 * @param $limit Maximum number of entries to return.
-	 * @return ResultWrapper  The database query ResultWrapper object.
-	 */
-	public function reallyDoQuery( $limit ) {
-		$fname = __METHOD__ . ' (' . get_class( $this ) . ')';
-		$info = $this->getQueryInfo();
-		$tables = $info['tables'];
-		$fields = $info['fields'];
-		$conds = isset( $info['conds'] ) ? $info['conds'] : array();
-		$options = isset( $info['options'] ) ? $info['options'] : array();
-		$join_conds = isset( $info['join_conds'] ) ? $info['join_conds'] : array();
-		$options['ORDER BY'] = $this->mIndexField . ' DESC';
-		$options['LIMIT'] = intval( $limit );
-		$res = $this->mDb->select( $tables, $fields, $conds, $fname, $options, $join_conds );
-		return new ResultWrapper( $this->mDb, $res );
-	}
-
-	/**
-	 * Returns the query information.
-	 */
-	public function getQueryInfo() {
-		return $this->mQuery->getQueryInfo( $this->mDb );
 	}
 
 	/**
@@ -364,10 +341,6 @@ class WikilogItemFeed
 
 	public function getIndexField() {
 		return 'wlp_pubdate';
-	}
-
-	public function doQuery() {
-		return parent::doQuery();
 	}
 
 	public function getFeedObject() {
@@ -656,6 +629,11 @@ class WikilogCommentFeed
 	protected $mSingleItem = false;
 
 	/**
+	 * Comment subject or subject parent.
+	 */
+	protected $mSubject = false;
+
+	/**
 	 * WikilogCommentFeed constructor.
 	 *
 	 * @param $title Title  Feed title and URL.
@@ -667,8 +645,15 @@ class WikilogCommentFeed
 			WikilogCommentQuery $query, $limit = false )
 	{
 		global $wgWikilogNumComments;
+		if ( !$limit ) {
+			$limit = $wgWikilogNumComments;
+		}
 
-		if ( !$limit ) $limit = $wgWikilogNumComments;
+		$this->mSubject = $query->getSubject();
+		if ( !$query->getIncludeSubpageComments() ) {
+			$this->mSingleItem = true;
+		}
+
 		parent::__construct( $title, $format, $query, $limit );
 	}
 
@@ -676,72 +661,34 @@ class WikilogCommentFeed
 		return 'wlc_timestamp';
 	}
 
-	public function getFeedObject() {
-		if ( ( $item = $this->mQuery->getItem() ) ) {
-			return $this->getItemFeedObject( $item );
-		} else {
-			return $this->getSiteFeedObject();
-		}
-	}
-
 	/**
-	 * Generates and populates a WlSyndicationFeed object for the site.
+	 * Generates and populates a WlSyndicationFeed object,
+	 * for title $title or for the whole site if it is false
 	 *
 	 * @return WlSyndicationFeed object.
 	 */
-	public function getSiteFeedObject() {
+	public function getFeedObject() {
 		global $wgContLanguageCode, $wgWikilogFeedClasses, $wgFavicon, $wgLogo;
 
-		$title = wfMsgForContent( 'wikilog-feed-title',
-			wfMsgForContent( 'wikilog-specialwikilogcomments-title' ),
+		$feedtitle = wfMsgForContent( 'wikilog-feed-title',
+			wfMsgForContent(
+				$this->mSubject ? 'wikilog-title-comments' : 'wikilog-title-comments-all',
+				$this->mSubject ? $this->mSubject->getSubpageText() : ''
+			),
 			$wgContLanguageCode
 		);
 		$subtitle = wfMsgExt( 'wikilog-comment-feed-description', array( 'parse', 'content' ) );
 
-		$updated = $this->mDb->selectField( 'wikilog_comments',
-			'MAX(wlc_updated)', false, __METHOD__
-		);
-		if ( !$updated ) $updated = wfTimestampNow();
+		$res = $this->mQuery->select( $this->mDb, array(), 'MAX(wlc_updated) u' );
+		$updated = $res->fetchObject();
+		$updated = $updated->u;
+		if ( !$updated ) {
+			$updated = wfTimestampNow();
+		}
 
 		$url = $this->mTitle->getFullUrl();
-
 		$feed = new $wgWikilogFeedClasses[$this->mFormat](
-			$url, $title, $updated, $url
-		);
-		$feed->setSubtitle( new WlTextConstruct( 'html', $subtitle ) );
-		if ( $wgFavicon !== false ) {
-			$feed->setIcon( wfExpandUrl( $wgFavicon ) );
-		}
-		if ( $this->mCopyright ) {
-			$feed->setRights( new WlTextConstruct( 'html', $this->mCopyright ) );
-		}
-		return $feed;
-	}
-
-	/**
-	 * Generates and populates a WlSyndicationFeed object for the given
-	 * wikilog article.
-	 *
-	 * @param $item WikilogItem  Wikilog article that owns this feed.
-	 * @return WlSyndicationFeed object, or NULL if not possible.
-	 */
-	public function getItemFeedObject( WikilogItem $item ) {
-		global $wgContLanguageCode, $wgWikilogFeedClasses, $wgFavicon;
-
-		$title = wfMsgForContent( 'wikilog-feed-title',
-			wfMsgForContent( 'wikilog-title-comments', $item->mName ),
-			$wgContLanguageCode
-		);
-		$subtitle = wfMsgExt( 'wikilog-comment-feed-description', array( 'parse', 'content' ) );
-		$updated = $this->mDb->selectField( 'wikilog_comments',
-			'MAX(wlc_updated)', array( 'wlc_post' => $item->mID ), __METHOD__
-		);
-		if ( !$updated ) $updated = wfTimestampNow();
-
-		$url = $this->mTitle->getFullUrl();
-
-		$feed = new $wgWikilogFeedClasses[$this->mFormat](
-			$url, $title, $updated, $url
+			$url, $feedtitle, $updated, $url
 		);
 		$feed->setSubtitle( new WlTextConstruct( 'html', $subtitle ) );
 		if ( $wgFavicon !== false ) {
@@ -762,8 +709,8 @@ class WikilogCommentFeed
 		global $wgMimeType;
 
 		# Create comment object.
-		$item = $this->mSingleItem ? $this->mSingleItem : WikilogItem::newFromRow( $row );
-		$comment = WikilogComment::newFromRow( $item, $row );
+		$item = $this->mSingleItem ? $this->mSubject : false;
+		$comment = WikilogComment::newFromRow( $row, $item );
 
 		# Prepare some strings.
 		if ( $comment->mUserID ) {
@@ -773,15 +720,9 @@ class WikilogCommentFeed
 				$comment->mUserText, ''/*talk*/, $comment->mAnonName
 			);
 		}
-		if ( $this->mSingleItem ) {
-			$title = wfMsgForContent( 'wikilog-comment-feed-title1',
-				$comment->mID, $usertext
-			);
-		} else {
-			$title = wfMsgForContent( 'wikilog-comment-feed-title2',
-				$comment->mID, $usertext, $comment->mItem->mName
-			);
-		}
+		$title = wfMsgForContent( 'wikilog-comment-feed-title1',
+			$comment->mID, $usertext, $this->mSubject->getSubpageText()
+		);
 
 		# Create new syndication entry.
 		$entry = new WlSyndicationEntry(
@@ -812,30 +753,10 @@ class WikilogCommentFeed
 	}
 
 	/**
-	 * Performs the database query that returns the syndication feed entries
-	 * and store the result wrapper in $this->mResult.
-	 */
-	function doQuery() {
-		# If displaying comments for a single item, save the item.
-		# Otherwise, set query option to return items along with their
-		# comments.
-		if ( ( $item = $this->mQuery->getItem() ) ) {
-			$this->mSingleItem = $item;
-		} else {
-			$this->mQuery->setOption( 'include-item' );
-		}
-		return parent::doQuery();
-	}
-
-	/**
 	 * Returns the keys for the timestamp and feed output in the object cache.
 	 */
 	function getCacheKeys() {
-		if ( ( $item = $this->mQuery->getItem() ) ) {
-			$title = $item->mTitle;
-		} else {
-			$title = null;
-		}
+		$title = $this->mSubject;
 		$id = $title ? 'id:' . $title->getArticleId() : 'site';
 		$ft = 'show:' . $this->mQuery->getModStatus() .
 			':limit:' . $this->mLimit;

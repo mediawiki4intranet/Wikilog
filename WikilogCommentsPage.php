@@ -30,19 +30,40 @@ if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
 /**
+ * WikilogComments special page handler class.
+ * Uses WikilogCommentsPage to format the list.
+ */
+class SpecialWikilogComments
+	extends SpecialPage
+{
+	function __construct() {
+		parent::__construct( 'WikilogComments' );
+	}
+
+	function execute() {
+		global $wgTitle;
+		$page = new WikilogCommentsPage( $wgTitle );
+		$page->view();
+	}
+
+	/**
+	 * Returns the name used as page title in the special page itself,
+	 * and also the name that will be listed in Special:Specialpages.
+	 */
+	public function getDescription() {
+		return wfMsg( 'wikilog-title-comments-all' );
+	}
+}
+
+/**
  * Wikilog comments namespace handler class.
  *
- * Displays a threaded discussion about a wikilog article, using its talk
- * page, replacing the mess that is the usual wiki talk pages. This allows
- * a simpler and faster interface for commenting on wikilog articles, more
- * like how traditional blogs work. It also allows other interesting things
- * that are difficult or impossible with usual talk pages, like counting the
- * number of comments for each post and generation of syndication feeds for
- * comments.
- *
- * @note This class was designed to integrate with Wikilog, and won't work
- * for the rest of the wiki. If you want a similar interface for the other
- * talk pages, you may want to check LiquidThreads or some other extension.
+ * Displays a threaded discussion about a page, replacing the mess that is
+ * the usual wiki talk pages. This allows a simpler and faster interface for
+ * commenting on pages, more like how traditional blogs work. It also allows
+ * other interesting things that are difficult or impossible with usual talk
+ * pages, like counting the number of comments for each page and generation
+ * of syndication feeds with comments for pages or even groups of pages.
  */
 class WikilogCommentsPage
 	extends Article
@@ -55,23 +76,21 @@ class WikilogCommentsPage
 	protected $mUserCanModerate;	///< User is allowed to moderate.
 	protected $mPostedComment;		///< Posted comment, from HTTP post data.
 	protected $mCaptchaForm;		///< Captcha form fields, when saving comment.
-	protected $mTrailing;			///< Trailing text in comments title page.
 
-	public    $mItem;				///< Wikilog item the page is associated with.
-	public    $mTalkTitle;			///< Main talk page title.
 	public    $mSingleComment;		///< Used when viewing a single comment.
 
 	/**
 	 * Constructor.
 	 *
 	 * @param $title Title of the page.
-	 * @param $wi WikilogInfo object with information about the wikilog and
-	 *   the item.
 	 */
-	function __construct( Title &$title, WikilogInfo &$wi ) {
+	function __construct( Title $title ) {
 		global $wgUser, $wgRequest;
 
 		parent::__construct( $title );
+		if ( class_exists( 'Wikilog' ) ) {
+			$this->mWikilogInfo = Wikilog::getWikilogInfo( $title );
+		}
 
 		# Check if user can post.
 		$this->mUserCanPost = $wgUser->isAllowed( 'wl-postcomment' ) ||
@@ -82,9 +101,6 @@ class WikilogCommentsPage
 		$this->mSkin = $wgUser->getSkin();
 		$this->mFormatter = new WikilogCommentFormatter( $this->mSkin, $this->mUserCanPost );
 
-		# Get item object relative to this comments page.
-		$this->mItem = WikilogItem::newFromInfo( $wi );
-
 		# Form options.
 		$this->mFormOptions = new FormOptions();
 		$this->mFormOptions->add( 'wlAnonName', '' );
@@ -93,13 +109,24 @@ class WikilogCommentsPage
 			array( 'wlAnonName', 'wlComment' ) );
 
 		# This flags if we are viewing a single comment (subpage).
-		$this->mTrailing = $wi->getTrailing();
-		$this->mWikilog = $wi->getTitle();
-		$this->mTalkTitle = $wi->getTalkTitle();
-		if ( $this->mItem && $this->mTrailing ) {
-			$this->mSingleComment =
-				WikilogComment::newFromPageID( $this->mItem, $this->getID() );
+		$this->mSingleComment =
+			WikilogComment::newFromPageID( $this->getID() );
+		$this->mSubject = $title->getNamespace() != NS_SPECIAL ? $title->getSubjectPage() : NULL;
+		if ( $this->mSingleComment ) {
+			$this->mSubject = $this->mSingleComment->mSubject;
 		}
+	}
+
+	/**
+	 * Should the resulting page include comments to subpages?
+	 * If yes, you can't comment to the page itself.
+	 * By default - only for Wikilog blogs.
+	 */
+	public function includeSubpageComments() {
+		if ( $this->mWikilogInfo ) {
+			return $this->mWikilogInfo->isMain();
+		}
+		return false;
 	}
 
 	/**
@@ -117,8 +144,18 @@ class WikilogCommentsPage
 	 * Just show the comments without other page details
 	 */
 	public function outputComments() {
-		$query = new WikilogCommentQuery( $this->mItem ? $this->mItem : $this->mWikilog );
-		$this->viewComments( $query );
+		$this->viewComments( $this->getQuery() );
+	}
+
+	/**
+	 * Get the comment query object
+	 */
+	public function getQuery() {
+		$query = new WikilogCommentQuery( $this->mSubject );
+		if ( $this->includeSubpageComments() ) {
+			$query->setIncludeSubpageComments( true );
+		}
+		return $query;
 	}
 
 	/**
@@ -133,7 +170,7 @@ class WikilogCommentsPage
 		}
 
 		# Create our query object.
-		$query = new WikilogCommentQuery( $this->mItem ? $this->mItem : $this->mWikilog );
+		$query = $this->getQuery();
 
 		if ( ( $feedFormat = $wgRequest->getVal( 'feed' ) ) ) {
 			# RSS or Atom feed requested. Ignore all other options.
@@ -145,6 +182,8 @@ class WikilogCommentsPage
 		}
 
 		if ( $this->mSingleComment ) {
+			$name = $this->mSubject->getSubpageText();
+
 			# Single comment view, show comment followed by its replies.
 			$params = $this->mFormatter->getCommentMsgParams( $this->mSingleComment );
 
@@ -160,27 +199,20 @@ class WikilogCommentsPage
 			# Normal page view, show talk page contents followed by comments.
 			parent::view();
 
-			// Set a more human-friendly title to the comments page.
-			// NOTE (MW1.16+): Must come after parent::view().
-			// Note: Sorry for the three-level cascade of wfMsg()'s...
-			$wgOut->setPageTitle( wfMsg( 'wikilog-title-comments', $this->mItem ? $this->mItem->mName : $this->mWikilog->getPrefixedText() ) );
-			if ( $this->mItem ) {
-				$wgOut->setHTMLTitle( wfMsg( 'wikilog-title-comments',
-					wfMsg( 'wikilog-title-item-full',
-						$this->mWikilog->getPrefixedText(), $this->mItem->mName
-					) ) );
+			if ( $this->mSubject ) {
+				$name = $this->mSubject->getPrefixedText();
+				$wgOut->setPageTitle( wfMsg( 'wikilog-title-comments', $name ) );
+			} else {
+				$name = '';
+				$wgOut->setPageTitle( wfMsg( 'wikilog-title-comments-all' ) );
 			}
 		}
 
 		# Add a backlink to the original article.
-		if ( $this->mItem ) {
-			$link = $this->mSkin->link( $this->mItem->mTitle,
-				Sanitizer::escapeHtmlAllowEntities( $this->mItem->mName ) );
-		} else {
-			$link = $this->mSkin->link( $this->mWikilog,
-				Sanitizer::escapeHtmlAllowEntities( $this->mWikilog->getPrefixedText() ) );
+		if ( $name !== '' ) {
+			$link = $this->mSkin->link( $this->mSubject, Sanitizer::escapeHtmlAllowEntities( $name ) );
+			$wgOut->setSubtitle( wfMsg( 'wikilog-backlink', $link ) );
 		}
-		$wgOut->setSubtitle( wfMsg( 'wikilog-backlink', $link ) );
 
 		# Retrieve comments (or replies) from database and display them.
 		$this->viewComments( $query );
@@ -203,7 +235,6 @@ class WikilogCommentsPage
 		# Different behavior when displaying a single comment.
 		if ( $this->mSingleComment ) {
 			$query->setThread( $this->mSingleComment->mThread );
-			$this->mFormatter->setupRootThread( $this->mSingleComment->mThread );
 			$headerMsg = 'wikilog-replies';
 		} else {
 			$headerMsg = 'wikilog-comments';
@@ -246,24 +277,21 @@ class WikilogCommentsPage
 	 * Handler for action=wikilog requests.
 	 * Enabled via WikilogHooks::UnknownAction() hook handler.
 	 */
-	public function wikilog()
-	{
+	public function wikilog() {
 		global $wgOut, $wgUser, $wgRequest;
 
-		if ( $wgRequest->getBool( 'wlActionSubscribe' ) &&
-			( !$this->mItem || $this->mItem->exists() ) ) {
-			$id = $this->mItem ? $this->mItem->getId() : $this->mWikilog->getArticleId();
+		if ( $wgRequest->getBool( 'wlActionSubscribe' ) ) {
+			// Subscribe/unsubscribe to new comments
+			$id = $this->mSubject->getArticleId();
 			$s = $this->subscribe( $id ) ? 'yes' : 'no';
 			$wgOut->setPageTitle( wfMsg( "wikilog-subscribed-title-$s" ) );
-			if ( $this->mItem ) {
-				$wgOut->addWikiText( wfMsgNoTrans( "wikilog-subscribed-text-$s", $this->mItem->mTitle->getPrefixedText() ) );
-			} else {
-				$wgOut->addWikiText( wfMsgNoTrans( "wikilog-subscribed-all-$s", $this->mWikilog->getPrefixedText() ) );
-			}
+			$wgOut->addWikiText( wfMsgNoTrans( "wikilog-subscribed-text-$s", $this->mSubject->getPrefixedText() ) );
 			return;
 		}
 
-		if ( !$this->mItem || !$this->mItem->exists() ) {
+		# Forbid commenting to articles which include subpage comments
+		# in display to make the discussion less messy
+		if ( $this->includeSubpageComments() ) {
 			$wgOut->showErrorPage( 'wikilog-error', 'wikilog-no-such-article' );
 			return;
 		}
@@ -326,8 +354,7 @@ class WikilogCommentsPage
 	 * if the item page exists.
 	 */
 	public function hasViewableContent() {
-		return parent::hasViewableContent() ||
-			( $this->mItem !== null && $this->mItem->exists() );
+		return parent::hasViewableContent() || $this->mSubject->exists();
 	}
 
 	/**
@@ -335,17 +362,28 @@ class WikilogCommentsPage
 	 */
 	public function getSubscribeLink() {
 		global $wgScript, $wgUser;
-		if ( !$wgUser->getId() ) {
+		if ( !$wgUser->getId() || !$this->mSubject ) {
 			return '';
 		}
-		// Is the user subscribed to all entries of the wikilog?
-		$all = $this->is_subscribed( $this->mWikilog->getArticleId() );
-		if ( $this->mItem && $this->mItem->exists() ) {
-			$isa = array_flip( $this->mItem->mAuthors );
-			if ( isset( $isa[ $wgUser->getId() ] ) ) {
+		$all = false;
+		$subjId = $this->mSubject->getArticleId();
+		$sub = $this->isSubscribed( $subjId );
+		if ( $this->includeSubpageComments() ) {
+			$msg = $sub ? 'wikilog-do-unsubscribe-all' : 'wikilog-do-subscribe-all';
+		} elseif ( !$this->mSingleComment ) {
+			$dbr = wfGetDB( DB_SLAVE );
+			// Is the user subscribed to all entries of the wikilog?
+			// (or to discussion of all subpages of a root page)
+			list( $parent ) = explode( '/', $this->mSubject->getText() );
+			$parent = Title::makeTitle( $this->mSubject->getNamespace(), $parent );
+			$all = $this->isSubscribed( $parent->getArticleId() );
+			$isa = $dbr->selectField( 'wikilog_authors', '1', array(
+				'wla_page' => $subjId,
+				'wla_author' => $wgUser->getId(),
+			), __METHOD__ );
+			if ( $isa ) {
 				return wfMsgNoTrans( 'wikilog-subscribed-as-author' );
 			}
-			$sub = $this->is_subscribed( $this->mItem->getId() );
 			if ( $sub === NULL && $all ) {
 				// User is subcribed to all entries and didn't care about this one explicitly
 				$sub = true;
@@ -353,13 +391,11 @@ class WikilogCommentsPage
 			} else {
 				$msg = $sub ? 'wikilog-do-unsubscribe' : 'wikilog-do-subscribe';
 			}
-		} elseif ( $this->mWikilog->exists() ) {
-			$sub = $all;
-			$msg = $sub ? 'wikilog-do-unsubscribe-all' : 'wikilog-do-subscribe-all';
 		} else {
 			return '';
 		}
 		return wfMsgNoTrans( $msg,
+			// FIXME use title->getFullUrl( ??? )
 			$wgScript.'?'.http_build_query( array(
 				'title' => $this->getTitle()->getPrefixedText(),
 				'action' => 'wikilog',
@@ -369,10 +405,10 @@ class WikilogCommentsPage
 	}
 
 	/* Returns:
-	   1 if current user is subcribed to post $itemid comments
+	   1 if current user is subcribed to comments to page with ID=$itemid
 	   0 if unsubscribed
 	   NULL if didn't care */
-	public function is_subscribed( $itemid ) {
+	public function isSubscribed( $itemid ) {
 		global $wgUser;
 		$dbr = wfGetDB( DB_SLAVE );
 		$r = $dbr->selectField( 'wikilog_subscriptions', 'ws_yes', array( 'ws_page' => $itemid, 'ws_user' => $wgUser->getID() ), __METHOD__ );
@@ -393,8 +429,9 @@ class WikilogCommentsPage
 		global $wgUser, $wgTitle, $wgScript, $wgRequest;
 		global $wgWikilogModerateAnonymous;
 
-		if (!$this->mItem && !$parent)
+		if ( $this->includeSubpageComments() && !$parent || !$this->mSubject ) {
 			return '';
+		}
 
 		$comment = $this->mPostedComment;
 		$opts = $this->mFormOptions;
@@ -455,13 +492,15 @@ class WikilogCommentsPage
 			$fields[] = array( '', wfMsg( 'wikilog-anonymous-moderated' ) );
 		}
 
-		if ( $wgUser->getID() )
-		{
-			$itemid = $this->mItem ? $this->mItem->getID() : $parent->mPost;
-			$subscribed = $this->is_subscribed( $itemid );
-			if ( $subscribed === NULL )
+		if ( $wgUser->getID() && $this->mSubject ) {
+			$itemid = $parent ? $parent->mPost : $this->mSubject->getArticleID();
+			$subscribed = $this->isSubscribed( $itemid );
+			if ( $subscribed === NULL ) {
 				$subscribed = true;
+			}
 			$subscribe_html = ' &nbsp; ' . Xml::checkLabel( wfMsg( 'wikilog-subscribe' ), 'wl-subscribe', 'wl-subscribe', $subscribed );
+		} else {
+			$subscribe_html = '';
 		}
 
 		$fields[] = array( '',
@@ -486,10 +525,6 @@ class WikilogCommentsPage
 			array( 'id' => 'wl-comment-form' ) ) . "\n";
 	}
 
-	/**
-	 * @todo (In Wikilog 1.3.x) Replace GAID_FOR_UPDATE with
-	 *    Title::GAID_FOR_UPDATE.
-	 */
 	protected function setCommentApproval( $comment, $approval ) {
 		global $wgOut, $wgUser;
 
@@ -611,7 +646,7 @@ class WikilogCommentsPage
 		$anonname = trim( $wgRequest->getText( 'wlAnonName' ) );
 		$text = trim( $wgRequest->getText( 'wlComment' ) );
 
-		$comment = WikilogComment::newFromText( $this->mItem, $text, $parent );
+		$comment = WikilogComment::newFromText( $this->mSubject, $text, $parent );
 		$comment->setUser( $wgUser );
 		if ( $wgUser->isAnon() ) {
 			$comment->setAnon( $anonname );

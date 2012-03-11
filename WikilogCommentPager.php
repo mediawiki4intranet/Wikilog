@@ -73,20 +73,22 @@ abstract class WikilogCommentPager
 		# Prepare the comment formatter.
 		$this->mFormatter = $formatter ? $formatter :
 			new WikilogCommentFormatter( $this->getSkin() );
-		if (!$query->getItem())
-			$this->mFormatter->setShowItem(true);
+		if ( $query->getIncludeSubpageComments() || !$query->getSubject() ) {
+			$this->mFormatter->setShowItem( true );
+		}
 
 		# Parent constructor.
 		parent::__construct();
 
-		# Fix our limits, Pager's defaults are too high.
+		# Fix our limits, Pager defaults are too high.
 		$this->mDefaultLimit = $wgWikilogNumComments;
 		list( $this->mLimit, /* $offset */ ) =
 			$this->mRequest->getLimitOffset( $wgWikilogNumComments, '' );
 
 		# This is too expensive, limit listing.
-		if ( $this->mLimit > $wgWikilogExpensiveLimit )
+		if ( $this->mLimit > $wgWikilogExpensiveLimit ) {
 			$this->mLimit = $wgWikilogExpensiveLimit;
+		}
 	}
 
 	/**
@@ -145,7 +147,9 @@ abstract class WikilogCommentPager
 	}
 
 	function getNavigationBar() {
-			if ( !$this->isNavigationBarShown() ) return '';
+		if ( !$this->isNavigationBarShown() ) {
+			return '';
+		}
 		if ( !isset( $this->mNavigationBar ) ) {
 			$navbar = new WikilogNavbar( $this );
 			$this->mNavigationBar = $navbar->getNavigationBar( $this->mLimit );
@@ -202,6 +206,14 @@ class WikilogCommentListPager
 class WikilogCommentThreadPager
 	extends WikilogCommentPager
 {
+	var $mRootLevel = -1;
+
+	/**
+	 * Minimal comment nesting level needed for folding "linear" threads.
+	 * @FIXME move into configuration
+	 */
+	var $mMinFoldLevel = 4;
+
 	/**
 	 * Constructor.
 	 * @param $query WikilogCommentQuery  Query object, containing the
@@ -217,18 +229,103 @@ class WikilogCommentThreadPager
 	}
 
 	function getIndexField() {
-		return 'wlc_thread';
+		return 'wlc_id';
 	}
 
 	function getEndBody() {
 		return $this->mFormatter->closeCommentThreads() . parent::getEndBody();
 	}
 
+	function doQuery() {
+		// If not displaying comments for a single page,
+		// set query option to return pages along with their comments.
+		if ( $this->mQuery->getIncludeSubpageComments() ) {
+			$this->mQuery->setOption( 'include-page' );
+		}
+		$this->mQuery->setFirstCommentId( $this->mOffset );
+		$this->mQuery->setLimit( 'thread', $this->mLimit );
+		$dbr = wfGetDB( DB_SLAVE );
+		$res = $this->mQuery->select( $dbr, array(), false );
+		$nchild = array();
+		$rows = array();
+		foreach ( $res as $row ) {
+			if ( !isset( $nchild[ $row->wlc_parent ] ) ) {
+				$nchild[ $row->wlc_parent ] = 0;
+			}
+			$nchild[ $row->wlc_parent ]++;
+			$rows[ $row->wlc_id ] = $row;
+		}
+
+		// Determine root thread level
+		$rootThread = $this->mQuery->getThread();
+		if ( $rootThread ) {
+			$this->mRootLevel = substr_count( $rootThread, '/' );
+		}
+
+		// Fold non-forking comment threads when level goes above $this->mMinFoldLevel
+		foreach ( $rows as &$row ) {
+			if ( !$row->wlc_parent || !isset( $rows[ $row->wlc_parent ] ) ) {
+				$row->level = $this->mRootLevel+1;
+			} elseif ( $rows[ $row->wlc_parent ]->level <= $this->mMinFoldLevel || $nchild[ $row->wlc_parent ] > 1 ) {
+				$row->level = $rows[ $row->wlc_parent ]->level + 1;
+			} else {
+				$row->level = $rows[ $row->wlc_parent ]->level;
+			}
+		}
+		$this->mRows = $rows;
+
+		// Give Pager the parameters
+		$this->mIsFirst = !$this->mOffset;
+		$this->mIsLast = !$this->mQuery->mNextCommentId;
+		$this->mLastShown = $this->mQuery->mNextCommentId;
+		$this->mFirstShown = $this->mOffset;
+	}
+
+	function getBody() {
+		if ( !$this->mQueryDone ) {
+			$this->doQuery();
+		}
+
+		$html = '';
+		if ( count( $this->mRows ) ) {
+			$level = $this->mRootLevel;
+			foreach ( $this->mRows as $row ) {
+				// Open/close comment threads
+				if ( $row->level > $level ) {
+					for ( $i = $level ; $i < $row->level; $i++ ) {
+						$html .= '<div class="wl-thread">';
+					}
+				} elseif ( $row->level < $level ) {
+					for ( $i = $row->level; $i < $level; $i++ ) {
+						$html .= '</div>';
+					}
+				}
+				$level = $row->level;
+
+				// Retrieve comment data.
+				$subject = $this->mQuery->getIncludeSubpageComments() ? NULL : $this->mQuery->getSubject();
+				$comment = WikilogComment::newFromRow( $row, $subject );
+				$comment->loadText();
+
+				// Format comment
+				$doReply = $this->mReplyTrigger && $comment->mID == $this->mReplyTrigger;
+				$html .= $this->mFormatter->formatComment( $comment, $doReply );
+				if ( $doReply && is_callable( $this->mReplyCallback ) ) {
+					if ( ( $res = call_user_func( $this->mReplyCallback, $comment ) ) ) {
+						$html .= WikilogUtils::wrapDiv( 'wl-indent', $res );
+					}
+				}
+			}
+			for ( $i = $this->mRootLevel; $i < $level; $i++ ) {
+				$html .= '</div>';
+			}
+		} else {
+			$html .= $this->getEmptyBody();
+		}
+		return $html;
+	}
+
 	public function formatRow( $row ) {
-		# Retrieve comment data.
-		$item = $this->mSingleItem ? $this->mSingleItem : WikilogItem::newFromRow( $row );
-		$comment = WikilogComment::newFromRow( $item, $row );
-		$comment->loadText();
 
 		$doReply = $this->mReplyTrigger && $comment->mID == $this->mReplyTrigger;
 

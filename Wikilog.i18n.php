@@ -193,6 +193,8 @@ Available actions:
 	# Item and comments page titles
 	'wikilog-title-item-full' => '$1 - $2', # $1 = article title, $2 wikilog title
 	'wikilog-title-comments' => 'Comments - $1', # $1 = article title
+	'wikilog-title-comments-all' => 'All Wikilog Comments',
+	'wikilogcomments' => 'All Wikilog Comments',
 
 	# Warning and error messages
 	'wikilog-error-msg' => 'Wikilog: $1',
@@ -6426,6 +6428,7 @@ $messages['ru'] = array(
 	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Отписаться</a> от комментариев к записи $1.</p>',
 
 	'wikilog-title-comments' => 'Комментарии — $1',
+	'wikilog-title-comments-all' => 'Все комментарии викилогов',
 	'wikilog-title-item-full' => '$1 — $2',
 	'wikilog-error-msg' => 'Викилог: $1',
 	'wikilog-error-title' => 'Ошибка викилога',

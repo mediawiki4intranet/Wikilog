@@ -73,6 +73,7 @@ $wgAutoloadClasses += array(
 	'WikilogUtils'              => $dir . 'WikilogUtils.php',
 	'WikilogNavbar'             => $dir . 'WikilogUtils.php',
 	'SpecialWikilog'            => $dir . 'SpecialWikilog.php',
+	'SpecialWikilogComments'    => $dir . 'WikilogCommentsPage.php',
 
 	// Objects
 	'WikilogItem'               => $dir . 'WikilogItem.php',
@@ -123,7 +124,9 @@ $wgAutoloadClasses += array(
  * Special pages.
  */
 $wgSpecialPages['Wikilog'] = 'SpecialWikilog';
+$wgSpecialPages['WikilogComments'] = 'SpecialWikilogComments';
 $wgSpecialPageGroups['Wikilog'] = 'changes';
+$wgSpecialPageGroups['WikilogComments'] = 'changes';
 
 /**
  * Hooks.
@@ -446,8 +449,9 @@ class Wikilog
 		$ns = MWNamespace::getSubject( $title->getNamespace() );
 		if ( in_array( $ns, $wgWikilogNamespaces ) ) {
 			$wi = new WikilogInfo( $title );
-			if ( $wi->mWikilogName )
+			if ( $wi->mWikilogName ) {
 				return $wi;
+			}
 		}
 		return null;
 	}
@@ -480,9 +484,9 @@ class WikilogInfo
 		$ns = MWNamespace::getSubject( $origns );
 		$tns = MWNamespace::getTalk( $origns );
 
-		# If title contains a '/', treat as a wikilog article title.
-		$parts = explode('/', $title->getText());
+		$parts = explode( '/', $title->getText() );
 		if ( count( $parts ) > 1 && ( $this->mIsTalk || count( $parts ) == 2 ) ) {
+			// If title contains a '/', treat as a wikilog article title.
 			$this->mWikilogName = array_shift( $parts );
 			$this->mItemName = array_shift( $parts );
 			$this->mTrailing = implode( '/', $parts );

@@ -345,6 +345,7 @@ class WikilogHooks
 				$wgExtNewTables[] = array( "wikilog_wikilogs", "{$dir}wikilog-tables.sql" );
 				$wgExtNewTables[] = array( "page_last_visit", "{$dir}archives/patch-visits.sql" );
 				$wgExtNewTables[] = array( "wikilog_subscriptions", "{$dir}archives/patch-subscriptions.sql" );
+				$wgExtNewTables[] = array( "wikilog_talkinfo", "{$dir}archives/patch-talkinfo.sql" );
 				$wgExtNewIndexes[] = array( "wikilog_comments", "wlc_timestamp", "{$dir}archives/patch-comments-indexes.sql" );
 				$wgUpdates['mysql'][] = 'WikilogHooks::createForeignKeys';
 			} else {
@@ -357,8 +358,15 @@ class WikilogHooks
 			if ( $updater->getDB()->getType() == 'mysql' ) {
 				$updater->addExtensionUpdate( array( 'addTable', "wikilog_wikilogs",
 					"{$dir}wikilog-tables.sql", true ) );
+				$updater->addExtensionUpdate( array( 'addTable', "page_last_visit",
+					"{$dir}archives/patch-visits.sql", true ) );
+				$updater->addExtensionUpdate( array( 'addTable', "wikilog_subscriptions",
+					"{$dir}archives/patch-subscriptions.sql", true ) );
+				$updater->addExtensionUpdate( array( 'addTable', "wikilog_talkinfo",
+					"{$dir}archives/patch-talkinfo.sql", true ) );
 				$updater->addExtensionUpdate( array( 'addIndex', "wikilog_comments",
 					"wlc_timestamp", "{$dir}archives/patch-comments-indexes.sql", true ) );
+				$updater->addExtensionUpdate( array( 'WikilogHooks::createForeignKeys' ) );
 			} else {
 				// TODO: PostgreSQL, SQLite, etc...
 				print "\n" .
@@ -369,48 +377,45 @@ class WikilogHooks
 		return true;
 	}
 
-	static function createForeignKeys()
-	{
-		$dbw = wfGetDB(DB_MASTER);
-		$t_c = $dbw->tableName('wikilog_comments');
-		$t_p = $dbw->tableName('page');
-		$t_e = $dbw->tableName('wikilog_posts');
-		$t_w = $dbw->tableName('wikilog_wikilogs');
-		// Add wikilog_posts.wlp_talk_updated:
-		if (!$dbw->fieldExists('wikilog_posts', 'wlp_talk_updated'))
-		{
-			$dbw->query("ALTER TABLE $t_e ADD wlp_talk_updated BINARY(14) NOT NULL AFTER wlp_updated");
-			$dbw->query("UPDATE $t_e SET wlp_talk_updated=COALESCE((SELECT MAX(wlc_timestamp) FROM $t_c WHERE wlc_post=wlp_page), wlp_pubdate)");
+	/**
+	 * Creates some missing fields and foreign keys for Wikilog tables.
+	 */
+	static function createForeignKeys() {
+		$dbw = wfGetDB( DB_MASTER );
+		// Add wikilog_posts.wlp_talk_updated
+		if ( !$dbw->fieldExists( 'wikilog_posts', 'wlp_talk_updated' ) ) {
+			$t_c = $dbw->tableName( 'wikilog_comments' );
+			$t_e = $dbw->tableName( 'wikilog_posts' );
+			$dbw->query( "ALTER TABLE $t_e ADD wlp_talk_updated BINARY(14) NOT NULL AFTER wlp_updated" );
+			$dbw->query( "UPDATE $t_e SET wlp_talk_updated=COALESCE((SELECT MAX(wlc_timestamp) FROM $t_c WHERE wlc_post=wlp_page), wlp_pubdate)" );
 		}
-		// Set up foreign keys on Wikilog tables (MySQL/InnoDB only):
-		$r = $dbw->query("SHOW CREATE TABLE $t_c");
-		$r = $dbw->fetchRow($r);
-		$r = $r[1];
-		if (!strpos($r, 'wikilog_comments_wlc_post_page_id'))
-		{
-			$dbw->query("DELETE FROM $t_c WHERE (SELECT page_id FROM $t_p WHERE page_id=wlc_post) IS NULL");
-			$dbw->query("ALTER TABLE $t_c ADD CONSTRAINT wikilog_comments_wlc_post_page_id FOREIGN KEY (wlc_post) REFERENCES $t_p (page_id) ON DELETE CASCADE ON UPDATE CASCADE");
-		}
-		if (!strpos($r, 'wikilog_comments_wlc_comment_page_page_id'))
-		{
-			$dbw->query("DELETE FROM $t_c WHERE (SELECT page_id FROM $t_p WHERE page_id=wlc_comment_page) IS NULL");
-			$dbw->query("ALTER TABLE $t_c ADD CONSTRAINT wikilog_comments_wlc_comment_page_page_id FOREIGN KEY (wlc_comment_page) REFERENCES $t_p (page_id) ON DELETE CASCADE ON UPDATE CASCADE");
-		}
-		$r = $dbw->query("SHOW CREATE TABLE $t_e");
-		$r = $dbw->fetchRow($r);
-		$r = $r[1];
-		if (!strpos($r, 'wikilog_posts_wlp_page_page_id'))
-		{
-			$dbw->query("DELETE FROM $t_e WHERE (SELECT page_id FROM $t_p WHERE page_id=wlp_page) IS NULL");
-			$dbw->query("ALTER TABLE $t_e ADD CONSTRAINT wikilog_posts_wlp_page_page_id FOREIGN KEY (wlp_page) REFERENCES $t_p (page_id) ON DELETE CASCADE ON UPDATE CASCADE");
-		}
-		$r = $dbw->query("SHOW CREATE TABLE $t_w");
-		$r = $dbw->fetchRow($r);
-		$r = $r[1];
-		if (!strpos($r, 'wikilog_wikilogs_wlw_page_page_id'))
-		{
-			$dbw->query("DELETE FROM $t_w WHERE (SELECT page_id FROM $t_p WHERE page_id=wlw_page) IS NULL");
-			$dbw->query("ALTER TABLE $t_w ADD CONSTRAINT wikilog_wikilogs_wlw_page_page_id FOREIGN KEY (wlw_page) REFERENCES $t_p (page_id) ON DELETE CASCADE ON UPDATE CASCADE");
+		// Try to setup foreign keys on Wikilog tables (MySQL/InnoDB only)
+		// Rather a hack for MediaWiki
+		$keys = array(
+			array( 'wikilog_comments', 'wlc_post', 'page', 'page_id' ),
+			array( 'wikilog_comments', 'wlc_comment_page', 'page', 'page_id' ),
+			array( 'wikilog_posts',    'wlp_page', 'page', 'page_id' ),
+			array( 'wikilog_wikilogs', 'wlw_page', 'page', 'page_id' ),
+			array( 'wikilog_talkinfo', 'wti_page', 'page', 'page_id' ),
+		);
+		foreach ( $keys as $k ) {
+			$exists = $dbw->selectField( 'information_schema.table_constraints', 'table_name', array(
+				'table_schema=schema()',
+				'constraint_name' => $k[0].'_'.$k[1].'_'.$k[3],
+				'constraint_type' => 'FOREIGN KEY',
+			), __METHOD__ );
+			if ( !$exists ) {
+				$dbw->query(
+					"DELETE FROM ".$dbw->tableName( $k[0] ).
+					" WHERE (SELECT $k[3] FROM ".$dbw->tableName( $k[2] ).
+					" WHERE $k[3]=$k[1]) IS NULL"
+				);
+				$dbw->query(
+					"ALTER TABLE ".$dbw->tableName( $k[0] )." ADD CONSTRAINT $k[0]_$k[1]_$k[3]".
+					" FOREIGN KEY ($k[1]) REFERENCES ".$dbw->tableName( $k[2] ).
+					" ($k[3]) ON DELETE CASCADE ON UPDATE CASCADE"
+				);
+			}
 		}
 	}
 

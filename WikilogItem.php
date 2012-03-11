@@ -104,7 +104,6 @@ class WikilogItem
 	 * Returns the number of comments in the article.
 	 */
 	public function getNumComments() {
-		$this->updateNumComments();
 		return $this->mNumComments;
 	}
 
@@ -122,16 +121,17 @@ class WikilogItem
 				'wlp_title'   => $this->mName,
 				'wlp_publish' => $this->mPublish,
 				'wlp_pubdate' => $this->mPubDate ? $dbw->timestamp( $this->mPubDate ) : '',
-				'wlp_talk_updated' => $this->mTalkUpdated ? $dbw->timestamp( $this->mTalkUpdated ) : '', //??
 				'wlp_updated' => $this->mUpdated ? $dbw->timestamp( $this->mUpdated ) : '',
 				'wlp_authors' => serialize( $this->mAuthors ),
 				'wlp_tags'    => serialize( $this->mTags ),
 			),
 			__METHOD__
 		);
+		WikilogUtils::updateTalkInfo( $this->mID );
 		# Mark post created/edited by a user already read by him
-		foreach ( $this->mAuthors as $text => $id )
+		foreach ( $this->mAuthors as $text => $id ) {
 			WikilogUtils::updateLastVisit( $this->mID, $this->mUpdated, $id );
+		}
 	}
 
 	/**
@@ -140,36 +140,6 @@ class WikilogItem
 	public function deleteData() {
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->delete( 'wikilog_posts', array( 'wlp_page' => $this->getID() ), __METHOD__ );
-	}
-
-	/**
-	 * Updates the number of article comments.
-	 */
-	public function updateNumComments( $force = false ) {
-		if ( $force || is_null( $this->mNumComments ) ) {
-			$dbw = wfGetDB( DB_MASTER );
-
-			# Retrieve number of comments and max comment update timestamp
-			$result = $dbw->select( 'wikilog_comments', 'COUNT(*), MAX(wlc_updated)',
-				array( 'wlc_post' => $this->getID() ), __METHOD__ );
-			$row = $dbw->fetchRow( $result );
-			$dbw->freeResult( $result );
-
-			$count = $row[0];
-			$talk_updated = $row[1];
-			if ( !$talk_updated || $this->getPublishDate() > $talk_updated )
-				$talk_updated = $this->getPublishDate();
-			$talk_updated = wfTimestamp( TS_MW, $talk_updated );
-
-			# Update wikilog_posts cache
-			$dbw->update( 'wikilog_posts',
-				array( 'wlp_num_comments' => $count, 'wlp_talk_updated' => $talk_updated ),
-				array( 'wlp_page' => $this->getID() ),
-				__METHOD__
-			);
-
-			$this->mNumComments = $count;
-		}
 	}
 
 	/**
@@ -259,8 +229,8 @@ class WikilogItem
 		$item->mPublish     = intval( $row->wlp_publish );
 		$item->mPubDate     = $row->wlp_pubdate ? wfTimestamp( TS_MW, $row->wlp_pubdate ) : null;
 		$item->mUpdated     = $row->wlp_updated ? wfTimestamp( TS_MW, $row->wlp_updated ) : null;
-		$item->mTalkUpdated = $row->wlp_talk_updated ? wfTimestamp( TS_MW, $row->wlp_talk_updated ) : null;
-		$item->mNumComments = $row->wlp_num_comments;
+		$item->mTalkUpdated = $row->wti_talk_updated ? wfTimestamp( TS_MW, $row->wti_talk_updated ) : null;
+		$item->mNumComments = $row->wti_num_comments;
 		$item->mAuthors     = unserialize( $row->wlp_authors );
 		$item->mTags        = unserialize( $row->wlp_tags );
 		if ( !is_array( $item->mAuthors ) ) {
@@ -344,12 +314,14 @@ class WikilogItem
 		return array(
 			'tables' => array(
 				'wikilog_posts',
+				'wikilog_talkinfo',
 				"{$page} AS w",
 				"{$page} AS p"
 			),
 			'join_conds' => array(
 				"{$page} AS w" => array( 'LEFT JOIN', 'w.page_id = wlp_parent' ),
-				"{$page} AS p" => array( 'LEFT JOIN', 'p.page_id = wlp_page' )
+				"{$page} AS p" => array( 'LEFT JOIN', 'p.page_id = wlp_page' ),
+				'wikilog_talkinfo' => array( 'LEFT JOIN', 'wti_page = wlp_page' ),
 			)
 		);
 	}
@@ -370,10 +342,10 @@ class WikilogItem
 			'wlp_publish',
 			'wlp_pubdate',
 			'wlp_updated',
-			'wlp_talk_updated',
 			'wlp_authors',
 			'wlp_tags',
-			'wlp_num_comments',
+			'wti_talk_updated',
+			'wti_num_comments',
 		);
 	}
 }

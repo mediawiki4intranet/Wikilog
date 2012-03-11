@@ -463,7 +463,7 @@ class WikilogArchivesPager
 		'wlp_updated',
 		'wlw_title',
 		'wlp_title',
-		'wlp_talk_updated',
+		'wti_talk_updated',
 	);
 	function isFieldSortable( $field ) {
 		return in_array( $field, self::$sortableFields );
@@ -532,7 +532,7 @@ class WikilogArchivesPager
 				}
 				return $s;
 
-			case 'wlp_talk_updated':
+			case 'wti_talk_updated':
 				return $wgLang->timeanddate( $value, true );
 
 			case 'wlp_updated':
@@ -558,7 +558,7 @@ class WikilogArchivesPager
 				}
 				return $s;
 
-			case 'wlp_num_comments':
+			case 'wti_num_comments':
 				$page = $this->mCurrentItem->mTitle->getTalkPage();
 				$text = $this->mCurrentItem->getNumComments();
 				if ( !empty( $this->mCurrentRow->wlp_unread_comments ) ) {
@@ -602,12 +602,12 @@ class WikilogArchivesPager
 		$fields['wlp_title']			= wfMsgHtml( 'wikilog-title' );
 
 		if ( $wgWikilogEnableComments )
-			$fields['wlp_num_comments']	= wfMsgHtml( 'wikilog-comments' );
+			$fields['wti_num_comments']	= wfMsgHtml( 'wikilog-comments' );
 
 		if ( empty( $this->noActions ) )
 			$fields['_wl_actions']			= wfMsgHtml( 'wikilog-actions' );
 
-		$fields['wlp_talk_updated'] = wfMsgHtml( 'wikilog-talk-updated' );
+		$fields['wti_talk_updated'] = wfMsgHtml( 'wikilog-talk-updated' );
 
 		return $fields;
 	}

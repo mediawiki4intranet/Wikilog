@@ -52,9 +52,9 @@ class WikilogComment
 	);
 
 	/**
-	 * Wikilog article item this comment is associated to.
+	 * Title this comment is associated to.
 	 */
-	public  $mItem			= null;
+	public  $mSubject		= null;
 
 	/**
 	 * General data about the comment.
@@ -71,7 +71,7 @@ class WikilogComment
 	public  $mTimestamp		= null;		///< Date the comment was published.
 	public  $mUpdated		= null;		///< Date the comment was last updated.
 	public  $mCommentPage	= null;		///< Comment page id.
-	public  $mCommentTitle  = null;		///< Comment page title.
+	public  $mCommentTitle	= null;		///< Comment page title.
 	public  $mCommentRev	= null;		///< Comment revision id.
 	public  $mText			= null;		///< Comment text.
 	public  $mVisited		= null;		///< Is comment already visited by current user after last change?
@@ -84,8 +84,8 @@ class WikilogComment
 	/**
 	 * Constructor.
 	 */
-	public function __construct( WikilogItem &$item ) {
-		$this->mItem = $item;
+	public function __construct( Title $subject ) {
+		$this->mSubject = $subject;
 	}
 
 	/**
@@ -163,7 +163,7 @@ class WikilogComment
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->begin();
 
-		$this->mPost = $this->mItem->getID();
+		$this->mPost = $this->mSubject->getArticleId();
 
 		$data = array(
 			'wlc_parent'    => $this->mParent,
@@ -191,12 +191,13 @@ class WikilogComment
 
 			# Now that we have an ID, we can generate the thread.
 			$this->mThread = array();
-			if( $this->mParent )
-			{
-				if( !$this->mParentObj )
-					$this->mParentObj = WikilogComment::newFromID( $this->mItem, $this->mParent );
-				if( !$this->mParentObj || !$this->mParentObj->mThread )
+			if ( $this->mParent ) {
+				if ( !$this->mParentObj ) {
+					$this->mParentObj = WikilogComment::newFromID( $this->mParent );
+				}
+				if ( !$this->mParentObj || !$this->mParentObj->mThread ) {
 					throw new MWException( 'Invalid parent history.' );
+				}
 				$this->mThread = $this->mParentObj->mThread;
 			}
 			$this->mThread[] = self::padID( $this->mID );
@@ -222,24 +223,22 @@ class WikilogComment
 		}
 
 		# Update number of comments
-		$this->mItem->updateNumComments( true );
+		WikilogUtils::updateTalkInfo( $this->mPost );
 
 		# Mark comment posted/edited by a user already read by him
-		if ( $this->mUserID )
+		if ( $this->mUserID ) {
 			WikilogUtils::updateLastVisit( $this->mCommentTitle, $this->mTimestamp, $this->mUserID );
+		}
 
 		# Commit
 		$dbw->commit();
 
-		# Invalidate some caches.
-		$this->mCommentTitle->invalidateCache();
-		$this->mItem->mTitle->invalidateCache();
-		$this->mItem->mTitle->getTalkPage()->invalidateCache();
-		$this->mItem->mParentTitle->invalidateCache();
+		$this->invalidateCache();
 
 		# Notify item and parent comment authors about new comment
-		if ( $emailnotify )
+		if ( $emailnotify ) {
 			$this->sendCommentEmails();
+		}
 	}
 
 	/**
@@ -258,7 +257,7 @@ class WikilogComment
 		$args = array(
 			$this->mCommentTitle->getPrefixedText(),
 			$this->mUserText,
-			$this->mItem->mTitle->getFullURL(),
+			$this->mSubject->getFullURL(),
 			'c' . $this->mID,
 			'',
 			'',
@@ -271,46 +270,47 @@ class WikilogComment
 			$args[4] = $this->mParentObj->mCommentTitle->getPrefixedText();
 			$args[5] = $this->mParentObj->mUserText;
 		}
-		// Notify users subscribed to the single post,
-		// plus ones subscribed to the whole wikilog,
-		// except ones unsubscribed from the single post
+		// Get user IDs for notification
 		$dbr = wfGetDB( DB_SLAVE );
-		$id = $this->mItem->getID();
-		$wlid = $this->mItem->mParent;
+		$id = $this->mSubject->getArticleId();
+		$parent = Title::makeTitle( $this->mSubject->getNamespace(), $this->mSubject->getBaseText() );
+		$wlid = $parent->getArticleId();
 		$s = $dbr->tableName( 'wikilog_subscriptions' );
 		$result = $dbr->query(
-			"SELECT ws_user FROM $s WHERE ws_page=$id AND ws_yes=1 UNION ALL".
-			" SELECT s1.ws_user FROM $s s1 LEFT JOIN $s s2 ON s2.ws_user=s1.ws_user".
-			" AND s2.ws_page=$id AND s2.ws_yes=0 WHERE s1.ws_page=$wlid AND s1.ws_yes=1 AND s2.ws_user IS NULL",
+			// Notify users subscribed to this post
+			"SELECT ws_user, 1 FROM $s WHERE ws_page=$id AND ws_yes=1".
+			" UNION ALL".
+			// Notify users subscribed to the blog and not unsubscribed from this post
+			" SELECT s1.ws_user, 1 FROM $s s1 LEFT JOIN $s s2 ON s2.ws_user=s1.ws_user".
+			" AND s2.ws_page=$id AND s2.ws_yes=0 WHERE s1.ws_page=$wlid AND s1.ws_yes=1 AND s2.ws_user IS NULL".
+			" UNION ALL".
+			// Always notify post author(s), and they cannot unsubscribe (0 means that)
+			" SELECT wla_author, 0 FROM ".$dbr->tableName( 'wikilog_authors' )." WHERE wla_page=$id",
 			__METHOD__
 		);
 		while ( $u = $dbr->fetchRow( $result ) ) {
 			if ( !array_key_exists( $u[0], $to_ids ) ) {
-				$to_ids[ $u[0] ] = true;
+				$to_ids[ $u[0] ] = $u[1];
 			}
 		}
-		// Always notify post author(s), and they cannot unsubscribe
-		foreach ( $this->mItem->mAuthors as $k => $v ) {
-			$to_ids[ $v ] = false;
-		}
-		$dbr->freeResult($result);
+		$dbr->freeResult( $result );
 		// Build message subject, body and unsubscribe link
 		$saveExpUrls = WikilogParser::expandLocalUrls();
 		$popt = new ParserOptions( User::newFromId( $this->mUserID ) );
 		$subject = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-subject', $args ),
-			$this->mItem->mTitle, $popt, false, false );
+			$this->mSubject, $popt, false, false );
 		$subject = strip_tags( $subject->getText() );
 		$body = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-body', $args),
-			$this->mItem->mTitle, $popt, true, false );
+			$this->mSubject, $popt, true, false );
 		$body = $body->getText();
-		WikilogParser::expandLocalUrls($saveExpUrls);
+		WikilogParser::expandLocalUrls( $saveExpUrls );
 		// Unsubscribe link is appended to e-mails of users that can unsubscribe
 		global $wgServer, $wgScript;
 		$unsubscribe = wfMsgNoTrans(
 			'wikilog-comment-email-unsubscribe',
-			$this->mItem->mTitle->getSubpageText(),
+			$this->mSubject->getSubpageText(),
 			$wgServer.$wgScript.'?'.http_build_query( array(
-				'title' => $this->mItem->mTitle->getTalkPage()->getPrefixedText(),
+				'title' => $this->mSubject->getTalkPage()->getPrefixedText(),
 				'action' => 'wikilog',
 				'wlActionSubscribe' => 1,
 				'wl-subscribe' => 0,
@@ -356,14 +356,27 @@ class WikilogComment
 		$dbw->begin();
 
 		$dbw->delete( 'wikilog_comments', array( 'wlc_id' => $this->mID ), __METHOD__ );
-		$this->mItem->updateNumComments( true );
+		WikilogUtils::updateTalkInfo( $this->mPost );
 
 		$dbw->commit();
 
-		$this->mItem->mTitle->invalidateCache();
-		$this->mItem->mTitle->getTalkPage()->invalidateCache();
-		$this->mItem->mParentTitle->invalidateCache();
+		$this->invalidateCache();
 		$this->mID = null;
+	}
+
+	/**
+	 * Invalidate some caches.
+	 */
+	public function invalidateCache() {
+		$this->mCommentTitle->invalidateCache();
+		$this->mSubject->invalidateCache();
+		$this->mSubject->getTalkPage()->invalidateCache();
+
+		$base = $this->mSubject->getBaseText();
+		if ( $base ) {
+			$base = Title::makeTitle( $this->mSubject->getNamespace(), $base );
+			$base->invalidateCache();
+		}
 	}
 
 	/**
@@ -375,7 +388,7 @@ class WikilogComment
 		} elseif ( $this->mCommentPage ) {
 			return Title::newFromID( $this->mCommentPage, Title::GAID_FOR_UPDATE );
 		} else {
-			$it = $this->mItem->mTitle;
+			$it = $this->mSubject;
 			return Title::makeTitle(
 				MWNamespace::getTalk( $it->getNamespace() ),
 				$it->getText() . '/c' . self::padID( $this->mID )
@@ -440,9 +453,16 @@ class WikilogComment
 	 * @param $row Row from database.
 	 * @return New WikilogComment object.
 	 */
-	public static function newFromRow( &$item, $row ) {
+	public static function newFromRow( $row, $subjectTitle = NULL ) {
+		if ( !$row ) {
+			return false;
+		}
+		if ( !$subjectTitle ) {
+			$subjectTitle = Title::newFromRow( $row );
+		}
+		// FIXME remove usage of global $wgUser
 		global $wgUser;
-		$comment = new WikilogComment( $item );
+		$comment = new WikilogComment( $subjectTitle );
 		$comment->mID           = intval( $row->wlc_id );
 		$comment->mParent       = intval( $row->wlc_parent );
 		$comment->mThread       = explode( '/', $row->wlc_thread );
@@ -454,7 +474,8 @@ class WikilogComment
 		$comment->mTimestamp    = wfTimestamp( TS_MW, $row->wlc_timestamp );
 		$comment->mUpdated      = wfTimestamp( TS_MW, $row->wlc_updated );
 		$comment->mCommentPage  = $row->wlc_comment_page;
-		$comment->mVisited      = $wgUser->getID() ? $row->wlc_status != 'OK' || $row->wlc_last_visit && $row->wlc_last_visit >= $row->wlc_updated : true;
+		$comment->mVisited      = ( $wgUser->getID() ? $row->wlc_status != 'OK'
+			|| $row->wlc_last_visit && $row->wlc_last_visit >= $row->wlc_updated : true );
 
 		# This information may not be available for deleted comments.
 		if ( $row->wlc_page_title && $row->wlc_page_latest ) {
@@ -467,14 +488,14 @@ class WikilogComment
 	/**
 	 * Creates a new comment object for a new comment, given the text and
 	 * the parent comment.
-	 * @param $item Wikilog article object this is a comment for.
+	 * @param $page Subject page title this comment is for.
 	 * @param $text Comment wikitext as a string.
 	 * @param $parent Parent comment id.
 	 * @return New WikilogComment object.
 	 */
-	public static function newFromText( &$item, $text, $parent = null ) {
+	public static function newFromText( Title $subject, $text, $parent = null ) {
 		$ts = wfTimestamp( TS_MW );
-		$comment = new WikilogComment( $item );
+		$comment = new WikilogComment( $subject );
 		$comment->mParent    = $parent;
 		$comment->mStatus    = self::S_OK;
 		$comment->mTimestamp = $ts;
@@ -490,29 +511,22 @@ class WikilogComment
 	 * @param $id Comment id.
 	 * @return New WikilogComment object, or NULL if comment doesn't exist.
 	 */
-	public static function newFromID( &$item, $id ) {
+	public static function newFromID( $id ) {
 		$dbr = wfGetDB( DB_SLAVE );
 		$row = self::loadFromID( $dbr, $id );
-		if ( $row ) {
-			return self::newFromRow( $item, $row );
-		}
-		return null;
+		return self::newFromRow( $row );
 	}
 
 	/**
 	 * Creates a new comment object from an existing comment page id.
 	 * Data is fetched from the database.
-	 * @param $item Wikilog article item.
 	 * @param $pageid Comment page id.
 	 * @return New WikilogComment object, or NULL if comment doesn't exist.
 	 */
-	public static function newFromPageID( &$item, $pageid ) {
+	public static function newFromPageID( $pageid ) {
 		$dbr = wfGetDB( DB_SLAVE );
 		$row = self::loadFromPageID( $dbr, $pageid );
-		if ( $row && $row->wlc_post == $item->getID() ) {
-			return self::newFromRow( $item, $row );
-		}
-		return null;
+		return self::newFromRow( $row );
 	}
 
 	/**
@@ -523,7 +537,7 @@ class WikilogComment
 	 * @return Database row, or false.
 	 */
 	private static function loadFromConds( $dbr, $conds ) {
-		$tables = self::selectTables( $dbr );
+		$tables = self::selectTables();
 		$fields = self::selectFields();
 		$row = $dbr->selectRow(
 			$tables['tables'],
@@ -566,7 +580,7 @@ class WikilogComment
 	 * @return Database query result object.
 	 */
 	private static function fetchFromConds( $dbr, $conds, $options = array() ) {
-		$tables = self::selectTables( $dbr );
+		$tables = self::selectTables();
 		$fields = self::selectFields();
 		$result = $dbr->select(
 			$tables['tables'],
@@ -580,55 +594,26 @@ class WikilogComment
 	}
 
 	/**
-	 * Fetch all comments given a wikilog article item.
-	 * @param $dbr Database connection object.
-	 * @param $itemid Wikilog article item id.
-	 * @return Database query result object.
-	 */
-	public static function fetchAllFromItem( $dbr, $itemid ) {
-		return self::fetchFromConds( $dbr,
-			array( 'wlc_post' => $itemid ),
-			array( 'ORDER BY' => 'wlc_thread, wlc_id' )
-		);
-	}
-
-	/**
-	 * Fetch all comments given a wikilog article item and a thread.
-	 * @param $dbr Database connection object.
-	 * @param $itemid Wikilog article item id.
-	 * @param $thread Thread description (array of comment ids).
-	 * @return Database query result object.
-	 */
-	public static function fetchAllFromItemThread( $dbr, $itemid, $thread ) {
-		if ( is_array( $thread ) ) {
-			$thread = implode( '/', $thread );
-		}
-		return self::fetchFromConds( $dbr,
-			array( 'wlc_post' => $itemid, "wlc_thread " . $dbr->buildLike( $thread . '/', $dbr->anyString() ) ),
-			array( 'ORDER BY' => 'wlc_thread, wlc_id' )
-		);
-	}
-
-	/**
 	 * Return the list of database tables required to create a new instance
 	 * of WikilogComment.
 	 */
-	public static function selectTables( $dbr = null ) {
-		if ( !$dbr ) $dbr = wfGetDB( DB_SLAVE );
-		$page = $dbr->tableName( 'page' );
+	public static function selectTables() {
+		// FIXME remove usage of global $wgUser
 		global $wgUser;
 		$r = array(
 			'tables' => array(
 				'wikilog_comments',
-				"{$page} AS c",
+				'p' => 'page',
+				'c' => 'page',
 			),
 			'join_conds' => array(
-				"{$page} AS c" => array( 'LEFT JOIN', 'c.page_id = wlc_comment_page' ),
+				'p' => array( 'JOIN', 'p.page_id = wlc_post' ),
+				'c' => array( 'LEFT JOIN', 'c.page_id = wlc_comment_page' ),
 			)
 		);
-		if ( $wgUser->getId() )
-		{
-			$r['join_conds'][$r['tables'][] = 'page_last_visit AS cv'] =
+		if ( $wgUser->getId() ) {
+			$r['tables']['cv'] = 'page_last_visit';
+			$r['join_conds']['cv'] =
 				array( 'LEFT JOIN', array( 'cv.pv_page = wlc_comment_page', 'cv.pv_user' => $wgUser->getId() ) );
 		}
 		return $r;
@@ -639,6 +624,7 @@ class WikilogComment
 	 * WikilogComment.
 	 */
 	public static function selectFields() {
+		// FIXME remove usage of global $wgUser
 		global $wgUser;
 		return array(
 			'wlc_id',
@@ -652,6 +638,12 @@ class WikilogComment
 			'wlc_timestamp',
 			'wlc_updated',
 			'wlc_comment_page',
+			'p.page_id',
+			'p.page_namespace',
+			'p.page_title',
+			'p.page_len',
+			'p.page_is_redirect',
+			'p.page_latest',
 			'c.page_namespace AS wlc_page_namespace',
 			'c.page_title AS wlc_page_title',
 			'c.page_latest AS wlc_page_latest',
@@ -728,9 +720,6 @@ class WikilogCommentFormatter
 		}
 		if ( $comment->mUserID ) {
 			$divclass[] = 'wl-comment-by-user';
-			if ( isset( $comment->mItem->mAuthors[$comment->mUserText] ) ) {
-				$divclass[] = 'wl-comment-by-author';
-			}
 		} else {
 			$divclass[] = 'wl-comment-by-anon';
 		}
@@ -752,9 +741,10 @@ class WikilogCommentFormatter
 				list( $article, $parserOutput ) = WikilogUtils::parsedArticle( $comment->mCommentTitle );
 				$text = $parserOutput->getText();
 			} else {
+				// FIXME do not reuse wgParser
 				global $wgParser, $wgUser, $wgTitle;
 				$text = $comment->getText();
-				$text = $wgParser->parse($text, $wgTitle, ParserOptions::newFromUser( $wgUser ));
+				$text = $wgParser->parse( $text, $wgTitle, ParserOptions::newFromUser( $wgUser ) );
 				$text = $text->getText();
 			}
 
@@ -858,10 +848,10 @@ class WikilogCommentFormatter
 		$permalink = $this->getCommentPermalink( $comment, $date, $time, $tz );
 
 		$extra = array();
-		if ( $this->mShowItem && $comment->mItem ) {
+		if ( $this->mShowItem ) {
 			# Display item title.
 			$extra[] = wfMsgForContent( 'wikilog-comment-note-item',
-				$this->mSkin->link( $comment->mItem->mTitle, $comment->mItem->mName )
+				$this->mSkin->link( $comment->mSubject, $comment->mSubject->getSubpageText() )
 			);
 		}
 		if ( $comment->mID && $comment->mCommentTitle &&
@@ -891,71 +881,6 @@ class WikilogCommentFormatter
 			/* $5  */ $permalink,
 			/* $6  */ $extra
 		);
-	}
-
-	/**
-	 * Define the root thread used to align replies formatted with
-	 * startCommentThread() and closeCommentThreads(). This prevents
-	 * omitted comment placeholders to be displayed when listing replies
-	 * of another comment.
-	 *
-	 * When in this state, all calls to startCommentThread() MUST be
-	 * to comments below the root thread. The thread stack stays in this
-	 * state until closeCommentThreads() is called.
-	 *
-	 * @param $thread Root comment thread that will affect future calls
-	 *   to startCommentThread().
-	 */
-	public function setupRootThread( $thread ) {
-		$this->mThreadStack = $this->mThreadRoot = $thread;
-	}
-
-	/**
-	 * Start a new comment thread. Should be called before formatComment()
-	 * when formatting comments in threads. Comments must be displayed in
-	 * correct thread sequence when using this function, which means that
-	 * the 'wlc_thread' column should be used to sort the query results from
-	 * the 'wikilog_comments' table. After the last comment,
-	 * closeCommentThreads() must be called.
-	 *
-	 * @param $comment Comment to be formatted.
-	 * @return Generated HTML.
-	 */
-	public function startCommentThread( $comment ) {
-		$top = count( $this->mThreadStack );
-		$thread = count( $comment->mThread );
-
-		# Find common ancestors.
-		$common = min( $top, $thread );
-		for ( $i = 0; $i < $common; $i++ ) {
-			if ( $this->mThreadStack[$i] != $comment->mThread[$i] )
-				break;
-		}
-
-		# Close previous threads.
-		$html = str_repeat( "</div>", $top - $i );
-		array_splice( $this->mThreadStack, $i );
-
-		# Create omitted comment thread(s).
-		for ( ; $i < $thread-1; $i++ ) {
-			$html .= '<div class="wl-thread">';
-			array_push( $this->mThreadStack, $comment->mThread[$i] );
-		}
-
-		# Open the new comment thread.
-		$html .= '<div class="wl-thread">';
-		array_push( $this->mThreadStack, $comment->mThread[$i] );
-		return $html;
-	}
-
-	/**
-	 * Close all open comment threads.
-	 * @return Generated HTML.
-	 */
-	public function closeCommentThreads() {
-		$open = count( $this->mThreadStack ) - count( $this->mThreadRoot );
-		$this->mThreadStack = $this->mThreadRoot = array();
-		return str_repeat( "</div>", $open );
 	}
 
 	/**

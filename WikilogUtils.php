@@ -38,30 +38,62 @@ class WikilogUtils
 	/**
 	 * Updates last visit date of Wiki page with id $pageid
 	 */
-	public static function updateLastVisit( $pageid, $timestamp = NULL, $userid = NULL )
-	{
-		if ( !$userid )
-		{
+	public static function updateLastVisit( $pageid, $timestamp = NULL, $userid = NULL ) {
+		if ( !$userid ) {
 			global $wgUser;
 			$userid = $wgUser->getID();
-			if ( !$userid )
+			if ( !$userid ) {
 				return;
+			}
 		}
-		if ( $pageid instanceof Title )
+		if ( $pageid instanceof Title ) {
 			$pageid = $pageid->getArticleId();
-		elseif ( $pageid instanceof Article )
+		} elseif ( $pageid instanceof Article ) {
 			$pageid = $pageid->getID();
-		if ( !$pageid )
+		}
+		if ( !$pageid ) {
 			return;
+		}
 		$timestamp = wfTimestamp( TS_MW, $timestamp );
 		$dbw = wfGetDB( DB_MASTER );
 		$where = array( 'pv_page' => $pageid, 'pv_user' => $userid );
 		$set = array( 'pv_date' => $timestamp );
-		$last = $dbw->selectField( 'page_last_visit', 'pv_date', $where, __FUNCTION__, array('FOR UPDATE'));
-		if ( !$last )
+		$last = $dbw->selectField( 'page_last_visit', 'pv_date', $where, __FUNCTION__, array( 'FOR UPDATE' ) );
+		if ( !$last ) {
 			$dbw->insert( 'page_last_visit', $where + $set );
-		elseif ( $last < $timestamp)
+		} elseif ( $last < $timestamp ) {
 			$dbw->update( 'page_last_visit', $set, $where, __METHOD__ );
+		}
+	}
+
+	/**
+	 * Updates the number of article comments for page $pageID.
+	 */
+	public static function updateTalkInfo( $pageID ) {
+		$dbw = wfGetDB( DB_MASTER );
+
+		// Retrieve number of comments and max comment update timestamp
+		$result = $dbw->select( 'wikilog_comments', 'COUNT(*), MAX( wlc_updated )',
+			array( 'wlc_post' => $pageID ), __METHOD__ );
+		$row = $dbw->fetchRow( $result );
+		$dbw->freeResult( $result );
+
+		$pageUpdated = $dbw->selectField( array( 'page', 'revision' ), 'rev_timestamp',
+			array( 'page_latest=rev_id', 'page_id' => $pageID ), __METHOD__ );
+		list( $count, $talkUpdated ) = $row;
+		if ( !$talkUpdated || $pageUpdated > $talkUpdated ) {
+			$talkUpdated = $pageUpdated;
+		}
+		$talkUpdated = wfTimestamp( TS_MW, $talkUpdated );
+
+		// Update wikilog_talkinfo cache
+		$dbw->replace( 'wikilog_talkinfo', array( 'wti_page' ), array( array(
+				'wti_page' => $pageID,
+				'wti_num_comments' => $count,
+				'wti_talk_updated' => $talkUpdated
+			) ), __METHOD__ );
+
+		return array( $count, $talkUpdated );
 	}
 
 	/**
@@ -313,7 +345,7 @@ class WikilogUtils
 				@$dom->loadHTML('<?xml encoding="UTF-8">' . $content);
 				$summary = new DOMDocument();
 				$h = false;
-				# Dive into imported <html><body>
+				// Dive into imported <html><body>
 				$ch = $dom->documentElement->childNodes;
 				if ( $ch ) {
 					foreach ( $ch->item( 0 )->childNodes as $node ) {

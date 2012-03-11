@@ -182,3 +182,16 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_comments (
   INDEX wlc_updated (wlc_updated),
   INDEX wlc_comment_page (wlc_comment_page)
 ) /*$wgDBTableOptions*/;
+
+--
+-- Page talk info, abstracted away from wikilog post concept
+--
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_talkinfo (
+  -- Primary key, reference to wiki article
+  wti_page INTEGER UNSIGNED NOT NULL,
+  -- Timestamp of last comment.
+  wti_talk_updated BINARY(14) NOT NULL,
+  -- Cached number of comments.
+  wti_num_comments INTEGER UNSIGNED,
+  PRIMARY KEY (wti_page)
+) /*$wgDBTableOptions*/;
