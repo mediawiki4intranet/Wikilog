@@ -267,9 +267,15 @@ class WikilogCommentThreadPager
 		foreach ( $rows as &$row ) {
 			if ( !$row->wlc_parent || !isset( $rows[ $row->wlc_parent ] ) ) {
 				$row->level = $this->mRootLevel+1;
-			} elseif ( $rows[ $row->wlc_parent ]->level <= $this->mMinFoldLevel || $nchild[ $row->wlc_parent ] > 1 ) {
+			} elseif ( $rows[ $row->wlc_parent ]->level-$this->mRootLevel-1 <= $this->mMinFoldLevel ||
+				$nchild[ $row->wlc_parent ] > 1 || $nchild[ $rows[ $row->wlc_parent ]->wlc_parent ] > 1 ) {
+				// Create a nested thread when either:
+				// - Nesting level is not above $this->mMinFoldLevel
+				// - This comment has a sibling
+				// - Parent comment has a sibling
 				$row->level = $rows[ $row->wlc_parent ]->level + 1;
 			} else {
+				// In other cases, do not start a nested thread ("fold" it)
 				$row->level = $rows[ $row->wlc_parent ]->level;
 			}
 		}

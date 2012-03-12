@@ -769,8 +769,8 @@ class WikilogCommentQuery
 				$res = $dbr->select( $q_tables, 'wlc_post, wlc_thread', $q_conds,
 					__METHOD__, $q_options + array( 'LIMIT' => 1, 'OFFSET' => $this->mLimit-1 ), $q_joins );
 				$row = $dbr->fetchObject( $res );
-				$p = !$this->mIncludeSubpages && $this->mThread ? strlen( $this->mThread ) : 0;
 				if ( $row ) {
+					$p = !$this->mIncludeSubpages && $this->mThread ? strlen( $this->mThread ) : -1;
 					$this->mLastPost = $row->wlc_post;
 					$this->mLastThread = substr( $row->wlc_thread, 0, $p+7 );
 					$this->mLastThread = substr( $this->mLastThread, 0, -6 ) .
