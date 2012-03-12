@@ -244,6 +244,7 @@ class WikilogCommentThreadPager
 		}
 		$this->mQuery->setFirstCommentId( $this->mOffset );
 		$this->mQuery->setLimit( 'thread', $this->mLimit );
+
 		$dbr = wfGetDB( DB_SLAVE );
 		$res = $this->mQuery->select( $dbr, array(), false );
 		$nchild = array();

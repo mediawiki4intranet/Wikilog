@@ -758,9 +758,11 @@ class WikilogCommentQuery
 			if ( $this->mFirstCommentId ) {
 				$res = $dbr->select( 'wikilog_comments', 'wlc_post, wlc_thread',
 					array( 'wlc_id' => $this->mFirstCommentId ), __METHOD__ );
-				$row = $dbr->fetchRow( $res );
-				$q_conds[] = "wlc_post >= {$row->wlc_post} AND (wlc_post > {$row->wlc_post}".
-					" OR wlc_thread >= ".$dbr->addQuotes( $row->wlc_thread ).")";
+				$row = $dbr->fetchObject( $res );
+				if ( $row ) {
+					$q_conds[] = "wlc_post >= {$row->wlc_post} AND (wlc_post > {$row->wlc_post}".
+						" OR wlc_thread >= ".$dbr->addQuotes( $row->wlc_thread ).")";
+				}
 			}
 			if ( $this->mLimit > 0 ) {
 				// Determine thread boundary from limit
@@ -774,15 +776,15 @@ class WikilogCommentQuery
 					$this->mLastThread = substr( $this->mLastThread, 0, -6 ) .
 						sprintf( "%06d", 1 + substr( $this->mLastThread, -6 ) );
 					$this->mNextCommentId = $dbr->selectField( $q_tables, 'wlc_id', $q_conds + array(
-							"wlc_post >= $lastPost AND ( wlc_post > $lastPost".
-							" OR wlc_thread >= ".$dbr->addQuotes( $lastThread )." )"
+							"wlc_post >= {$this->mLastPost} AND ( wlc_post > {$this->mLastPost}".
+							" OR wlc_thread >= ".$dbr->addQuotes( $this->mLastThread )." )"
 						), __METHOD__, array( 'LIMIT' => 1 ) );
 					// Build query condition
-					$lt = "wlc_thread < ".$dbr->addQuotes( $lastThread );
-					if ( $firstPost == $lastPost ) {
+					$lt = "wlc_thread < ".$dbr->addQuotes( $this->mLastThread );
+					if ( $firstPost == $this->mLastPost ) {
 						$q_conds[] = $lt;
 					} else {
-						$q_conds[] = "wlc_post <= $lastPost AND (wlc_post < $lastPost OR $lt)";
+						$q_conds[] = "wlc_post <= {$this->mLastPost} AND (wlc_post < {$this->mLastPost} OR $lt)";
 					}
 				}
 			}
