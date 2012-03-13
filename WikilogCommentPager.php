@@ -237,14 +237,14 @@ class WikilogCommentThreadPager
 	}
 
 	function doQuery() {
-		// If not displaying comments for a single page,
-		// set query option to return pages along with their comments.
-		if ( $this->mQuery->getIncludeSubpageComments() ) {
-			$this->mQuery->setOption( 'include-page' );
+		if ( $this->mIsBackwards ) {
+			$this->mQuery->setNextCommentId( $this->mOffset ? $this->mOffset : 'MAX' );
+		} else {
+			$this->mQuery->setFirstCommentId( $this->mOffset );
 		}
-		$this->mQuery->setFirstCommentId( $this->mOffset );
 		$this->mQuery->setLimit( 'thread', $this->mLimit );
 
+		// Execute query
 		$dbr = wfGetDB( DB_SLAVE );
 		$res = $this->mQuery->select( $dbr, array(), false );
 		$nchild = array();
@@ -282,10 +282,10 @@ class WikilogCommentThreadPager
 		$this->mRows = $rows;
 
 		// Give Pager the parameters
-		$this->mIsFirst = !$this->mOffset;
-		$this->mIsLast = !$this->mQuery->mNextCommentId;
-		$this->mLastShown = $this->mQuery->mNextCommentId;
-		$this->mFirstShown = $this->mOffset;
+		$this->mIsFirst = !$this->mQuery->getRealFirstCommentId();
+		$this->mIsLast = !$this->mQuery->getRealNextCommentId();
+		$this->mLastShown = $this->mQuery->getRealNextCommentId();
+		$this->mFirstShown = $this->mQuery->getRealFirstCommentId();
 	}
 
 	function getBody() {

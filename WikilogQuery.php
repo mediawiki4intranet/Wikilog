@@ -550,16 +550,15 @@ class WikilogCommentQuery
 	private $mAuthor = false;			///< Filter by author.
 	private $mDate = false;				///< Filter by date.
 	private $mIncludeSubpages = false;	///< Include comments to all subpages of subject page.
-	private $mSort = 'thread';			///< Sort order
-	private $mLimit = 0;				///< Limit
-	private $mFirstCommentId = 0;		///< "Offset" (ID of the first comment on page)
+	private $mSort = 'thread';			///< Sort order (only 'thread' is supported by now).
+	private $mLimit = 0;				///< Limit.
+	private $mFirstCommentId = false;	///< Forward navigation: ID of the first comment on page.
+	private $mNextCommentId = false;	///< Backward navigation: ID of the first comment on NEXT page.
 
-	// The thread boundary determined from the limit is saved here when sorting on thread.
-	// "Next page" begins from comment with this ID. You can then pass it back to
-	// WikilogCommentQuery using setFirstCommentId().
-	public $mNextCommentId = false;
-	public $mLastPost = false;
-	public $mLastThread = false;
+	// The real page boundaries are saved here after calling getQueryInfo().
+	// You can pass them back to WikilogCommentQuery using setXXXCommentId().
+	private $mRealFirstCommentId = false;
+	private $mRealNextCommentId = false;
 
 	/**
 	 * Constructor.
@@ -675,6 +674,10 @@ class WikilogCommentQuery
 		$this->mFirstCommentId = $id;
 	}
 
+	public function setNextCommentId( $id ) {
+		$this->mNextCommentId = $id;
+	}
+
 	/**
 	 * Accessor functions.
 	 */
@@ -687,6 +690,9 @@ class WikilogCommentQuery
 	public function getLimit() { return $this->mLimit; }
 	public function getIncludeSubpageComments() { return $this->mIncludeSubpages; }
 	public function getFirstCommentId() { return $this->mFirstCommentId; }
+	public function getNextCommentId() { return $this->mNextCommentId; }
+	public function getRealFirstCommentId() { return $this->mRealFirstCommentId; }
+	public function getRealNextCommentId() { return $this->mRealNextCommentId; }
 
 	/**
 	 * Organizes all the query information and constructs the table and
@@ -754,49 +760,34 @@ class WikilogCommentQuery
 		# Sort order and limits
 		if ( $this->mSort == 'thread' ) {
 			$dbr = wfGetDB( DB_SLAVE );
+			$first = $last = $back = false;
+			if ( $this->mNextCommentId ) {
+				// Backward navigation: next comment ID is set from the outside.
+				// Determine first comment ID from it.
+				if ( $this->mNextCommentId != 'MAX' ) {
+					$back = $last = $this->getPostThread( $dbr, $this->mNextCommentId );
+				} else {
+					// FIXME "Go to the last page" is kludgy anyway with our "not-break-the-thread" idea.
+					// I.e. "last page" will not be the same as if you navigate forward.
+					// This can be fixed only by partitioning the full query set into pages at the beginning.
+					$back = true;
+				}
+			} else {
+				// Forward navigation: first comment ID may be set from the outside.
+				// Determine real limit from it.
+				$first = $this->getPostThread( $dbr, $this->mFirstCommentId );
+			}
+			list( $first, $last ) = $this->getLimitPostThread( $dbr, $q_tables, $q_conds, $q_options, $q_joins,
+				$this->mIncludeSubpages ? false : $this->mThread, $first, $last, $back, $this->mLimit );
 			$q_options['ORDER BY'] = 'wlc_post, wlc_thread, wlc_id';
-			if ( $this->mFirstCommentId ) {
-				$res = $dbr->select( 'wikilog_comments', 'wlc_post, wlc_thread',
-					array( 'wlc_id' => $this->mFirstCommentId ), __METHOD__ );
-				$row = $dbr->fetchObject( $res );
-				if ( $row ) {
-					$q_conds[] = "wlc_post >= {$row->wlc_post} AND (wlc_post > {$row->wlc_post}".
-						" OR wlc_thread >= ".$dbr->addQuotes( $row->wlc_thread ).")";
-				}
+			$q_conds[] = $this->getPostThreadCond( $dbr, $first, $last );
+			// Save real page boundaries so pager can retrieve them later
+			if ( $first ) {
+				$this->mRealFirstCommentId = $first->id;
 			}
-			if ( $this->mLimit > 0 ) {
-				// Determine thread boundary from limit
-				$res = $dbr->select( $q_tables, 'wlc_post, wlc_thread', $q_conds,
-					__METHOD__, $q_options + array( 'LIMIT' => 1, 'OFFSET' => $this->mLimit-1 ), $q_joins );
-				$row = $dbr->fetchObject( $res );
-				if ( $row ) {
-					$p = !$this->mIncludeSubpages && $this->mThread ? strlen( $this->mThread ) : -1;
-					$this->mLastPost = $row->wlc_post;
-					$this->mLastThread = substr( $row->wlc_thread, 0, $p+7 );
-					$this->mLastThread = substr( $this->mLastThread, 0, -6 ) .
-						sprintf( "%06d", 1 + substr( $this->mLastThread, -6 ) );
-					$this->mNextCommentId = $dbr->selectField( $q_tables, 'wlc_id', $q_conds + array(
-							"wlc_post >= {$this->mLastPost} AND ( wlc_post > {$this->mLastPost}".
-							" OR wlc_thread >= ".$dbr->addQuotes( $this->mLastThread )." )"
-						), __METHOD__, array( 'LIMIT' => 1 ) );
-					// Build query condition
-					$lt = "wlc_thread < ".$dbr->addQuotes( $this->mLastThread );
-					if ( $firstPost == $this->mLastPost ) {
-						$q_conds[] = $lt;
-					} else {
-						$q_conds[] = "wlc_post <= {$this->mLastPost} AND (wlc_post < {$this->mLastPost} OR $lt)";
-					}
-				}
+			if ( $last ) {
+				$this->mRealNextCommentId = $last->id;
 			}
-		} else {
-			$q_options['ORDER BY'] = 'wlc_id';
-			if ( $this->mFirstCommentId ) {
-				$q_conds[] = 'wlc_id >= '.intval( $this->mFirstCommentId );
-			}
-			if ( $this->mLimit > 0 ) {
-				$q_options['LIMIT'] = $this->mLimit;
-			}
-			break;
 		}
 
 		return array(
@@ -806,6 +797,94 @@ class WikilogCommentQuery
 			'options' => $q_options,
 			'join_conds' => $q_joins
 		);
+	}
+
+	/**
+	 * Determine $first or $last post/thread boundary from another condition
+	 * ($last or $first respectively), query options and a limit.
+	 * This is the function responsive for NOT CUTTING discussion threads in the middle.
+	 *  @return array( $newFirst, $newLast )
+	 */
+	function getLimitPostThread( $dbr, $tables, $conds, $options, $joins, $parentThread, $first, $last, $backwards, $limit ) {
+		if ( $limit <= 0 ) {
+			return false;
+		}
+		$tmpConds = $conds;
+		$tmpConds[] = $this->getPostThreadCond( $dbr, $first, $last );
+		$tmpOpts = $options;
+		$tmpOpts['LIMIT'] = 1;
+		$tmpOpts['OFFSET'] = $limit-1;
+		$dir = $backwards ? 'DESC' : 'ASC';
+		$tmpOpts['ORDER BY'] = "wlc_post $dir, wlc_thread $dir, wlc_id $dir";
+		$other = false;
+		// Select $limit'th comment, get post and thread from it
+		$res = $dbr->select( $tables, 'wlc_post, wlc_thread', $tmpConds, __METHOD__, $tmpOpts, $joins );
+		$row = $res->fetchObject();
+		if ( $row ) {
+			$p = $parentThread ? 1+strlen( $parentThread ) : 0;
+			$other = (object)array(
+				'post' => $row->wlc_post,
+				'thread' => substr( $row->wlc_thread, 0, $p+6 ),
+			);
+			if ( !$backwards ) {
+				// Next thread number (for LessThan)
+				$other->thread = substr( $other->thread, 0, -6 ) .
+					sprintf( "%06d", 1 + substr( $other->thread, -6 ) );
+			}
+			$tmpConds = $conds;
+			$tmpConds[] = $this->getPostThreadCond( $dbr, $backwards ? $first : $other, $backwards ? $other : $last );
+			$tmpOpts['OFFSET'] = 0;
+			// Get "other" comment id
+			$res = $dbr->select( $tables, 'wlc_id', $tmpConds, __METHOD__, $tmpOpts, $joins );
+			$row = $res->fetchObject();
+			$other->id = $row ? $row->wlc_id : false;
+		}
+		return $backwards ? array( $other, $last ) : array( $first, $other );
+	}
+
+	/**
+	 * Get post and thread for comment #$id
+	 */
+	function getPostThread( $dbr, $id ) {
+		if ( !$id ) {
+			return false;
+		}
+		$res = $dbr->select( 'wikilog_comments', 'wlc_post, wlc_thread',
+			array( 'wlc_id' => $this->mFirstCommentId ), __METHOD__ );
+		$row = $dbr->fetchObject( $res );
+		if ( $row ) {
+			return (object)array(
+				'id' => $id,
+				'post' => intval( $row->wlc_post ),
+				'thread' => $row->wlc_thread,
+			);
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the condition to select comments between (first post, first thread) and (last post, last thread)
+	 *  @param object $first (post => post ID, thread => thread)
+	 *  @param object $last (post => post ID, thread => thread)
+	 *  @return string
+	 */
+	function getPostThreadCond( $dbr, $first, $last ) {
+		if ( !$first && !$last ) {
+			return '1=1';
+		}
+		if ( $first && $last && $first->post == $last->post ) {
+			return "wlc_post = {$first->post} AND (wlc_thread >= {$first->thread} AND wlc_thread < {$last->thread})";
+		}
+		$cond = array();
+		if ( $first ) {
+			$cond[] = "wlc_post >= {$first->post} AND (wlc_post > {$first->post}".
+				" OR wlc_thread >= ".$dbr->addQuotes( $first->thread ).")";
+		}
+		if ( $last ) {
+			$cond[] = "wlc_post <= {$last->post} AND (wlc_post < {$last->post}".
+				" OR wlc_thread < ".$dbr->addQuotes( $last->thread ).")";
+		}
+		return implode( ' AND ', $cond );
 	}
 
 	/**
