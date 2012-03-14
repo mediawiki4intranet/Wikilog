@@ -720,7 +720,7 @@ class WikilogCommentFeed
 				$comment->mUserText, ''/*talk*/, $comment->mAnonName
 			);
 		}
-		$title = wfMsgForContent( 'wikilog-comment-feed-title'.( $this->mSubject ? '1' : '2' ),
+		$title = wfMsgForContent( 'wikilog-comment-feed-title'.( $this->mSingleItem ? '1' : '2' ),
 			$comment->mID, $usertext, $comment->mSubject->getSubpageText()
 		);
 
