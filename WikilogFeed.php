@@ -720,8 +720,8 @@ class WikilogCommentFeed
 				$comment->mUserText, ''/*talk*/, $comment->mAnonName
 			);
 		}
-		$title = wfMsgForContent( 'wikilog-comment-feed-title1',
-			$comment->mID, $usertext, $this->mSubject->getSubpageText()
+		$title = wfMsgForContent( 'wikilog-comment-feed-title'.( $this->mSubject ? '1' : '2' ),
+			$comment->mID, $usertext, $comment->mSubject->getSubpageText()
 		);
 
 		# Create new syndication entry.
