@@ -40,7 +40,7 @@ class SpecialWikilogComments
 		parent::__construct( 'WikilogComments' );
 	}
 
-	function execute() {
+	function execute($par) {
 		global $wgTitle;
 		$page = new WikilogCommentsPage( $wgTitle );
 		$page->view();
