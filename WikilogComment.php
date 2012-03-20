@@ -248,11 +248,11 @@ class WikilogComment
 		global $wgParser, $wgPasswordSender;
 		/* Message arguments:
 		 * $1 = full page name of comment page
-		 * $2 = name of a user who posted the new comment
+		 * $2 = name of the user who posted the new comment
 		 * $3 = full URL to Wikilog item
 		 * $4 = Wikilog item talk page anchor for the new comment
 		 * $5 (optional) = full page name of parent comment page
-		 * $6 (optional) = name of a user who posted the parent comment
+		 * $6 (optional) = name of the user who posted the parent comment
 		 */
 		$args = array(
 			$this->mCommentTitle->getPrefixedText(),
@@ -332,14 +332,8 @@ class WikilogComment
 				}
 			}
 		}
-		// Build "From:" address
-		$from = User::newFromId( $this->mUserID );
-		if ( $from && $from->getEmail() ) {
-			$from = new MailAddress( $from->getEmail(), $from->getRealName() );
-		} else {
-			$from = new MailAddress( $wgPasswordSender, 'Wikilog' );
-		}
-		// Send e-mails
+		// Send e-mails using $wgPasswordSender as from address
+		$from = new MailAddress( $wgPasswordSender, 'Wikilog' );
 		if ( $to_with ) {
 			UserMailer::send( $to_with, $from, $subject, $body . $unsubscribe );
 		}
@@ -479,7 +473,14 @@ class WikilogComment
 
 		# This information may not be available for deleted comments.
 		if ( $row->wlc_page_title && $row->wlc_page_latest ) {
-			$comment->mCommentTitle = Title::makeTitle( $row->wlc_page_namespace, $row->wlc_page_title );
+			$comment->mCommentTitle = Title::newFromRow( (object)array(
+				'page_id'           => $row->wlc_comment_page,
+				'page_namespace'    => $row->wlc_page_namespace,
+				'page_title'        => $row->wlc_page_title,
+				'page_len'          => $row->wlc_page_len,
+				'page_is_redirect'  => $row->wlc_page_is_redirect,
+				'page_latest'       => $row->wlc_page_latest,
+			) );
 			$comment->mCommentRev = $row->wlc_page_latest;
 		}
 		return $comment;
@@ -646,6 +647,8 @@ class WikilogComment
 			'p.page_latest',
 			'c.page_namespace AS wlc_page_namespace',
 			'c.page_title AS wlc_page_title',
+			'c.page_len AS wlc_page_len',
+			'c.page_is_redirect AS wlc_page_is_redirect',
 			'c.page_latest AS wlc_page_latest',
 			$wgUser->getId() ? 'cv.pv_date AS wlc_last_visit' : 'NULL AS wlc_last_visit',
 		);
@@ -737,7 +740,7 @@ class WikilogCommentFormatter
 			$params = $this->getCommentMsgParams( $comment );
 			$html = $this->formatCommentHeader( $comment, $params );
 
-			if ( $comment->mID && $comment->mCommentRev ) {
+			if ( 0 && $comment->mID && $comment->mCommentRev ) {
 				list( $article, $parserOutput ) = WikilogUtils::parsedArticle( $comment->mCommentTitle );
 				$text = $parserOutput->getText();
 			} else {
@@ -757,7 +760,7 @@ class WikilogCommentFormatter
 		}
 
 		# Update last visit
-		WikilogUtils::updateLastVisit( $comment->getCommentArticleTitle() );
+		WikilogUtils::updateLastVisit( $comment->mCommentPage );
 
 		# Enclose everything in a div.
 		if ( $highlight ) {
@@ -962,6 +965,7 @@ class WikilogCommentFormatter
 					'known'
 				);
 			}
+			// TODO: batch checking of page restrictions
 			if ( $comment->mCommentTitle->quickUserCan( 'edit' ) ) {
 				$tools['edit'] = $this->mSkin->link( $comment->mCommentTitle,
 					wfMsg( 'wikilog-edit-lc' ),
@@ -978,6 +982,7 @@ class WikilogCommentFormatter
 					'known'
 				);
 			}
+			wfRunHooks( 'WikilogCommentToolLinks', array( $this, $comment, &$tools ) );
 		}
 
 		if ( $tools ) {

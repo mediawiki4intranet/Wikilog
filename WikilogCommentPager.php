@@ -295,23 +295,30 @@ class WikilogCommentThreadPager
 
 		$html = '';
 		if ( count( $this->mRows ) ) {
+			// First preload comments to allow batch loading
+			$comments = array();
+			$subject = $this->mQuery->getIncludeSubpageComments() ? NULL : $this->mQuery->getSubject();
+			foreach ( $this->mRows as $i => $row ) {
+				$comments[$i] = WikilogComment::newFromRow( $row, $subject );
+			}
+			wfRunHooks( 'WikilogPreloadComments', array( $this, &$comments ) );
+
 			$level = $this->mRootLevel;
-			foreach ( $this->mRows as $row ) {
+			foreach ( $comments as $num => $comment ) {
 				// Open/close comment threads
-				if ( $row->level > $level ) {
-					for ( $i = $level ; $i < $row->level; $i++ ) {
+				$curLevel = $this->mRows[ $num ]->level;
+				if ( $curLevel > $level ) {
+					for ( $i = $level ; $i < $curLevel; $i++ ) {
 						$html .= '<div class="wl-thread">';
 					}
-				} elseif ( $row->level < $level ) {
-					for ( $i = $row->level; $i < $level; $i++ ) {
+				} elseif ( $curLevel < $level ) {
+					for ( $i = $curLevel; $i < $level; $i++ ) {
 						$html .= '</div>';
 					}
 				}
-				$level = $row->level;
+				$level = $curLevel;
 
 				// Retrieve comment data.
-				$subject = $this->mQuery->getIncludeSubpageComments() ? NULL : $this->mQuery->getSubject();
-				$comment = WikilogComment::newFromRow( $row, $subject );
 				$comment->loadText();
 
 				// Format comment

@@ -29,12 +29,40 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
+class PageLastVisitUpdater {
+
+	var $visit = array();
+
+	function __construct() {
+		global $wgDeferredUpdateList;
+		$wgDeferredUpdateList[] = $this;
+	}
+
+	function add( $pageid, $userid, $timestamp ) {
+		$this->visit[] = array(
+			'pv_page' => $pageid,
+			'pv_user' => $userid,
+			'pv_date' => wfTimestamp( TS_MW, $timestamp ),
+		);
+	}
+
+	function doUpdate() {
+		if ( $this->visit ) {
+			$dbw = wfGetDB( DB_MASTER );
+			$dbw->replace( 'page_last_visit', array( array( 'pv_page', 'pv_user' ) ), $this->visit, __METHOD__ );
+			$this->visit = array();
+		}
+	}
+
+}
 
 /**
  * Utilitary functions used by the Wikilog extension.
  */
-class WikilogUtils
-{
+class WikilogUtils {
+
+	static $updater = false;
+
 	/**
 	 * Updates last visit date of Wiki page with id $pageid
 	 */
@@ -48,22 +76,16 @@ class WikilogUtils
 		}
 		if ( $pageid instanceof Title ) {
 			$pageid = $pageid->getArticleId();
-		} elseif ( $pageid instanceof Article ) {
+		} elseif ( $pageid instanceof WikiPage ) {
 			$pageid = $pageid->getID();
 		}
 		if ( !$pageid ) {
 			return;
 		}
-		$timestamp = wfTimestamp( TS_MW, $timestamp );
-		$dbw = wfGetDB( DB_MASTER );
-		$where = array( 'pv_page' => $pageid, 'pv_user' => $userid );
-		$set = array( 'pv_date' => $timestamp );
-		$last = $dbw->selectField( 'page_last_visit', 'pv_date', $where, __FUNCTION__, array( 'FOR UPDATE' ) );
-		if ( !$last ) {
-			$dbw->insert( 'page_last_visit', $where + $set );
-		} elseif ( $last < $timestamp ) {
-			$dbw->update( 'page_last_visit', $set, $where, __METHOD__ );
+		if ( !self::$updater ) {
+			self::$updater = new PageLastVisitUpdater();
 		}
+		self::$updater->add( $pageid, $userid, $timestamp );
 	}
 
 	/**

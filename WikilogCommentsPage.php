@@ -40,7 +40,7 @@ class SpecialWikilogComments
 		parent::__construct( 'WikilogComments' );
 	}
 
-	function execute($par) {
+	function execute( $par ) {
 		global $wgTitle;
 		$page = new WikilogCommentsPage( $wgTitle );
 		$page->view();
@@ -574,7 +574,7 @@ class WikilogCommentsPage
 				'ws_page' => $page_id,
 				'ws_user' => $wgUser->getID(),
 				'ws_yes'  => $subscribe,
-				'ws_date' => wfTimestamp(TS_MW),
+				'ws_date' => wfTimestamp( TS_MW ),
 			), __METHOD__ );
 			return $subscribe;
 		}

@@ -283,7 +283,7 @@ class Wikilog
 		if ( ( $wi = self::getWikilogInfo( $title ) ) ) {
 			if ( $title->isTalkPage() ) {
 				if ( $wgWikilogEnableComments ) {
-					$article = new WikilogCommentsPage( $title, $wi );
+					$article = new WikilogCommentsPage( $title );
 				} else {
 					return true;
 				}
