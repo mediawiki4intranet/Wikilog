@@ -132,7 +132,6 @@ div.wl-comment-footer {
 }
 
 .wl-comment-tools {
-	display: none;
 	position: absolute; /* relative to .wl-comment */
 	bottom: 0;
 }
@@ -146,7 +145,7 @@ div.wl-comment-footer {
 }
 
 .wl-comment-tools li {
-	display: inline;
+	display: none;
 	padding: 1pt 3pt;
 	font-weight: bold;
 	color: #999999;
@@ -160,9 +159,9 @@ div.wl-comment-footer {
 }
 
 @media screen {
-	div.wl-comment:hover .wl-comment-tools,
-	div.wl-comment-highlight .wl-comment-tools {
-		display: block;
+	div.wl-comment:hover .wl-comment-tools li,
+	div.wl-comment-highlight .wl-comment-tools li {
+		display: inline;
 	}
 }
 
