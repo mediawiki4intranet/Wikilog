@@ -211,6 +211,8 @@ class Wikilog
 
 	/**
 	 * Create a namespace, associating wikilog features to it.
+	 * Such namespaces won't be localised.
+	 * If you need just a single Blog: namespace, use Wikilog::setupBlogNamespace() (see below)
 	 *
 	 * @param $ns Subject namespace number, must even and greater than 100.
 	 * @param $name Subject namespace name.
@@ -239,6 +241,25 @@ class Wikilog
 		$wgExtraNamespaces[$ns  ] = $name;
 		$wgExtraNamespaces[$ns ^ 1] = $talk;
 		$wgWikilogNamespaces[] = $ns;
+	}
+
+	/**
+	 * Setup Blog: namespace with i18n aliases
+	 */
+	static function setupBlogNamespace( $ns ) {
+		global $wgExtensionMessagesFiles, $wgExtraNamespaces, $wgWikilogNamespaces;
+		if ( $ns < 100 ) {
+			echo "Wikilog setup: custom namespaces should start " .
+				 "at 100 to avoid conflict with standard namespaces.\n";
+			die( 1 );
+		}
+		$ns = $ns & ~1;
+		define( 'NS_BLOG', $ns );
+		define( 'NS_BLOG_TALK', $ns+1 );
+		$wgExtraNamespaces[ NS_BLOG ] = 'Blog';
+		$wgExtraNamespaces[ NS_BLOG_TALK ] = 'Blog_talk';
+		$wgWikilogNamespaces[] = $ns;
+		$wgExtensionMessagesFiles[ 'WikilogNamespace' ] = dirname( __FILE__ ).'/Wikilog.i18n.ns.php';
 	}
 
 	# ##

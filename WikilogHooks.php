@@ -431,13 +431,19 @@ class WikilogHooks
 		return true;
 	}
 
-	static function EnhancedChangesListGroupBy( &$rc, &$title, &$secureName )
-	{
-		if( defined( 'NS_BLOG' ) &&
-			$title->getNamespace() == MWNamespace::getTalk( NS_BLOG ) &&
-			substr_count( $secureName, '/' ) == 2 )
-		{
-			// Wikilog comments are grouped by post
+	/**
+	 * Group Wikilog comments by post in enhanced recent changes
+	 */
+	static function EnhancedChangesListGroupBy( &$rc, &$title, &$secureName ) {
+		global $wgWikilogNamespaces;
+		static $talk = array();
+		if( !$talk ) {
+			foreach( $wgWikilogNamespaces as $ns ) {
+				$talk[ MWNamespace::getTalk( $ns ) ] = true;
+			}
+		}
+		if( isset( $talk[ $title->getNamespace() ] ) &&
+			substr_count( $secureName, '/' ) == 2 ) {
 			$secureName = $title->getNsText() . ':' . $title->getBaseText();
 			return false;
 		}
