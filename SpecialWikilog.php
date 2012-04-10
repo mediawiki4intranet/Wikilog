@@ -195,14 +195,13 @@ class SpecialWikilog
 				$article = new Article( $title );
 				$content = $article->getContent();
 				$wgOut->setPageTitle( $title->getPrefixedText() );
-				$wgOut->addWikiTextTitle( $content, $title );
+				$wgOut->addWikiTextTitle( $content, $title, true );
 			}
 
 			# Display query options.
 			$body = $this->getHeader( $opts );
 
-			if ( $opts['view'] == 'archives' && $wgUser->getId() )
-			{
+			if ( $opts['view'] == 'archives' && $wgUser->getId() ) {
 				# Display "Mark all read" link
 				$body .= $this->getMarkAllReadLink();
 			}
