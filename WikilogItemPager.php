@@ -123,10 +123,10 @@ class WikilogSummaryPager
 		return 'wlp_pubdate';
 	}
 
-	function setSort( $field )
-	{
-		if ( WikilogArchivesPager::isFieldSortable( $field ) )
+	function setSort( $field ) {
+		if ( WikilogArchivesPager::isFieldSortable( $field ) ) {
 			$this->mIndexField = $field;
+		}
 	}
 
 	function getStartBody() {
@@ -411,6 +411,14 @@ class WikilogArchivesPager
 	public $mQuery = null;			///< Wikilog item query data
 	public $mIncluding = false;		///< If pager is being included
 
+	static $sortableFields = array(
+		'wlp_pubdate',
+		'wlp_updated',
+		'wlw_title',
+		'wlp_title',
+		'wti_talk_updated',
+	);
+
 	/**
 	 * Constructor.
 	 */
@@ -435,8 +443,9 @@ class WikilogArchivesPager
 
 		# This is too expensive, limit listing.
 		global $wgWikilogExpensiveLimit;
-		if ( $this->mLimit > $wgWikilogExpensiveLimit )
+		if ( $this->mLimit > $wgWikilogExpensiveLimit ) {
 			$this->mLimit = $wgWikilogExpensiveLimit;
+		}
 	}
 
 	/**
@@ -458,20 +467,14 @@ class WikilogArchivesPager
 		return 'wl-archives TablePager';
 	}
 
-	static $sortableFields = array(
-		'wlp_pubdate',
-		'wlp_updated',
-		'wlw_title',
-		'wlp_title',
-		'wti_talk_updated',
-	);
-	function isFieldSortable( $field ) {
+	static function isFieldSortable( $field ) {
 		return in_array( $field, self::$sortableFields );
 	}
 
 	function setSort( $field ) {
-		if ( self::isFieldSortable( $field ) )
+		if ( self::isFieldSortable( $field ) ) {
 			$this->mIndexField = $field;
+		}
 	}
 
 	function getNavigationBar() {
