@@ -90,8 +90,9 @@ class WikilogSummaryPager
 
 		# This is too expensive, limit listing.
 		global $wgWikilogExpensiveLimit;
-		if ( $this->mLimit > $wgWikilogExpensiveLimit )
+		if ( $this->mLimit > $wgWikilogExpensiveLimit ) {
 			$this->mLimit = $wgWikilogExpensiveLimit;
+		}
 
 		# Check parser state, setup edit links.
 		global $wgOut, $wgParser, $wgTitle;
@@ -124,7 +125,7 @@ class WikilogSummaryPager
 	}
 
 	function setSort( $field ) {
-		if ( WikilogArchivesPager::isFieldSortable( $field ) ) {
+		if ( WikilogArchivesPager::staticIsFieldSortable( $field ) ) {
 			$this->mIndexField = $field;
 		}
 	}
@@ -467,12 +468,16 @@ class WikilogArchivesPager
 		return 'wl-archives TablePager';
 	}
 
-	static function isFieldSortable( $field ) {
+	// Should be static, but isn't in TablePager :-E
+	function isFieldSortable( $field ) {
+		return in_array( $field, self::$sortableFields );
+	}
+	static function staticIsFieldSortable( $field ) {
 		return in_array( $field, self::$sortableFields );
 	}
 
 	function setSort( $field ) {
-		if ( self::isFieldSortable( $field ) ) {
+		if ( $this->isFieldSortable( $field ) ) {
 			$this->mIndexField = $field;
 		}
 	}
