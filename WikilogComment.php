@@ -957,14 +957,12 @@ class WikilogCommentFormatter
 					'known'
 				);
 			}
-			if ( $this->mAllowModeration ) {
-				$tools['page'] = $this->mSkin->link( $comment->mCommentTitle,
-					wfMsg( 'wikilog-page-lc' ),
-					array( 'title' => wfMsg( 'wikilog-comment-page' ) ),
-					array( 'section' => false ),
-					'known'
-				);
-			}
+			$tools['page'] = $this->mSkin->link( $comment->mCommentTitle,
+				wfMsg( 'wikilog-page-lc' ),
+				array( 'title' => wfMsg( 'wikilog-comment-page' ) ),
+				array( 'section' => false ),
+				'known'
+			);
 			// TODO: batch checking of page restrictions
 			if ( $comment->mCommentTitle->quickUserCan( 'edit' ) ) {
 				$tools['edit'] = $this->mSkin->link( $comment->mCommentTitle,
