@@ -322,8 +322,9 @@ class WikilogComment
 		foreach ( $to_ids as $id => $can_unsubcribe ) {
 			// Do not send user his own comments
 			if ( $id != $this->mUserID ) {
-				$email = new MailAddress( User::newFromId( $id )->getEmail() );
+				$email = User::newFromId( $id )->getEmail();
 				if ( $email ) {
+					$email = new MailAddress( $email );
 					if ( $can_unsubcribe ) {
 						$to_with[] = $email;
 					} else {
