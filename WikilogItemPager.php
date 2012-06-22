@@ -304,12 +304,14 @@ class WikilogTemplatePager
 		parent::__construct( $query, $limit, $including );
 
 		# Load template
-		if ( !$wgParser->mOptions )
+		if ( !$wgParser->mOptions ) {
 			$wgParser->parse( '', $template, ParserOptions::newFromUser( $wgUser ) );
+		}
 		list( $this->mTemplate, $this->mTemplateTitle ) =
 			$wgParser->getTemplateDom( $template );
-		if ( $this->mTemplate === false )
+		if ( $this->mTemplate === false ) {
 			$this->mTemplate = "[[:$template]]";
+		}
 	}
 
 	function getDefaultQuery() {
@@ -362,8 +364,9 @@ class WikilogTemplatePager
 				WikilogUtils::getLocalDateTime( $itemTalkUpdated, $wgWikilogPagerDateFormat );
 
 		$nc = $item->getNumComments();
-		if (!$nc)
+		if ( !$nc ) {
 			$nc = '';
+		}
 
 		# Template parameters.
 		$vars = array(

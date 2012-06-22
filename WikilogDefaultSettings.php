@@ -215,4 +215,4 @@ $wgWikilogNamespaces = array();
  * instance that is needed for parsing articles for syndication feeds. The
  * default is to clone since this seems to work better.
  */
-$wgWikilogCloneParser = true;
+$wgWikilogCloneParser = false;

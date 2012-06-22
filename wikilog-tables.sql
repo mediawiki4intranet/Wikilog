@@ -55,9 +55,6 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_posts (
   -- Last time the post was updated.
   wlp_updated BINARY(14) NOT NULL,
 
-  -- Last time the post talk page was updated.
-  wlp_talk_updated BINARY(14) NOT NULL,
-
   -- Serialized PHP array of authors.
   wlp_authors BLOB NOT NULL,
 
@@ -189,9 +186,12 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_comments (
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_talkinfo (
   -- Primary key, reference to wiki article
   wti_page INTEGER UNSIGNED NOT NULL,
+
   -- Timestamp of last comment.
   wti_talk_updated BINARY(14) NOT NULL,
+
   -- Cached number of comments.
   wti_num_comments INTEGER UNSIGNED,
+
   PRIMARY KEY (wti_page)
 ) /*$wgDBTableOptions*/;

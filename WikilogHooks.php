@@ -382,13 +382,6 @@ class WikilogHooks
 	 */
 	static function createForeignKeys() {
 		$dbw = wfGetDB( DB_MASTER );
-		// Add wikilog_posts.wlp_talk_updated
-		if ( !$dbw->fieldExists( 'wikilog_posts', 'wlp_talk_updated' ) ) {
-			$t_c = $dbw->tableName( 'wikilog_comments' );
-			$t_e = $dbw->tableName( 'wikilog_posts' );
-			$dbw->query( "ALTER TABLE $t_e ADD wlp_talk_updated BINARY(14) NOT NULL AFTER wlp_updated" );
-			$dbw->query( "UPDATE $t_e SET wlp_talk_updated=COALESCE((SELECT MAX(wlc_timestamp) FROM $t_c WHERE wlc_post=wlp_page), wlp_pubdate)" );
-		}
 		// Try to setup foreign keys on Wikilog tables (MySQL/InnoDB only)
 		// Rather a hack for MediaWiki
 		$keys = array(
