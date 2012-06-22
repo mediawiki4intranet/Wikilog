@@ -61,9 +61,6 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_posts (
   -- Serialized PHP array of tags.
   wlp_tags BLOB NOT NULL,
 
-  -- Cached number of comments.
-  wlp_num_comments INTEGER UNSIGNED,
-
   PRIMARY KEY (wlp_page),
   INDEX wlp_parent (wlp_parent),
   INDEX wlp_title (wlp_title),
