@@ -420,6 +420,7 @@ class WikilogArchivesPager
 		'wlp_updated',
 		'wlw_title',
 		'wlp_title',
+		'wti_num_comments',
 		'wti_talk_updated',
 	);
 
