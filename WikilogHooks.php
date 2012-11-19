@@ -73,7 +73,18 @@ class WikilogHooks
 			$item->mTitle = $wi->getItemTitle();
 			$item->mParentName = $wi->getName();
 			$item->mParentTitle = $wi->getTitle();
-			$item->mParent = $item->mParentTitle->getArticleId();
+			$item->mParent = $item->mParentTitle->getArticleID();
+
+			# Override item name if {{DISPLAYTITLE:...}} was used.
+			$dtText = $editInfo->output->getDisplayTitle();
+			if ( $dtText ) {
+				# Tags are stripped on purpose.
+				$dtText = Sanitizer::stripAllTags( $dtText );
+				$dtParts = explode( '/', $dtText, 2 );
+				if ( count( $dtParts ) > 1 ) {
+					$item->mName = $dtParts[1];
+				}
+			}
 
 			# Override item name if {{DISPLAYTITLE:...}} was used.
 			$dtText = $editInfo->output->getDisplayTitle();
@@ -235,7 +246,7 @@ class WikilogHooks
 				$item->mTitle = $wi->getItemTitle();
 				$item->mParentName = $wi->getName();
 				$item->mParentTitle = $wi->getTitle();
-				$item->mParent = $item->mParentTitle->getArticleId();
+				$item->mParent = $item->mParentTitle->getArticleID();
 				$item->saveData();
 			}
 		} elseif ( $newwl ) {
@@ -336,7 +347,7 @@ class WikilogHooks
 	 *
 	 * @todo Add support for PostgreSQL and SQLite databases.
 	 */
-	static function ExtensionSchemaUpdates( $updater = null ) {
+	static function ExtensionSchemaUpdates( $updater ) {
 		$dir = dirname( __FILE__ ) . '/';
 
 		if ( $updater === null ) {

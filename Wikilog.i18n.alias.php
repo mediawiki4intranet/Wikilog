@@ -18,9 +18,24 @@ $specialPageAliases['ar'] = array(
 	'Wikilog' => array( 'سجل_الويكي', 'سجلات_الويكي' ),
 );
 
-/** Breton (Brezhoneg) */
+/** Assamese (অসমীয়া) */
+$specialPageAliases['as'] = array(
+	'Wikilog' => array( 'ৱিকি_অভিলেখসমূহ' ),
+);
+
+/** Breton (brezhoneg) */
 $specialPageAliases['br'] = array(
 	'Wikilog' => array( 'MarilhoùWiki' ),
+);
+
+/** German (Deutsch) */
+$specialPageAliases['de'] = array(
+	'Wikilog' => array( 'Wikiblog' ),
+);
+
+/** Zazaki (Zazaki) */
+$specialPageAliases['diq'] = array(
+	'Wikilog' => array( 'WikiRoceki' ),
 );
 
 /** Persian (فارسی) */
@@ -28,7 +43,7 @@ $specialPageAliases['fa'] = array(
 	'Wikilog' => array( 'ویکی‌سیاهه' ),
 );
 
-/** Galician (Galego) */
+/** Galician (galego) */
 $specialPageAliases['gl'] = array(
 	'Wikilog' => array( 'Wikilog' ),
 );
@@ -43,12 +58,17 @@ $specialPageAliases['ja'] = array(
 	'Wikilog' => array( 'ウィキ記録' ),
 );
 
+/** Korean (한국어) */
+$specialPageAliases['ko'] = array(
+	'Wikilog' => array( '위키기록', '위키로그' ),
+);
+
 /** Luxembourgish (Lëtzebuergesch) */
 $specialPageAliases['lb'] = array(
 	'Wikilog' => array( 'Wiki-Logbicher' ),
 );
 
-/** Macedonian (Македонски) */
+/** Macedonian (македонски) */
 $specialPageAliases['mk'] = array(
 	'Wikilog' => array( 'Викидневник' ),
 );
@@ -58,17 +78,17 @@ $specialPageAliases['ml'] = array(
 	'Wikilog' => array( 'വിക്കിരേഖ', 'വിക്കിരേഖകൾ' ),
 );
 
-/** Norwegian Bokmål (‪Norsk (bokmål)‬) */
+/** Norwegian Bokmål (norsk (bokmål)‎) */
 $specialPageAliases['nb'] = array(
 	'Wikilog' => array( 'Wikilogg' ),
 );
 
-/** Portuguese (Português) */
+/** Portuguese (português) */
 $specialPageAliases['pt'] = array(
 	'Wikilog' => array( 'Wikilog', 'Wikilogs' ),
 );
 
 /** Turkish (Türkçe) */
 $specialPageAliases['tr'] = array(
-	'Wikilog' => array( 'VikiGünlük' ),
+	'Wikilog' => array( 'Vikigünlük', 'Vikigünlükleri' ),
 );

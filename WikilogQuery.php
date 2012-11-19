@@ -384,7 +384,7 @@ class WikilogItemQuery
 
 		# Filter by wikilog name.
 		if ( $this->mWikilogTitle !== null ) {
-			$q_conds['wlp_parent'] = $this->mWikilogTitle->getArticleId();
+			$q_conds['wlp_parent'] = $this->mWikilogTitle->getArticleID();
 		} elseif ( $this->mNamespace !== false ) {
 			$q_conds['p.page_namespace'] = $this->mNamespace;
 		}

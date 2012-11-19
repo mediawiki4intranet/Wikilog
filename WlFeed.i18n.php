@@ -51,42 +51,42 @@ $messages['arz'] = array(
 	'wlfeed-desc' => 'رتب توليد تلقيم ممددة',
 );
 
-/** Asturian (Asturianu)
+/** Asturian (asturianu)
  * @author Xuacu
  */
 $messages['ast'] = array(
 	'wlfeed-desc' => 'Clases de xeneración de canales ameyoraes',
 );
 
-/** Belarusian (Taraškievica orthography) (‪Беларуская (тарашкевіца)‬)
+/** Belarusian (Taraškievica orthography) (беларуская (тарашкевіца)‎)
  * @author EugeneZelenko
  */
 $messages['be-tarask'] = array(
 	'wlfeed-desc' => 'Палепшаныя клясы стварэньня стужак навінаў',
 );
 
-/** Breton (Brezhoneg)
+/** Breton (brezhoneg)
  * @author Fulup
  */
 $messages['br'] = array(
 	'wlfeed-desc' => 'Renkadoù genel lanvadoù gwellaet',
 );
 
-/** Bosnian (Bosanski)
+/** Bosnian (bosanski)
  * @author CERminator
  */
 $messages['bs'] = array(
 	'wlfeed-desc' => 'Napredno generisanje klasa fida',
 );
 
-/** Catalan (Català)
+/** Catalan (català)
  * @author Gemmaa
  */
 $messages['ca'] = array(
 	'wlfeed-desc' => 'Realçava tindre una generació classes',
 );
 
-/** Czech (Česky)
+/** Czech (česky)
  * @author Matěj Grabovský
  */
 $messages['cs'] = array(
@@ -101,42 +101,42 @@ $messages['de'] = array(
 	'wlfeed-desc' => 'Stellt der Feed-Generierung erweiterte Klassen zur Verfügung',
 );
 
-/** Lower Sorbian (Dolnoserbski)
+/** Lower Sorbian (dolnoserbski)
  * @author Michawiki
  */
 $messages['dsb'] = array(
 	'wlfeed-desc' => 'Pólěpšone klase kanaloweje generacije',
 );
 
-/** Spanish (Español)
+/** Spanish (español)
  * @author Translationista
  */
 $messages['es'] = array(
 	'wlfeed-desc' => 'Clases de generación de canales mejoradas',
 );
 
-/** Finnish (Suomi)
+/** Finnish (suomi)
  * @author ZeiP
  */
 $messages['fi'] = array(
 	'wlfeed-desc' => 'Parannetut syötteiden luontiluokat',
 );
 
-/** French (Français)
+/** French (français)
  * @author PieRRoMaN
  */
 $messages['fr'] = array(
 	'wlfeed-desc' => 'Classes de génération de flux améliorés',
 );
 
-/** Franco-Provençal (Arpetan)
+/** Franco-Provençal (arpetan)
  * @author ChrisPtDe
  */
 $messages['frp'] = array(
 	'wlfeed-desc' => 'Cllâsses de g·ènèracion de flux mèlyorâs',
 );
 
-/** Galician (Galego)
+/** Galician (galego)
  * @author Toliño
  */
 $messages['gl'] = array(
@@ -157,28 +157,28 @@ $messages['he'] = array(
 	'wlfeed-desc' => 'מחלקות מתקדמות לייצור הזנות',
 );
 
-/** Croatian (Hrvatski)
+/** Croatian (hrvatski)
  * @author Tivek
  */
 $messages['hr'] = array(
 	'wlfeed-desc' => 'Poboljšane klase za stvaranje feedova',
 );
 
-/** Upper Sorbian (Hornjoserbsce)
+/** Upper Sorbian (hornjoserbsce)
  * @author Michawiki
  */
 $messages['hsb'] = array(
 	'wlfeed-desc' => 'Polěpšene klasy kanaloweje generacije',
 );
 
-/** Hungarian (Magyar)
+/** Hungarian (magyar)
  * @author Glanthor Reviol
  */
 $messages['hu'] = array(
 	'wlfeed-desc' => 'Fejlett hírcsatorna-generáló osztályok',
 );
 
-/** Interlingua (Interlingua)
+/** Interlingua (interlingua)
  * @author McDutchie
  */
 $messages['ia'] = array(
@@ -192,7 +192,7 @@ $messages['id'] = array(
 	'wlfeed-desc' => 'Kelas penghasil umpan canggih',
 );
 
-/** Italian (Italiano)
+/** Italian (italiano)
  * @author Civvì
  */
 $messages['it'] = array(
@@ -204,6 +204,13 @@ $messages['it'] = array(
  */
 $messages['ja'] = array(
 	'wlfeed-desc' => '強化されたフィード生成クラス',
+);
+
+/** Korean (한국어)
+ * @author 아라
+ */
+$messages['ko'] = array(
+	'wlfeed-desc' => '향상된 피드 생성 클래스',
 );
 
 /** Colognian (Ripoarisch)
@@ -227,7 +234,7 @@ $messages['li'] = array(
 	'wlfeed-desc' => "Klasse veur 't aanmake van verbaeterde feeds",
 );
 
-/** Macedonian (Македонски)
+/** Macedonian (македонски)
  * @author Bjankuloski06
  */
 $messages['mk'] = array(
@@ -241,6 +248,13 @@ $messages['nb'] = array(
 	'wlfeed-desc' => 'Avanserte genereringsklasser for mating',
 );
 
+/** Norwegian Bokmål (norsk (bokmål)‎)
+ * @author Nghtwlkr
+ */
+$messages['nb'] = array(
+	'wlfeed-desc' => 'Avanserte genereringsklasser for mating',
+);
+
 /** Dutch (Nederlands)
  * @author Siebrand
  */
@@ -248,14 +262,14 @@ $messages['nl'] = array(
 	'wlfeed-desc' => 'Klassen voor het aanmaken van verbeterde feeds',
 );
 
-/** Occitan (Occitan)
+/** Occitan (occitan)
  * @author Cedric31
  */
 $messages['oc'] = array(
 	'wlfeed-desc' => 'Classas de generacion de fluxes melhorats',
 );
 
-/** Polish (Polski)
+/** Polish (polski)
  * @author Sp5uhe
  */
 $messages['pl'] = array(
@@ -269,7 +283,7 @@ $messages['pms'] = array(
 	'wlfeed-desc' => 'Class ëd generassion dij fluss ameliorà',
 );
 
-/** Portuguese (Português)
+/** Portuguese (português)
  * @author Hamilton Abreu
  * @author Juliano F. Ravasi
  */
@@ -277,7 +291,7 @@ $messages['pt'] = array(
 	'wlfeed-desc' => "Classes melhoradas de geração de ''feeds''",
 );
 
-/** Brazilian Portuguese (Português do Brasil)
+/** Brazilian Portuguese (português do Brasil)
  * @author 555
  * @author Daemorris
  */
@@ -285,14 +299,14 @@ $messages['pt-br'] = array(
 	'wlfeed-desc' => "Classes melhoradas de geração de ''feeds''",
 );
 
-/** Tarandíne (Tarandíne)
+/** tarandíne (tarandíne)
  * @author Joetaras
  */
 $messages['roa-tara'] = array(
 	'wlfeed-desc' => 'Classe avanzate de generazione de feed',
 );
 
-/** Russian (Русский)
+/** Russian (русский)
  * @author Александр Сигачёв
  */
 $messages['ru'] = array(
@@ -306,7 +320,7 @@ $messages['si'] = array(
 	'wlfeed-desc' => 'වර්ධිත සංග්‍රහ ප්‍රවේණි පංති',
 );
 
-/** Slovenian (Slovenščina)
+/** Slovenian (slovenščina)
  * @author Dbc334
  */
 $messages['sl'] = array(
@@ -321,12 +335,12 @@ $messages['sr-ec'] = array(
 	'wlfeed-desc' => 'Побољшане класе за стварање довода',
 );
 
-/** Serbian (Latin script) (‪Srpski (latinica)‬) */
+/** Serbian (Latin script) (srpski (latinica)‎) */
 $messages['sr-el'] = array(
 	'wlfeed-desc' => 'Klase za poboljšane fidove',
 );
 
-/** Swedish (Svenska)
+/** Swedish (svenska)
  * @author Boivie
  */
 $messages['sv'] = array(
@@ -347,7 +361,7 @@ $messages['tr'] = array(
 	'wlfeed-desc' => 'Gelişmiş besleme oluşturma sınıfları',
 );
 
-/** Ukrainian (Українська)
+/** Ukrainian (українська)
  * @author Prima klasy4na
  */
 $messages['uk'] = array(

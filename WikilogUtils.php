@@ -427,7 +427,7 @@ class WikilogUtils {
 			$dbw->update(
 				'wikilog_wikilogs',
 				array( 'wlw_updated' => $dbw->timestamp() ),
-				array( 'wlw_page' => $title->getArticleId(), ),
+				array( 'wlw_page' => $title->getArticleID(), ),
 				__METHOD__
 			);
 		}

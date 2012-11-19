@@ -445,7 +445,7 @@ class WikilogItemFeed
 					'wlw_icon', 'wlw_logo', 'wlw_authors',
 					'wlw_updated'
 				),
-				array( 'wlw_page' => $wikilogTitle->getArticleId() ),
+				array( 'wlw_page' => $wikilogTitle->getArticleID() ),
 				__METHOD__
 			);
 			if ( $row !== false ) {
@@ -587,7 +587,7 @@ class WikilogItemFeed
 	 */
 	public function getCacheKeys() {
 		if ( ( $title = $this->mQuery->getWikilogTitle() ) ) {
-			$id = 'id:' . $title->getArticleId();
+			$id = 'id:' . $title->getArticleID();
 		} elseif ( ( $ns = $this->mQuery->getNamespace() ) ) {
 			$id = 'ns:' . $ns;
 		} else {
@@ -609,7 +609,7 @@ class WikilogItemFeed
 	public static function makeEntryId( $title ) {
 		global $wgTaggingEntity;
 		if ( $wgTaggingEntity ) {
-			$qstr = wfArrayToCGI( array( 'wk' => wfWikiID(), 'id' => $title->getArticleId() ) );
+			$qstr = wfArrayToCGI( array( 'wk' => wfWikiID(), 'id' => $title->getArticleID() ) );
 			return "tag:{$wgTaggingEntity}:/MediaWiki/Wikilog?{$qstr}";
 		} else {
 			return $title->getFullUrl();

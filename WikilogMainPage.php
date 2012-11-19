@@ -200,7 +200,7 @@ class WikilogMainPage
 			'COUNT(*) as total, SUM(wlp_publish) as published',
 			array(
 				'wlp_page = page_id',
-				'wlp_parent' => $this->mTitle->getArticleId(),
+				'wlp_parent' => $this->mTitle->getArticleID(),
 				'page_is_redirect' => 0
 			),
 			__METHOD__

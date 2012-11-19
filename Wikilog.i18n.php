@@ -458,7 +458,7 @@ Part of a list of actions, use lowercase if applicable.
 	'wikilog-doc-import-comment' => 'This is an automatic edit summary for pages imported into the wiki.',
 );
 
-/** Abkhazian (Аҧсуа)
+/** Abkhazian (Аҧсшәа)
  * @author Temuri rajavi
  */
 $messages['ab'] = array(
@@ -678,7 +678,7 @@ $messages['aln'] = array(
 	'wikilog-doc-import-comment' => 'Dokumentacionin e importuara Wikilog',
 );
 
-/** Aragonese (Aragonés)
+/** Aragonese (aragonés)
  * @author Juanpabl
  */
 $messages['an'] = array(
@@ -805,21 +805,33 @@ $messages['ar'] = array(
 	'wikilog-form-tag' => 'الوسم:',
 	'wikilog-form-date' => 'التاريخ:',
 	'wikilog-form-status' => 'الحالة:',
-	'wikilog-form-preview' => 'المعاينة:',
+	'wikilog-form-preview' => 'عرض مسبق:',
 	'wikilog-form-comment' => 'التعليق:',
 	'wikilog-show-all' => 'كل التعليقات',
 	'wikilog-show-published' => 'منشور',
 	'wikilog-show-drafts' => 'مسودات',
-	'wikilog-submit' => 'أرسل',
-	'wikilog-preview' => 'عاين',
-	'wikilog-edit-lc' => 'عدل',
+	'wikilog-submit' => 'إرسال',
+	'wikilog-preview' => 'عرض مسبق',
+	'wikilog-edit-lc' => 'تعديل',
 	'wikilog-reply-lc' => 'رد',
-	'wikilog-delete-lc' => 'احذف',
+	'wikilog-delete-lc' => 'حذف',
 	'wikilog-approve-lc' => 'موافقة',
 	'wikilog-reject-lc' => 'رفض',
 	'wikilog-page-lc' => 'صفحة',
 	'wikilog-history-lc' => 'تاريخ',
 	'wikilog-doc-import-comment' => 'استورد توثيق سجل الويكي',
+);
+
+/** Aramaic (ܐܪܡܝܐ)
+ * @author Basharh
+ */
+$messages['arc'] = array(
+	'wikilog-pager-newest' => 'ܚܕܬ ܡܢ ܟܠ',
+	'wikilog-pager-oldest' => 'ܩܕܝܡ ܡܢ ܟܠ',
+	'wikilog-pager-prev' => 'ܕܩܕܡ',
+	'wikilog-pager-next' => 'ܕܒܬܪ',
+	'wikilog-pager-first' => 'ܩܕܡܝܐ',
+	'wikilog-pager-last' => 'ܐܚܪܝܐ',
 );
 
 /** Egyptian Spoken Arabic (مصرى)
@@ -948,7 +960,7 @@ $messages['arz'] = array(
 	'wikilog-doc-import-comment' => 'استورد توثيق سجل الويكي',
 );
 
-/** Azerbaijani (Azərbaycanca)
+/** Azerbaijani (azərbaycanca)
  * @author Cekli829
  */
 $messages['az'] = array(
@@ -973,7 +985,7 @@ $messages['az'] = array(
 	'wikilog-history-lc' => 'tarix',
 );
 
-/** Belarusian (Беларуская)
+/** Belarusian (беларуская)
  * @author Тест
  */
 $messages['be'] = array(
@@ -982,7 +994,7 @@ $messages['be'] = array(
 	'wikilog-history-lc' => 'Гісторыя',
 );
 
-/** Belarusian (Taraškievica orthography) (‪Беларуская (тарашкевіца)‬)
+/** Belarusian (Taraškievica orthography) (беларуская (тарашкевіца)‎)
  * @author EugeneZelenko
  * @author Jim-by
  * @author Wizardist
@@ -1121,7 +1133,7 @@ $messages['be-tarask'] = array(
 	'wikilog-doc-import-comment' => 'Імпартаваная дакумэнтацыя вікі-блогу',
 );
 
-/** Bulgarian (Български)
+/** Bulgarian (български)
  * @author Borislav
  * @author DCLXVI
  * @author Spiritia
@@ -1283,7 +1295,7 @@ $messages['bn'] = array(
 	'wikilog-form-name' => 'নাম:',
 );
 
-/** Breton (Brezhoneg)
+/** Breton (brezhoneg)
  * @author Fohanno
  * @author Fulup
  * @author Y-M D
@@ -1421,7 +1433,7 @@ Ne vo gwelet an evezhiadenn nemet ur wech ma vo bet gwiriet gant ur merour.",
 	'wikilog-doc-import-comment' => 'Teuliadur wikilog enporzhiet',
 );
 
-/** Bosnian (Bosanski)
+/** Bosnian (bosanski)
  * @author CERminator
  * @author Palapa
  */
@@ -1558,7 +1570,7 @@ Komentar će se pojaviti samo nakon što bude pregledan od strane moderatora.',
 	'wikilog-doc-import-comment' => 'Uvezena Wikilog dokumentacija',
 );
 
-/** Catalan (Català)
+/** Catalan (català)
  * @author SMP
  * @author Solde
  * @author Ssola
@@ -1627,22 +1639,25 @@ $messages['ca'] = array(
 	'wikilog-history-lc' => 'historial',
 );
 
-/** Chechen (Нохчийн)
+/** Chechen (нохчийн)
  * @author Sasan700
  */
 $messages['ce'] = array(
 	'wikilog-reply-lc' => 'жоп ло',
 );
 
-/** Sorani (کوردی) */
+/** Sorani Kurdish (کوردی)
+ * @author Calak
+ */
 $messages['ckb'] = array(
 	'wikilog-view-summary' => 'پوختە',
+	'wikilog-pager-last' => 'دوایین',
 	'wikilog-form-category' => 'پۆل:',
 	'wikilog-submit' => 'ناردن',
 	'wikilog-delete-lc' => 'سڕینەوە',
 );
 
-/** Czech (Česky)
+/** Czech (česky)
  * @author Matěj Grabovský
  */
 $messages['cs'] = array(
@@ -1765,14 +1780,14 @@ Měly by být používány pouze v článcích ve jmenném prostoru Wikilog.',
 	'wikilog-doc-import-comment' => 'Importovaná Wikilog dokumentace',
 );
 
-/** Church Slavic (Словѣ́ньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ)
+/** Church Slavic (словѣ́ньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ)
  * @author ОйЛ
  */
 $messages['cu'] = array(
 	'wikilog-invalid-author' => 'творьца и́мѧ блаꙁнѫ дрьжитъ : $1',
 );
 
-/** Danish (Dansk)
+/** Danish (dansk)
  * @author Froztbyte
  * @author MGA73
  */
@@ -1968,7 +1983,7 @@ Sie sollten nur in Beiträgen im Wikilog-Namensraum benutzt werden.',
 	'wikilog-comment-too-long' => 'Der gesendete Kommentar ist zu lang.',
 	'wikilog-comment-invalid-name' => 'Der angegebene Name ist ungültig.',
 	'wikilog-no-such-article' => 'Der angeforderte Wikilog-Artikel existiert nicht.',
-	'wikilog-reading-draft' => 'Dieser Wikilog-Beitrag ist ein Entwurf, er wurde noch nicht veröffentlicht.',
+	'wikilog-reading-draft' => 'Dieser Wikilog-Beitrag ist ein Entwurf und wurde noch nicht veröffentlicht.',
 	'wikilog-posting-anonymously' => 'Du bist zurzeit nicht angemeldet; dein Kommentar wird anonym versendet, identifiziert durch deine Internetverbindungsadresse. Du solltest oben entweder ein Pseudonym angeben, um den Kommentar zu identifizieren oder dich $1, damit er passend zugeordnet wird.',
 	'wikilog-anonymous-moderated' => 'Nachdem du deinen Kommentar übermittelt hast, wird er nicht sofort auf dieser Seite sichtbar sein. 
 Der Kommentar wird erst erscheinen, nachdem er von einem Moderator geprüft wurde.',
@@ -1999,7 +2014,7 @@ Der Kommentar wird erst erscheinen, nachdem er von einem Moderator geprüft wurd
 	'wikilog-doc-import-comment' => 'Importierte Wikilog-Dokumentation',
 );
 
-/** German (formal address) (‪Deutsch (Sie-Form)‬)
+/** German (formal address) (Deutsch (Sie-Form)‎)
  * @author Imre
  */
 $messages['de-formal'] = array(
@@ -2010,13 +2025,33 @@ Der Kommentar wird nur erscheinen, nachdem er von einem Moderator freigegeben wu
 );
 
 /** Zazaki (Zazaki)
+ * @author Erdemaslancan
  * @author Mirzali
  */
 $messages['diq'] = array(
-	'wikilog-draft' => 'Vernuşte',
+	'wikilog-item-name' => 'Namey wesiqa:',
+	'wikilog-published' => 'Hesreya',
+	'wikilog-draft' => 'Taslax',
+	'wikilog-actions' => 'Kerdeni',
+	'wikilog-view-summary' => 'Xulasa',
+	'wikilog-pager-oldest' => 'tewr kehan',
+	'wikilog-author-signature' => '[[{{ns:User}}:$1|$1]] ([[{{ns:User_talk}}:$1|behse]])',
+	'wikilog-title-comments' => 'Vatışê - ($1)',
+	'wikilog-form-category' => 'Kategoriye:',
+	'wikilog-form-name' => 'Name:',
+	'wikilog-form-author' => 'Nuskar:',
+	'wikilog-form-tag' => 'Etiket:',
+	'wikilog-form-date' => 'Deme:',
+	'wikilog-form-status' => 'Weziyet:',
+	'wikilog-form-comment' => 'Vatış:',
+	'wikilog-show-published' => 'Hesreya',
+	'wikilog-show-drafts' => 'Taslaxi',
+	'wikilog-submit' => 'Bırşe',
+	'wikilog-preview' => 'Verqayt',
+	'wikilog-page-lc' => 'per',
 );
 
-/** Lower Sorbian (Dolnoserbski)
+/** Lower Sorbian (dolnoserbski)
  * @author Michawiki
  */
 $messages['dsb'] = array(
@@ -2152,7 +2187,7 @@ Komentar buźo se akle pokazaś, za tym až moderator jo jen pśeglědał.',
 	'wikilog-doc-import-comment' => 'Importěrowana wikilogowa dokumentacija',
 );
 
-/** Ewe (Eʋegbe) */
+/** Ewe (eʋegbe) */
 $messages['ee'] = array(
 	'wikilog-new-item-go' => 'Dze egɔme',
 	'wikilog-edit-lc' => 'trɔ asi le eŋu',
@@ -2364,7 +2399,7 @@ $messages['eo'] = array(
 	'wikilog-history-lc' => 'historio',
 );
 
-/** Spanish (Español)
+/** Spanish (español)
  * @author Crazymadlover
  * @author Dferg
  * @author Imre
@@ -2505,7 +2540,7 @@ Aparecerá sólo después de haber sido revisado por un moderador.',
 	'wikilog-doc-import-comment' => 'Documentación de Wikilog importado',
 );
 
-/** Estonian (Eesti)
+/** Estonian (eesti)
  * @author Avjoska
  */
 $messages['et'] = array(
@@ -2540,9 +2575,12 @@ $messages['et'] = array(
 	'wikilog-form-name' => 'Nimi:',
 	'wikilog-form-author' => 'Autor:',
 	'wikilog-form-date' => 'Kuupäev:',
+	'wikilog-form-status' => 'Olek:',
 	'wikilog-form-preview' => 'Eelvaade:',
 	'wikilog-form-comment' => 'Kommentaar:',
+	'wikilog-show-all' => 'Kõik sõnumid',
 	'wikilog-show-published' => 'Avaldatud',
+	'wikilog-show-drafts' => 'Mustandid',
 	'wikilog-preview' => 'Eelvaade',
 	'wikilog-edit-lc' => 'redigeeri',
 	'wikilog-reply-lc' => 'vasta',
@@ -2551,7 +2589,7 @@ $messages['et'] = array(
 	'wikilog-history-lc' => 'ajalugu',
 );
 
-/** Basque (Euskara)
+/** Basque (euskara)
  * @author An13sa
  */
 $messages['eu'] = array(
@@ -2596,7 +2634,43 @@ $messages['eu'] = array(
 	'wikilog-history-lc' => 'historia',
 );
 
-/** Finnish (Suomi)
+/** Persian (فارسی)
+ * @author Mjbmr
+ */
+$messages['fa'] = array(
+	'wikilog-new-item-go' => 'ایجاد',
+	'wikilog-authors' => 'مؤلفان',
+	'wikilog-title' => 'عنوان',
+	'wikilog-comments' => 'نظرها',
+	'wikilog-pager-newest' => 'جدیدترین',
+	'wikilog-pager-oldest' => 'قدیمی‌ترین',
+	'wikilog-pager-next' => 'بعدی',
+	'wikilog-pager-first' => 'نخستین',
+	'wikilog-pager-last' => 'واپسین',
+	'wikilog-pager-empty' => '(هیچ مورد)',
+	'wikilog-no-comments' => 'بدون نظر',
+	'wikilog-invalid-param' => 'پارامتر نامعتبر: $1.',
+	'wikilog-invalid-author' => 'مؤلف نامعتبر: $1.',
+	'wikilog-invalid-date' => 'تاریخ نامعتبر: $1.',
+	'wikilog-invalid-tag' => 'برچسب نامعتبر: $1.',
+	'wikilog-invalid-file' => 'پروندهٔ نامعتبر: $1.',
+	'wikilog-form-category' => 'رده:',
+	'wikilog-form-name' => 'نام:',
+	'wikilog-form-author' => 'مؤلف:',
+	'wikilog-form-tag' => 'برچسپ:',
+	'wikilog-form-date' => 'تاریخ:',
+	'wikilog-form-status' => 'وضعیت:',
+	'wikilog-submit' => 'ثبت',
+	'wikilog-preview' => 'پیش نمایش',
+	'wikilog-edit-lc' => 'ویرایش',
+	'wikilog-reply-lc' => 'پاسخ دادن',
+	'wikilog-delete-lc' => 'حذف',
+	'wikilog-approve-lc' => 'تصویب',
+	'wikilog-page-lc' => 'صفحه',
+	'wikilog-history-lc' => 'تاریخچه',
+);
+
+/** Finnish (suomi)
  * @author Centerlink
  * @author Crt
  * @author Nike
@@ -2730,7 +2804,7 @@ Kommentti näkyy vasta kun moderaattori on tarkistanut sen.',
 	'wikilog-doc-import-comment' => 'Tuodut Wikilog-ohjeet',
 );
 
-/** French (Français)
+/** French (français)
  * @author IAlex
  * @author Peter17
  * @author PieRRoMaN
@@ -2871,7 +2945,7 @@ Le commentaire n’apparaîtra qu’après avoir été vérifié par un modérat
 	'wikilog-doc-import-comment' => 'Documentation importée de wikilog',
 );
 
-/** Franco-Provençal (Arpetan)
+/** Franco-Provençal (arpetan)
  * @author ChrisPtDe
  */
 $messages['frp'] = array(
@@ -2988,7 +3062,27 @@ $messages['frp'] = array(
 	'wikilog-doc-import-comment' => 'Documentacion importâ de Wikilog',
 );
 
-/** Galician (Galego)
+/** Irish (Gaeilge)
+ * @author පසිඳු කාවින්ද
+ */
+$messages['ga'] = array(
+	'wikilog-new-item-go' => 'Cruthaigh',
+	'wikilog-title' => 'Teideal',
+	'wikilog-view-summary' => 'Achoimriú',
+	'wikilog-form-category' => 'Catagóir:',
+	'wikilog-form-name' => 'Ainm:',
+	'wikilog-form-author' => 'Údar:',
+	'wikilog-form-date' => 'Dáta:',
+	'wikilog-form-preview' => 'Réamhamharc:',
+	'wikilog-form-comment' => 'Nóta tráchta:',
+	'wikilog-preview' => 'Réamhamharc',
+	'wikilog-edit-lc' => 'cur in eagar',
+	'wikilog-delete-lc' => 'scrios',
+	'wikilog-page-lc' => 'Leathanach',
+	'wikilog-history-lc' => 'Stair',
+);
+
+/** Galician (galego)
  * @author Gallaecio
  * @author Toliño
  */
@@ -3281,7 +3375,7 @@ Dr Kommentar erschynt ärscht, wänn er dur e Moderator zuegloo isch.',
 	'wikilog-doc-import-comment' => 'Importierti Wikilog-Dokumäntation',
 );
 
-/** Hausa (هَوُسَ) */
+/** Hausa (Hausa) */
 $messages['ha'] = array(
 	'wikilog-new-item-go' => 'Ƙirƙira',
 	'wikilog-view-summary' => 'Taƙaici',
@@ -3371,7 +3465,7 @@ $messages['he'] = array(
 	'wikilog-history-lc' => 'היסטוריה',
 );
 
-/** Croatian (Hrvatski)
+/** Croatian (hrvatski)
  * @author Tivek
  */
 $messages['hr'] = array(
@@ -3429,7 +3523,7 @@ Kako biste mogli objavljivati članke i koristiti ostale mogućnosti, wikilog pr
 	'wikilog-summary-categories' => 'Spremljeno pod $2',
 );
 
-/** Upper Sorbian (Hornjoserbsce)
+/** Upper Sorbian (hornjoserbsce)
  * @author Michawiki
  */
 $messages['hsb'] = array(
@@ -3565,7 +3659,7 @@ Komentar budźe hakle jewić, po tym zo moderator je jón přepruwował.',
 	'wikilog-doc-import-comment' => 'Importowana dokumentacija wo Wikilogu',
 );
 
-/** Hungarian (Magyar)
+/** Hungarian (magyar)
  * @author Dani
  * @author Glanthor Reviol
  */
@@ -3689,7 +3783,7 @@ Csak azután fog megjelenni, miután ellenőrizte egy moderátor.',
 	'wikilog-doc-import-comment' => 'Importált Wikinapló dokumentáció',
 );
 
-/** Interlingua (Interlingua)
+/** Interlingua (interlingua)
  * @author McDutchie
  */
 $messages['ia'] = array(
@@ -3989,7 +4083,7 @@ $messages['ig'] = array(
 	'wikilog-history-lc' => 'akíkó mbu',
 );
 
-/** Italian (Italiano)
+/** Italian (italiano)
  * @author Beta16
  * @author Civvì
  */
@@ -4106,7 +4200,7 @@ Dovresti fornire uno pseudonimo per identificare il tuo commento o $1 per per at
 	'wikilog-form-author' => 'Autore:',
 	'wikilog-form-tag' => 'Tag:',
 	'wikilog-form-date' => 'Data:',
-	'wikilog-form-status' => 'Status:',
+	'wikilog-form-status' => 'Stato:',
 	'wikilog-form-preview' => 'Anteprima:',
 	'wikilog-form-comment' => 'Commento:',
 	'wikilog-show-all' => 'Tutti i post',
@@ -4128,14 +4222,15 @@ Dovresti fornire uno pseudonimo per identificare il tuo commento o $1 per per at
  * @author Aotake
  * @author Fryed-peach
  * @author Hosiryuhosi
+ * @author Shirayuki
  * @author 青子守歌
  */
 $messages['ja'] = array(
-	'wikilog-desc' => 'ブログ機能を追加し、ウィキとブログのハイブリッドを作る',
+	'wikilog-desc' => 'ブログ機能を追加し、ウィキとブログのハイブリッドを作成する',
 	'wikilog-auto' => 'ウィキログ・オート',
 	'wikilog-help' => '{{ns:Help}}:Wikilog',
-	'right-wl-postcomment' => 'ウィキログの記事にコメントを投稿する',
-	'right-wl-moderation' => 'ウィキログ記事のコメントのモデレーション',
+	'right-wl-postcomment' => 'ウィキログの記事にコメントを投稿',
+	'right-wl-moderation' => 'ウィキログ記事のコメントをモデレーション',
 	'wikilog-specialwikilog-title' => 'ウィキログ',
 	'wikilog-log-pagename' => 'ウィキログ操作記録',
 	'wikilog-log-pagetext' => '以下にウィキログの操作の一覧を示します。',
@@ -4155,7 +4250,7 @@ $messages['ja'] = array(
 	'wikilog-post-count-all' => '合計で{{PLURAL:$1|$1個の記事があります}}。',
 	'wikilog-new-item' => '新しいウィキログ記事を作成',
 	'wikilog-new-item-go' => '作成',
-	'wikilog-item-name' => '記事名:',
+	'wikilog-item-name' => '記事名：',
 	'wikilog-published' => '公開',
 	'wikilog-updated' => '更新',
 	'wikilog-draft' => '下書き',
@@ -4177,17 +4272,18 @@ $messages['ja'] = array(
 	'wikilog-pager-last' => '最後',
 	'wikilog-pager-empty' => '(項目なし)',
 	'wikilog-no-comments' => 'コメントなし',
-	'wikilog-has-comments' => '{{PLURAL:$1|$1件のコメント}}',
+	'wikilog-has-comments' => '{{PLURAL:$1|$1 件のコメント}}',
 	'wikilog-summary-footer' => '$8$9 ($15)に$7が[[$1|$2]]へ投稿 ($10)',
 	'wikilog-summary-footer-single' => '$8$9 ($15)に$7が投稿 ($10)',
 	'wikilog-summary-uncategorized' => '未分類',
 	'wikilog-summary-categories' => '$2に分類',
-	'wikilog-summary-more' => '[[$3|→ 続きを読む…]]',
+	'wikilog-summary-more' => '[[$3|→ 続きを読む...]]',
 	'wikilog-author-signature' => '[[{{ns:User}}:$1|$1]] ([[{{ns:User_talk}}:$1|トーク]])',
 	'wikilog-edit-hint' => 'ウィキログ記事を編集：$1',
 	'wikilog-edit-fieldset-legend' => 'ウィキログのオプション:',
 	'wikilog-edit-signpub' => 'この記事に署名し公開する',
 	'wikilog-edit-signpub-tooltip' => '保存時にこの記事が署名され、そのウィキログに公開されます。この記事を下書きのままにするのなら、このボックスをチェックしないでください。',
+	'wikilog-comment-footer' => '— $2 • $5 $6',
 	'wikilog-comment-permalink' => '$1の$2',
 	'wikilog-comment-note-item' => '$1への投稿',
 	'wikilog-comment-note-edited' => '$1の$2に最後の編集',
@@ -4205,11 +4301,13 @@ $messages['ja'] = array(
 	'wikilog-comment-reject' => 'このコメントを拒否 (即時)',
 	'wikilog-newtalk-text' => '<!-- ウィキログによって作成された空白ページ -->',
 	'wikilog-newtalk-summary' => 'ウィキログにより自動的に作成',
+	'wikilog-feed-title' => '{{SITENAME}} - $1 [$2]',
 	'wikilog-feed-ns-title' => '$1ウィキログ記事',
 	'wikilog-feed-description' => 'このフィードで最新の投稿を読む。',
 	'wikilog-comment-feed-title1' => '$2からのコメント(#$1)',
 	'wikilog-comment-feed-title2' => '$3への$2からのコメント(#$1)',
 	'wikilog-comment-feed-description' => 'このフィードで最新のコメントを購読する。',
+	'wikilog-title-item-full' => '$1 - $2',
 	'wikilog-title-comments' => 'コメント - $1',
 	'wikilog-error-msg' => 'ウィキログ: $1',
 	'wikilog-error-title' => 'ウィキログのエラー',
@@ -4230,12 +4328,13 @@ $messages['ja'] = array(
 	'wikilog-reading-draft' => 'このウィキログ記事は下書きであり、まだ公開されていません。',
 	'wikilog-posting-anonymously' => 'あなたは現在ログインしていません:
 あなたのコメントは匿名として投稿され、あなたの IP アドレスで識別されます。コメントの識別のために仮名を入力するか、個人が正しく表示されるよう$1してください。',
-	'wikilog-anonymous-moderated' => 'コメントを投稿しても、すぐにはこのページに表示されません。コメントはモデレーターによって審査されてからでないと表れません。',
+	'wikilog-anonymous-moderated' => 'コメントを投稿しても、すぐにはこのページに表示されません。
+コメントは、モデレーターに審査されたあと表示されます。',
 	'wikilog-post-comment' => '新しいコメントを投稿',
 	'wikilog-post-reply' => '新しい返信を投稿',
 	'wikilog-form-legend' => 'ウィキログの投稿を検索',
 	'wikilog-form-wikilog' => 'ウィキログ:',
-	'wikilog-form-category' => 'カテゴリー:',
+	'wikilog-form-category' => 'カテゴリ:',
 	'wikilog-form-name' => '名前:',
 	'wikilog-form-author' => '著者:',
 	'wikilog-form-tag' => 'タグ:',
@@ -4252,7 +4351,7 @@ $messages['ja'] = array(
 	'wikilog-reply-lc' => '返信',
 	'wikilog-delete-lc' => '削除',
 	'wikilog-approve-lc' => '承認',
-	'wikilog-reject-lc' => '拒否',
+	'wikilog-reject-lc' => '却下',
 	'wikilog-page-lc' => 'ページ',
 	'wikilog-history-lc' => '履歴',
 	'wikilog-doc-import-comment' => '取り込みされたウィキログのドキュメント',
@@ -4264,6 +4363,102 @@ $messages['ja'] = array(
 $messages['jv'] = array(
 	'wikilog-item-name' => 'Jeneng artikel:',
 	'wikilog-comment-history' => 'Nudhuhaké sajarah komentar',
+);
+
+/** Georgian (ქართული)
+ * @author David1010
+ */
+$messages['ka'] = array(
+	'wikilog-auto' => 'ავტო ვიკილოგი',
+	'wikilog-help' => '{{ns:Help}}:ვიკილოგი',
+	'wikilog-specialwikilog-title' => 'ვიკილოგები',
+	'wikilog-log-pagename' => 'ვიკილოგის მოქმედებების ჟურნალი',
+	'wikilog-log-pagetext' => 'ქვემოთ მოცემულია ვიკილოგის მოქმედებების სია.',
+	'wikilog-log-cmt-approve' => 'კომენტარის დამტკიცება „[[$1]]“',
+	'wikilog-log-cmt-reject' => 'კომენტარის უარყოფა „[[$1]]“',
+	'wikilog-tab' => 'ვიკილოგი',
+	'wikilog-tab-title' => 'ვიკილოგის მოქმედებები',
+	'wikilog-information' => 'ვიკილოგის ინფორმაცია',
+	'wikilog-post-count-all' => 'სულ არის {{PLURAL:$1|ერთი სტატია|$1 სტატია}}.',
+	'wikilog-new-item' => 'ვიკილოგის ახალი სტატიის შექმნა',
+	'wikilog-new-item-go' => 'შექმნა',
+	'wikilog-item-name' => 'სტატიის სათაური:',
+	'wikilog-published' => 'გამოქვეყნებული',
+	'wikilog-updated' => 'განახლებული',
+	'wikilog-authors' => 'ავტორები',
+	'wikilog-wikilog' => 'ვიკილოგი',
+	'wikilog-title' => 'სათაური',
+	'wikilog-actions' => 'მოქმედებები',
+	'wikilog-comments' => 'კომენტარები',
+	'wikilog-replies' => 'პასუხები',
+	'wikilog-view-archives' => 'არქივები',
+	'wikilog-view-summary' => 'რეზიუმე',
+	'wikilog-anonymous-mark' => '(ანონიმი)',
+	'wikilog-pager-newest' => 'უახლესი',
+	'wikilog-pager-oldest' => 'უძველესი',
+	'wikilog-pager-prev' => 'წინა',
+	'wikilog-pager-next' => 'შემდეგი',
+	'wikilog-pager-first' => 'პირველი',
+	'wikilog-pager-last' => 'ბოლო',
+	'wikilog-pager-empty' => '(ელემენტები არ არის)',
+	'wikilog-no-comments' => 'კომენტარები არ არის',
+	'wikilog-has-comments' => '{{PLURAL:$1|კომენტარი|$1 კომენტარი}}',
+	'wikilog-summary-uncategorized' => 'უკატეგორიო',
+	'wikilog-summary-more' => '[[$3|→ კითხვის გაგრძელება...]]',
+	'wikilog-author-signature' => '[[{{ns:User}}:$1|$1]] ([[{{ns:User_talk}}:$1|განხილვა]])',
+	'wikilog-edit-hint' => 'ვიკილოგის სტატიის რედაქტირება: $1',
+	'wikilog-edit-fieldset-legend' => 'ვიკილოგის პარამეტრები:',
+	'wikilog-edit-signpub' => 'ამ სტატიის ხელმოწერა და გამოქვეყნება',
+	'wikilog-comment-anonsig' => '$3 (ანონიმურად)',
+	'wikilog-comment-pending' => 'ეს კომენტარი ელოდება დამტკიცებას.',
+	'wikilog-comment-deleted' => 'ეს კომენტარი წაშლილია,',
+	'wikilog-comment-omitted-x' => 'კომენტარი არ არის მითითებული (#$1).',
+	'wikilog-comment-autosumm' => 'ახალი კომენტარები $1-სგან: $2',
+	'wikilog-reply-to-comment' => 'ამ კომენტარზე პასუხი',
+	'wikilog-comment-page' => 'ამ კომენტარის გვერდზე გადასვლა',
+	'wikilog-comment-edit' => 'ამ კომენტარის რედაქტირება',
+	'wikilog-comment-delete' => 'ამ კომენტარის წაშლა',
+	'wikilog-comment-history' => 'კომენტარის ისტორიის ხილვა',
+	'wikilog-comment-approve' => 'ამ კომენტარის დამტკიცება (დაუყოვნებლივი მოქმედება)',
+	'wikilog-comment-reject' => 'ამ კომენტარის უარყოფა (დაუყოვნებლივი მოქმედება)',
+	'wikilog-newtalk-text' => '<!-- ვიკილოგის მიერ შექმნილი ცარიელი გვერდი -->',
+	'wikilog-newtalk-summary' => 'ვიკილოგის მიერ ავტომატურად შექმნილი',
+	'wikilog-title-comments' => 'კომენტარები - $1',
+	'wikilog-error-msg' => 'ვიკილოგი: $1',
+	'wikilog-error-title' => 'ვიკილოგის შეცდომა',
+	'wikilog-invalid-param' => 'არასწორი პარამეტრი: $1.',
+	'wikilog-invalid-author' => 'არასწორი ავტორი: $1.',
+	'wikilog-invalid-date' => 'არასწორი თარიღი: $1.',
+	'wikilog-invalid-tag' => 'არასწორი სანიშნე: $1',
+	'wikilog-invalid-file' => 'არასწორი ფაილი: $1.',
+	'wikilog-file-not-found' => 'არარსებული ფაილი: $1.',
+	'wikilog-not-an-image' => 'ფაილი არ წარმოადგენს სურათს: $1.',
+	'wikilog-comment-is-empty' => 'გაგზავნილი კომენტარი ცარიელია.',
+	'wikilog-comment-too-long' => 'გაგზავნილი კომენტარი ძალიან გრძელია.',
+	'wikilog-comment-invalid-name' => 'მითითებული სახელი არასწორია.',
+	'wikilog-post-comment' => 'ახალი კომენტარის დაწერა',
+	'wikilog-post-reply' => 'ახალი პასუხის დაწერა',
+	'wikilog-form-wikilog' => 'ვიკილოგი:',
+	'wikilog-form-category' => 'კატეგორია:',
+	'wikilog-form-name' => 'სახელი:',
+	'wikilog-form-author' => 'ავტორი:',
+	'wikilog-form-tag' => 'სანიშნე:',
+	'wikilog-form-date' => 'თარიღი:',
+	'wikilog-form-status' => 'სტატუსი:',
+	'wikilog-form-preview' => 'წინასწარი გადახედვა:',
+	'wikilog-form-comment' => 'კომენტარი:',
+	'wikilog-show-all' => 'ყველა შეტყობინება',
+	'wikilog-show-published' => 'გამოქვეყნდა',
+	'wikilog-show-drafts' => 'შავი ფურცლები',
+	'wikilog-submit' => 'მიღება',
+	'wikilog-preview' => 'წინასწარი გადახედვა',
+	'wikilog-edit-lc' => 'რედაქტირება',
+	'wikilog-reply-lc' => 'პასუხი',
+	'wikilog-delete-lc' => 'წაშლა',
+	'wikilog-approve-lc' => 'დამტკიცება',
+	'wikilog-reject-lc' => 'უარყოფა',
+	'wikilog-page-lc' => 'გვერდი',
+	'wikilog-history-lc' => 'ისტორია',
 );
 
 /** Kannada (ಕನ್ನಡ)
@@ -4343,7 +4538,7 @@ Heh dat Wikilog jidd-et noch nit.
 	'wikilog-comments' => 'Aanmärkunge',
 	'wikilog-replies' => 'Antwoote',
 	'wikilog-view-archives' => 'Aschiive',
-	'wikilog-view-summary' => 'Zosammefassung',
+	'wikilog-view-summary' => 'Zosammefaßong',
 	'wikilog-draft-title-mark' => '(Äntworf)',
 	'wikilog-anonymous-mark' => '(namelos)',
 	'wikilog-pager-newest' => 'neuste',
@@ -4438,7 +4633,7 @@ Se moß eets vun enem Moderator aanjenumme wääde.',
 	'wikilog-doc-import-comment' => 'Empoteet Handbooch för {{int:Wikilog-wikilog}}',
 );
 
-/** Kurdish (Latin script) (‪Kurdî (latînî)‬)
+/** Kurdish (Latin script) (Kurdî (latînî)‎)
  * @author George Animal
  */
 $messages['ku-latn'] = array(
@@ -4599,21 +4794,51 @@ $messages['li'] = array(
 	'wikilog-error-title' => 'Foutmeljing Wikilog',
 );
 
-/** Latgalian (Latgaļu)
+/** Lithuanian (lietuvių)
+ * @author Eitvys200
+ */
+$messages['lt'] = array(
+	'wikilog-new-item-go' => 'Sukurti',
+	'wikilog-item-name' => 'Straipsnio pavadinimas:',
+	'wikilog-published' => 'Publikuotas',
+	'wikilog-updated' => 'Atnaujintas',
+	'wikilog-draft' => 'Ruošinys',
+	'wikilog-authors' => 'Autoriai',
+	'wikilog-actions' => 'Veiksmai',
+	'wikilog-comments' => 'Komentarai',
+	'wikilog-replies' => 'Atsakymai',
+	'wikilog-view-archives' => 'Archyvai',
+	'wikilog-draft-title-mark' => '(ruošinys)',
+	'wikilog-anonymous-mark' => '(anonimas)',
+	'wikilog-pager-newest' => 'naujausias',
+	'wikilog-pager-oldest' => 'seniausias',
+	'wikilog-pager-prev' => 'ankstesnis',
+	'wikilog-pager-next' => 'kitas',
+	'wikilog-pager-first' => 'pirmas',
+	'wikilog-pager-last' => 'paskutinis',
+	'wikilog-pager-empty' => '(nėra elementų)',
+	'wikilog-no-comments' => 'nėra komentarų',
+	'wikilog-has-comments' => '{{PLURAL:$1|vienas komentaras|$1 komentarai}}',
+	'wikilog-comment-permalink' => '$1 $2 ($3)',
+	'wikilog-comment-note-item' => 'parašytas $1',
+	'wikilog-comment-note-edited' => 'paskutini karta redaguotas $1 $2',
+	'wikilog-comment-anonsig' => '$3 (anonimas)',
+	'wikilog-comment-autosumm' => 'Naujas komentaras nuo $1: $2',
+	'wikilog-reply-to-comment' => 'Atsakyti į šį komentarą',
+	'wikilog-comment-page' => 'Eiti į šio komentaro puslapį',
+	'wikilog-comment-edit' => 'Redaguoti šį komentarą',
+	'wikilog-comment-delete' => 'Ištrinti šį komentarą',
+	'wikilog-title-comments' => 'Komentarai - $1',
+);
+
+/** Latgalian (latgaļu)
  * @author Dark Eagle
  */
 $messages['ltg'] = array(
 	'wikilog-history-lc' => 'viesture',
 );
 
-/** Latgalian (Latgaļu)
- * @author Dark Eagle
- */
-$messages['ltg'] = array(
-	'wikilog-history-lc' => 'viesture',
-);
-
-/** Latvian (Latviešu)
+/** Latvian (latviešu)
  * @author GreenZeb
  */
 $messages['lv'] = array(
@@ -4697,7 +4922,7 @@ $messages['mg'] = array(
 	'wikilog-doc-import-comment' => "Toromarika nampidirina avy any amin'ny laogy wiki",
 );
 
-/** Macedonian (Македонски)
+/** Macedonian (македонски)
  * @author Bjankuloski06
  */
 $messages['mk'] = array(
@@ -4820,7 +5045,7 @@ $messages['mk'] = array(
 	'wikilog-form-comment' => 'Коментар:',
 	'wikilog-show-all' => 'Сите пораки',
 	'wikilog-show-published' => 'Објавено',
-	'wikilog-show-drafts' => 'Нацрти',
+	'wikilog-show-drafts' => 'Недопишани',
 	'wikilog-submit' => 'Испрати',
 	'wikilog-preview' => 'Преглед',
 	'wikilog-edit-lc' => 'уреди',
@@ -4875,7 +5100,7 @@ $messages['ml'] = array(
 	'wikilog-history-lc' => 'നാൾവഴി',
 );
 
-/** Mongolian (Монгол)
+/** Mongolian (монгол)
  * @author Chinneeb
  */
 $messages['mn'] = array(
@@ -4929,7 +5154,7 @@ $messages['ms'] = array(
 	'wikilog-history-lc' => 'sejarah',
 );
 
-/** Norwegian (bokmål)‬ (‪Norsk (bokmål)‬)
+/** Norwegian Bokmål (norsk (bokmål)‎)
  * @author Nghtwlkr
  */
 $messages['nb'] = array(
@@ -5191,7 +5416,7 @@ Geef hierboven een pseudoniem op bij uw reactie.
 U kunt zich ook $1.',
 	'wikilog-anonymous-moderated' => 'Uw reactie is niet direct zichtbaar op de pagina als u deze hebt opgeslagen.
 Er vindt eerst een controle plaats door een moderator.',
-	'wikilog-post-comment' => 'Nieuwe reactie plaatsen',
+	'wikilog-post-comment' => 'Nieuwe opmerking plaatsen',
 	'wikilog-post-reply' => 'Nieuwe reactie plaatsen',
 	'wikilog-form-legend' => 'Wikilog-artikelen zoeken',
 	'wikilog-form-wikilog' => 'Wikilog:',
@@ -5218,7 +5443,7 @@ Er vindt eerst een controle plaats door een moderator.',
 	'wikilog-doc-import-comment' => 'Geïmporteerde Wikilog-documentatie',
 );
 
-/** Norwegian Nynorsk (‪Norsk (nynorsk)‬)
+/** Norwegian Nynorsk (norsk (nynorsk)‎)
  * @author Finnrind
  * @author Gunnernett
  */
@@ -5281,7 +5506,7 @@ $messages['nn'] = array(
 	'wikilog-history-lc' => 'historikk',
 );
 
-/** Occitan (Occitan)
+/** Occitan (occitan)
  * @author Cedric31
  */
 $messages['oc'] = array(
@@ -5441,20 +5666,29 @@ $messages['pdc'] = array(
 	'wikilog-form-comment' => 'Aamaericking:',
 	'wikilog-preview' => 'Devor aagucke',
 	'wikilog-edit-lc' => 'ennere',
-	'wikilog-delete-lc' => 'lesche',
+	'wikilog-delete-lc' => 'verwische',
 	'wikilog-page-lc' => 'Blatt',
 );
 
 /** Pälzisch (Pälzisch)
+ * @author Manuae
  * @author Xqt
  */
 $messages['pfl'] = array(
+	'wikilog-new-item-go' => 'Oalesche',
+	'wikilog-pager-newest' => 'naischde',
+	'wikilog-pager-oldest' => 'eldschde',
 	'wikilog-pager-prev' => 'voricher',
 	'wikilog-pager-next' => 'negschter',
+	'wikilog-pager-first' => 'erschda',
+	'wikilog-pager-last' => 'ledschda',
+	'wikilog-form-tag' => 'Daach:',
 	'wikilog-edit-lc' => 'bearwaide',
+	'wikilog-delete-lc' => 'lesche',
+	'wikilog-page-lc' => 'Said',
 );
 
-/** Polish (Polski)
+/** Polish (polski)
  * @author Odder
  * @author Sp5uhe
  */
@@ -5775,7 +6009,7 @@ $messages['ps'] = array(
 	'wikilog-form-preview' => 'مخليدنه:',
 	'wikilog-form-comment' => 'تبصره:',
 	'wikilog-show-published' => 'خپاره شوي',
-	'wikilog-show-drafts' => 'ګارلیکونه',
+	'wikilog-show-drafts' => 'ګارليکونه',
 	'wikilog-submit' => 'سپارل',
 	'wikilog-preview' => 'مخليدنه:',
 	'wikilog-edit-lc' => 'سمول',
@@ -5786,7 +6020,7 @@ $messages['ps'] = array(
 	'wikilog-history-lc' => 'پېښليک',
 );
 
-/** Portuguese (Português)
+/** Portuguese (português)
  * @author Hamilton Abreu
  * @author Juliano F. Ravasi
  */
@@ -5925,7 +6159,7 @@ O comentário só aparecerá após ser revisto por um moderador.',
 	'wikilog-doc-import-comment' => 'Documentação Wikilog importada',
 );
 
-/** Brazilian Portuguese (Português do Brasil)
+/** Brazilian Portuguese (português do Brasil)
  * @author 555
  * @author BrunaaAa
  * @author Giro720
@@ -6066,9 +6300,11 @@ Ele somente aparecerá após ser revisado por um moderador.',
 	'wikilog-doc-import-comment' => 'Documentação Wikilog importada',
 );
 
-/** Romanian (Română)
+/** Romanian (română)
  * @author Firilacroco
  * @author KlaudiuMihaila
+ * @author Minisarm
+ * @author Stelistcristi
  */
 $messages['ro'] = array(
 	'wikilog-auto' => 'Wikijurnal Auto',
@@ -6082,6 +6318,7 @@ $messages['ro'] = array(
 	'wikilog-item-name' => 'Nume articol:',
 	'wikilog-published' => 'Publicat',
 	'wikilog-updated' => 'Actualizat',
+	'wikilog-draft' => 'Mesaj nefinalizat',
 	'wikilog-authors' => 'Autori',
 	'wikilog-wikilog' => 'Wikijurnal',
 	'wikilog-title' => 'Titlu',
@@ -6100,9 +6337,23 @@ $messages['ro'] = array(
 	'wikilog-no-comments' => 'nici un comentariu',
 	'wikilog-summary-uncategorized' => 'Necategorizat',
 	'wikilog-edit-signpub' => 'Semnează și publică acest articol',
+	'wikilog-comment-permalink' => '$1 la $2 ($3)',
+	'wikilog-comment-note-edited' => 'ultima modificare efectuată pe $1 la $2',
+	'wikilog-comment-anonsig' => '$3 (anonim)',
 	'wikilog-comment-pending' => 'Comentariul așteaptă aprobare.',
 	'wikilog-comment-deleted' => 'Comentariul a fost șters.',
+	'wikilog-comment-autosumm' => 'Comentariu nou scris de $1: $2',
+	'wikilog-reply-to-comment' => 'Răspuns pentru acest comentariu',
+	'wikilog-comment-page' => 'Mergi la pagina acestui comentariu',
 	'wikilog-comment-edit' => 'Modifică acest comentariu',
+	'wikilog-comment-delete' => 'Șterge acest comentariu',
+	'wikilog-comment-history' => 'Vezi istoricul comentariilor',
+	'wikilog-comment-approve' => 'Aprobă acest comentariu (acțiune instantă)',
+	'wikilog-comment-reject' => 'Respinge acest comentariu (acțiune instantă)',
+	'wikilog-feed-description' => 'Citiți cele mai recente postări din acest flux.',
+	'wikilog-comment-feed-title1' => 'Comentariu scris de $2 (# $1)',
+	'wikilog-comment-feed-title2' => 'Comentariu scris de $2 pentru $3 (# $1)',
+	'wikilog-comment-feed-description' => 'Citiți cele mai recente comentarii din acest flux.',
 	'wikilog-title-comments' => 'Comentarii - $1',
 	'wikilog-error-msg' => 'Wikijurnal: $1',
 	'wikilog-error-title' => 'Eroare wikijurnal',
@@ -6111,6 +6362,7 @@ $messages['ro'] = array(
 	'wikilog-invalid-date' => 'Dată incorectă: $1.',
 	'wikilog-invalid-tag' => 'Etichetă incorectă: $1.',
 	'wikilog-invalid-file' => 'Fișier invalid: $1.',
+	'wikilog-not-an-image' => 'Fișierul nu este o imagine: $1.',
 	'wikilog-comment-is-empty' => 'Comentariul postat este gol.',
 	'wikilog-comment-too-long' => 'Comentariul postat este prea lung.',
 	'wikilog-comment-invalid-name' => 'Numele furnizat este incorect.',
@@ -6127,6 +6379,7 @@ $messages['ro'] = array(
 	'wikilog-form-comment' => 'Comentariu:',
 	'wikilog-show-all' => 'Toate posturile',
 	'wikilog-show-published' => 'Publicate',
+	'wikilog-show-drafts' => 'Mesaje nefinalizate',
 	'wikilog-submit' => 'Trimite',
 	'wikilog-preview' => 'Previzualizare',
 	'wikilog-edit-lc' => 'modificare',
@@ -6138,7 +6391,7 @@ $messages['ro'] = array(
 	'wikilog-history-lc' => 'istoric',
 );
 
-/** Tarandíne (Tarandíne)
+/** tarandíne (tarandíne)
  * @author Joetaras
  */
 $messages['roa-tara'] = array(
@@ -6274,7 +6527,7 @@ Tu putisse mettere 'nu pseudonime sus a 'u messagge pe idendificà 'u commende t
 	'wikilog-doc-import-comment' => "Documendazione de UicchiArchivije 'mbortate",
 );
 
-/** Russian (Русский)
+/** Russian (русский)
  * @author Aleksandrit
  * @author EugeneZelenko
  * @author G0rn
@@ -6483,7 +6736,7 @@ $messages['ru'] = array(
 	'wikilog-doc-import-comment' => 'Импортированная документация Викилога',
 );
 
-/** Rusyn (Русиньскый)
+/** Rusyn (русиньскый)
  * @author Gazeb
  */
 $messages['rue'] = array(
@@ -6548,7 +6801,7 @@ $messages['rue'] = array(
 	'wikilog-history-lc' => 'історія',
 );
 
-/** Sardinian (Sardu)
+/** Sardinian (sardu)
  * @author Andria
  */
 $messages['sc'] = array(
@@ -6686,7 +6939,7 @@ $messages['si'] = array(
 	'wikilog-doc-import-comment' => 'ආයාත කරනු ලැබූ විකි ලඝු ප්‍රලේඛනය',
 );
 
-/** Slovenian (Slovenščina)
+/** Slovenian (slovenščina)
  * @author Dbc334
  */
 $messages['sl'] = array(
@@ -6829,7 +7082,8 @@ $messages['so'] = array(
 	'wikilog-form-category' => 'Qeybta:',
 );
 
-/** Serbian (Cyrillic script) (‪Српски (ћирилица)‬)
+/** Serbian (Cyrillic script) (српски (ћирилица)‎)
+ * @author Maduixa
  * @author Rancher
  * @author Жељко Тодоровић
  * @author Михајло Анђелковић
@@ -6864,13 +7118,15 @@ $messages['sr-ec'] = array(
 	'wikilog-summary-categories' => 'Заведено под $2',
 	'wikilog-entry-footer' => '— $7 • $9, $8 • $10',
 	'wikilog-simple-signature' => '$1 ($2)',
-	'wikilog-edit-signpub' => 'Потпиши и објави овај чланак',
+	'wikilog-edit-signpub' => 'Потпиши се и објави овај чланак',
 	'wikilog-comment-footer' => '— $2 • $5 $6',
 	'wikilog-comment-permalink' => '$1 у $2',
 	'wikilog-comment-note-item' => 'послато на $1',
 	'wikilog-comment-note-edited' => 'последње измењен на $1 у $2',
 	'wikilog-comment-anonsig' => '$3 (анонимни)',
-	'wikilog-comment-autosumm' => 'Нови коментар од члана $1: $2',
+	'wikilog-comment-pending' => 'Овај коментар чека на одобрење.',
+	'wikilog-comment-deleted' => 'Овај коментар је обрисан.',
+	'wikilog-comment-autosumm' => 'Нови коментар корисника $1: $2',
 	'wikilog-reply-to-comment' => 'Пошаљи одговор на овај коментар',
 	'wikilog-comment-page' => 'Иди на страну овог коментара',
 	'wikilog-comment-edit' => 'Измени овај коментар',
@@ -6894,7 +7150,7 @@ $messages['sr-ec'] = array(
 	'wikilog-comment-too-long' => 'Послати коменар је предугачак.',
 	'wikilog-comment-invalid-name' => 'Достављено име је погрешно.',
 	'wikilog-post-comment' => 'Пошаљи нови коментар',
-	'wikilog-post-reply' => 'Пошаљи нову реплику',
+	'wikilog-post-reply' => 'Пошаљи нови одговор',
 	'wikilog-form-category' => 'Категорија:',
 	'wikilog-form-name' => 'Име:',
 	'wikilog-form-author' => 'Аутор:',
@@ -6917,7 +7173,7 @@ $messages['sr-ec'] = array(
 	'wikilog-history-lc' => 'историја',
 );
 
-/** Serbian (Latin script) (‪Srpski (latinica)‬)
+/** Serbian (Latin script) (srpski (latinica)‎)
  * @author Rancher
  */
 $messages['sr-el'] = array(
@@ -6956,6 +7212,8 @@ $messages['sr-el'] = array(
 	'wikilog-comment-note-item' => 'poslato na $1',
 	'wikilog-comment-note-edited' => 'poslednje izmenjen na $1 u $2',
 	'wikilog-comment-anonsig' => '$3 (anonimni)',
+	'wikilog-comment-pending' => 'Ovaj komentar čeka na odobrenje.',
+	'wikilog-comment-deleted' => 'Ovaj komentar je obrisan.',
 	'wikilog-comment-autosumm' => 'Novi komentar od člana $1: $2',
 	'wikilog-reply-to-comment' => 'Pošalji odgovor na ovaj komentar',
 	'wikilog-comment-page' => 'Idi na stranu ovog komentara',
@@ -7003,7 +7261,7 @@ $messages['sr-el'] = array(
 	'wikilog-history-lc' => 'istorija',
 );
 
-/** Swedish (Svenska)
+/** Swedish (svenska)
  * @author Ainali
  * @author Dafer45
  * @author Elias Bröms
@@ -7138,6 +7396,7 @@ Avmarkera denna box för att lämna artiklar som utkast.',
 );
 
 /** Tamil (தமிழ்)
+ * @author Karthi.dr
  * @author TRYPPN
  * @author செல்வா
  */
@@ -7146,10 +7405,13 @@ $messages['ta'] = array(
 	'wikilog-item-name' => 'கட்டுரையின் பெயர்:',
 	'wikilog-published' => 'வெளியிடப்பட்டது',
 	'wikilog-updated' => 'புதிப்பிக்கப்பட்டது',
+	'wikilog-draft' => 'வரைவு',
+	'wikilog-authors' => 'ஆசிரியர்கள்',
 	'wikilog-title' => 'தலைப்பு',
 	'wikilog-actions' => 'செயல்கள்',
 	'wikilog-comments' => 'கருத்துரைகள்',
 	'wikilog-replies' => 'பதில்கள்',
+	'wikilog-view-archives' => 'காப்பகங்கள்',
 	'wikilog-view-summary' => 'சுருக்கம்',
 	'wikilog-pager-newest' => 'புத்தம் புதிய',
 	'wikilog-pager-oldest' => 'மிகப் பழமையான',
@@ -7158,6 +7420,21 @@ $messages['ta'] = array(
 	'wikilog-pager-first' => 'முதல்',
 	'wikilog-pager-last' => 'கடைசி',
 	'wikilog-no-comments' => 'கருத்துக்கள் ஒன்றுமில்லை',
+	'wikilog-reply-to-comment' => 'இக் கருத்துரைக்குப் பதிலளி',
+	'wikilog-comment-page' => 'கருத்துரையின் பக்கத்திற்குச் செல்',
+	'wikilog-comment-edit' => 'இக் கருத்துரையைத் தொகு',
+	'wikilog-comment-delete' => 'இக் கருத்துரையை நீக்கு',
+	'wikilog-comment-history' => 'கருத்துரை வரலாற்றைப் பார்',
+	'wikilog-comment-approve' => 'இக் கருத்துரையை ஏற்றுக்கொள் (உடனடி நடவடிக்கை)',
+	'wikilog-comment-reject' => 'இக் கருத்துரையைப் புறக்கணி  (உடனடி நடவடிக்கை)',
+	'wikilog-title-comments' => 'கருத்துரைகள்  - $1',
+	'wikilog-invalid-date' => 'செல்லாத தேதி : $1.',
+	'wikilog-invalid-file' => 'செல்லாத கோப்பு : $1.',
+	'wikilog-file-not-found' => 'இல்லாத கோப்பு : $1.',
+	'wikilog-not-an-image' => 'கோப்பு ஒரு படமன்று : $1.',
+	'wikilog-comment-is-empty' => 'கருத்துரை வெறுமையாக உள்ளது.',
+	'wikilog-comment-too-long' => 'கருத்துரை மிக நீளமாக உள்ளது.',
+	'wikilog-comment-invalid-name' => 'தரப்பட்ட பெயர் செல்லாது.',
 	'wikilog-form-category' => 'பகுப்பு:',
 	'wikilog-form-name' => 'பெயர்:',
 	'wikilog-form-author' => 'ஆசிரியர்:',
@@ -7165,6 +7442,7 @@ $messages['ta'] = array(
 	'wikilog-form-status' => 'நிலைமை:',
 	'wikilog-form-preview' => 'முன்தோற்றம்:',
 	'wikilog-form-comment' => 'கருத்து:',
+	'wikilog-show-drafts' => 'வரைவுகள்',
 	'wikilog-submit' => 'சமர்ப்பி',
 	'wikilog-preview' => 'முன்தோற்றம்',
 	'wikilog-edit-lc' => 'தொகு',
@@ -7259,7 +7537,7 @@ $messages['te'] = array(
 	'wikilog-history-lc' => 'చరిత్ర',
 );
 
-/** Tetum (Tetun)
+/** Tetum (tetun)
  * @author MF-Warburg
  */
 $messages['tet'] = array(
@@ -7387,12 +7665,15 @@ Upang makapaglathala ng mga artikulo at paganahin ang iba pang mga kasangkapang-
 	'wikilog-summary-uncategorized' => 'Walang kategorya',
 	'wikilog-summary-categories' => 'Isinalansan sa ilalim ng $2',
 	'wikilog-summary-more' => '[[$3|→ ipagpatuloy ang pagbabasa...]]',
+	'wikilog-entry-footer' => '— $7 • $9, $8 • $10',
 	'wikilog-author-signature' => '[[{{ns:User}}:$1|$1]] ([[{{ns:User_talk}}:$1|usapan]])',
+	'wikilog-simple-signature' => '$1 ($2)',
 	'wikilog-edit-hint' => 'Baguhin ang artikulo ng wikilog: $1',
 	'wikilog-edit-fieldset-legend' => 'Mga pagpipilian sa wiki-tala:',
 	'wikilog-edit-signpub' => 'Lagdaan at ilathala ang artikulong ito',
 	'wikilog-edit-signpub-tooltip' => 'Nagdurulot sa artikulong ito na malagdaan at malathala sa kanyang wikilog kapag nasagip.
 Huwag tsekan ang kahong ito upang mapanatili ang artikulo bilang isang balangkas.',
+	'wikilog-comment-footer' => '— $2 • $5 $6',
 	'wikilog-comment-permalink' => '$1 noong $2',
 	'wikilog-comment-note-item' => 'ipinaskil sa $1',
 	'wikilog-comment-note-edited' => 'huling nabago noong $1 noong $2',
@@ -7410,11 +7691,13 @@ Huwag tsekan ang kahong ito upang mapanatili ang artikulo bilang isang balangkas
 	'wikilog-comment-reject' => 'Tanggihan ang punang ito (mabilis na kilos)',
 	'wikilog-newtalk-text' => '<!-- pahinang walang laman na nilikha ng Wiki-tala -->',
 	'wikilog-newtalk-summary' => 'kusang nilikha ng Wiki-tala',
+	'wikilog-feed-title' => '{{SITENAME}} - $1 [$2]',
 	'wikilog-feed-ns-title' => '$1 mga artikulo ng wikilog',
 	'wikilog-feed-description' => 'Basahin ang pinaka kamakailang mga pagpapaskil na nasa loob ng pakaing ito.',
 	'wikilog-comment-feed-title1' => 'Puna ni $2 (#$1)',
 	'wikilog-comment-feed-title2' => 'Puna ni $2 sa $3 (#$1)',
 	'wikilog-comment-feed-description' => 'Basahin ang pinaka kamakailang mga puna sa pakaing ito.',
+	'wikilog-title-item-full' => '$1 - $2',
 	'wikilog-title-comments' => 'Mga puna - $1',
 	'wikilog-error-msg' => 'Wiki-tala: $1',
 	'wikilog-error-title' => 'Kamalian sa Wiki-tala',
@@ -7464,6 +7747,13 @@ Lilitaw lamang ang puna pagkaraang masuri ito ng isang tagapamagitan.',
 	'wikilog-page-lc' => 'pahina',
 	'wikilog-history-lc' => 'kasaysayan',
 	'wikilog-doc-import-comment' => 'Inangkata na dokumentasyon ng Wiki-tala',
+);
+
+/** толышә зывон (толышә зывон)
+ * @author Erdemaslancan
+ */
+$messages['tly'] = array(
+	'wikilog-comments' => 'Мындәриҹот',
 );
 
 /** Turkish (Türkçe)
@@ -7598,7 +7888,7 @@ Yorum, bir moderatör tarafından incelendikten sonra görülecek.',
 	'wikilog-doc-import-comment' => 'İçe aktarılan Vikikayıt belgelemesi',
 );
 
-/** Ukrainian (Українська)
+/** Ukrainian (українська)
  * @author AS
  * @author Aleksandrit
  * @author Alex Khimich
@@ -7708,6 +7998,7 @@ $messages['uk'] = array(
 /** Vietnamese (Tiếng Việt)
  * @author Minh Nguyen
  * @author Trần Nguyễn Minh Huy
+ * @author පසිඳු කාවින්ද
  */
 $messages['vi'] = array(
 	'wikilog-information' => 'Thông tin đăng nhập',
@@ -7717,6 +8008,7 @@ $messages['vi'] = array(
 	'wikilog-draft' => 'Thư nháp',
 	'wikilog-authors' => 'Tác giả',
 	'wikilog-title' => 'Tựa',
+	'wikilog-comments' => 'Ý kiến',
 	'wikilog-view-archives' => 'Lưu trữ',
 	'wikilog-view-summary' => 'Tóm lược',
 	'wikilog-pager-prev' => 'trước',
@@ -7730,6 +8022,7 @@ $messages['vi'] = array(
 	'wikilog-form-name' => 'Tên:',
 	'wikilog-form-author' => 'Tác giả:',
 	'wikilog-form-tag' => 'Thẻ:',
+	'wikilog-form-date' => 'Ngày:',
 	'wikilog-form-status' => 'Trạng thái:',
 	'wikilog-form-preview' => 'Xem trước:',
 	'wikilog-form-comment' => 'Lý do:',
@@ -7743,6 +8036,7 @@ $messages['vi'] = array(
 
 /** Yiddish (ייִדיש)
  * @author פוילישער
+ * @author පසිඳු කාවින්ද
  */
 $messages['yi'] = array(
 	'wikilog-specialwikilog-title' => 'וויקילאגן',
@@ -7762,13 +8056,18 @@ $messages['yi'] = array(
 	'wikilog-comment-permalink' => 'אום $1 $2 אזייגער',
 	'wikilog-comment-anonsig' => '$3 (אַנאנים)',
 	'wikilog-form-category' => 'קאטעגאריע:',
+	'wikilog-form-name' => 'נאָמען:',
+	'wikilog-form-author' => 'מחבר:',
 	'wikilog-form-date' => 'דאַטע:',
+	'wikilog-form-status' => 'סטאַטוס:',
 	'wikilog-form-preview' => 'פֿאראויסשטעלונג:',
 	'wikilog-preview' => 'פֿאראויסשטעלונג',
 	'wikilog-edit-lc' => 'רעדאַקטירן',
+	'wikilog-delete-lc' => 'אויסמעקן',
+	'wikilog-history-lc' => 'היסטאריע',
 );
 
-/** Simplified Chinese (‪中文(简体)‬)
+/** Simplified Chinese (中文（简体）‎)
  * @author Chenxiaoqino
  * @author Liangent
  * @author Mark85296341
@@ -7784,7 +8083,7 @@ $messages['zh-hans'] = array(
 	'wikilog-authors' => '作者',
 	'wikilog-title' => '标题',
 	'wikilog-actions' => '操作',
-	'wikilog-comments' => '注释',
+	'wikilog-comments' => '评论',
 	'wikilog-replies' => '回复',
 	'wikilog-view-archives' => '新闻列表',
 	'wikilog-view-summary' => '摘要',
@@ -7874,8 +8173,9 @@ $messages['zh-hans'] = array(
 	'wikilog-history-lc' => '历史',
 );
 
-/** Traditional Chinese (‪中文(繁體)‬)
+/** Traditional Chinese (中文（繁體）‎)
  * @author Mark85296341
+ * @author Oapbtommy
  */
 $messages['zh-hant'] = array(
 	'wikilog-new-item-go' => '建立',
@@ -7955,7 +8255,7 @@ $messages['zh-hant'] = array(
 	'wikilog-post-comment' => '發表新評論',
 	'wikilog-post-reply' => '發表新回復',
 	'wikilog-form-legend' => '搜尋 wikilog 文章',
-	'wikilog-form-category' => '分類：',
+	'wikilog-form-category' => '類別：',
 	'wikilog-form-name' => '名稱：',
 	'wikilog-form-author' => '作者：',
 	'wikilog-form-tag' => '標籤：',
