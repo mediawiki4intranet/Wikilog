@@ -8,9 +8,7 @@
 
 $magicWords = array();
 
-/** English (English)
- * @author Juliano F. Ravasi
- */
+/** English (English) */
 $magicWords['en'] = array(
 	'wl-settings' => array( 0, 'wl-settings' ),
 	'wl-publish' => array( 0, 'wl-publish' ),
@@ -55,7 +53,16 @@ $magicWords['arz'] = array(
 	'wlk-more' => array( 0, 'مزيد', 'more' ),
 );
 
-/** Breton (Brezhoneg) */
+/** Assamese (অসমীয়া) */
+$magicWords['as'] = array(
+	'wlk-logo' => array( 0, 'প্ৰতীক' ),
+	'wlk-subtitle' => array( 0, 'উপ-শিৰোনাম' ),
+	'wlk-summary' => array( 'সাৰাংশ' ),
+	'wlk-hidden' => array( 0, 'লুকায়িত' ),
+	'wlk-more' => array( 0, 'অধিক' ),
+);
+
+/** Breton (brezhoneg) */
 $magicWords['br'] = array(
 	'wl-settings' => array( 0, 'wl-arventennoù' ),
 	'wl-publish' => array( 0, 'wl-embann' ),
@@ -68,9 +75,37 @@ $magicWords['br'] = array(
 	'wlk-more' => array( 0, 'muioc\'h' ),
 );
 
-/** Chechen (Нохчийн) */
+/** Chechen (нохчийн) */
 $magicWords['ce'] = array(
 	'wlk-more' => array( 0, 'дуккха', 'more' ),
+);
+
+/** German (Deutsch) */
+$magicWords['de'] = array(
+	'wl-settings' => array( 0, 'wl-einstellungen' ),
+	'wl-publish' => array( 0, 'wl-veröffentlichung' ),
+	'wl-author' => array( 0, 'wl-autor' ),
+	'wl-tags' => array( 0, 'wl-stichwörter' ),
+	'wlk-icon' => array( 0, 'wl-piktogramm', 'wl-symbol', 'wl-icon' ),
+	'wlk-logo' => array( 0, 'wl-logo' ),
+	'wlk-subtitle' => array( 0, 'untertitel' ),
+	'wlk-summary' => array( 'zusammenfassung' ),
+	'wlk-hidden' => array( 0, 'versteckt' ),
+	'wlk-more' => array( 0, 'mehr' ),
+);
+
+/** Zazaki (Zazaki) */
+$magicWords['diq'] = array(
+	'wl-settings' => array( 0, 'wl-saz_kerdış' ),
+	'wl-author' => array( 0, 'wl-nuskar' ),
+	'wl-tags' => array( 0, 'wl-etiketi' ),
+	'wl-info' => array( 0, 'wl-malumat' ),
+	'wlk-icon' => array( 0, 'ikon' ),
+	'wlk-logo' => array( 0, 'logo' ),
+	'wlk-subtitle' => array( 0, 'bınname' ),
+	'wlk-summary' => array( 'xulasa' ),
+	'wlk-hidden' => array( 0, 'nımte' ),
+	'wlk-more' => array( 0, 'zewbi' ),
 );
 
 /** Esperanto (Esperanto) */
@@ -81,24 +116,37 @@ $magicWords['eo'] = array(
 	'wlk-more' => array( 0, 'pli' ),
 );
 
-/** Spanish (Español) */
+/** Spanish (español) */
 $magicWords['es'] = array(
-	'wl-settings' => array( 0, 'configuracion-wl', 'configuración-wl', 'wl-settings' ),
-	'wl-publish' => array( 0, 'publicar-wl', 'wl-publish' ),
-	'wl-author' => array( 0, 'autor-wl', 'wl-author' ),
-	'wl-tags' => array( 0, 'etiquetas-wl', 'wl-tags' ),
-	'wl-info' => array( 0, 'informacion-wl', 'información-wl', 'wl-info' ),
-	'wlk-subtitle' => array( 0, 'subtitulo', 'subtítulo', 'subtitle' ),
-	'wlk-summary' => array( '1', 'resumen', 'summary' ),
-	'wlk-hidden' => array( 0, 'escondido', 'hidden' ),
-	'wlk-more' => array( 0, 'más', 'mas', 'more' ),
+	'wl-settings' => array( 0, 'configuracion-wl', 'configuración-wl' ),
+	'wl-publish' => array( 0, 'publicar-wl' ),
+	'wl-author' => array( 0, 'autor-wl' ),
+	'wl-tags' => array( 0, 'etiquetas-wl' ),
+	'wl-info' => array( 0, 'informacion-wl', 'información-wl' ),
+	'wlk-subtitle' => array( 0, 'subtitulo', 'subtítulo' ),
+	'wlk-summary' => array( 'resumen' ),
+	'wlk-hidden' => array( 0, 'escondido', 'oculto' ),
+	'wlk-more' => array( 0, 'más', 'mas' ),
 );
 
-/** French (Français) */
+/** Persian (فارسی) */
+$magicWords['fa'] = array(
+	'wlk-summary' => array( 'خلاصه' ),
+	'wlk-hidden' => array( 0, 'پنهان' ),
+	'wlk-more' => array( 0, 'بیشتر' ),
+);
+
+/** French (français) */
 $magicWords['fr'] = array(
 	'wlk-subtitle' => array( 0, 'soustitre' ),
 	'wlk-summary' => array( 'sommaire' ),
 	'wlk-hidden' => array( 0, 'caché' ),
+);
+
+/** Franco-Provençal (arpetan) */
+$magicWords['frp'] = array(
+	'wlk-summary' => array( 'somèro' ),
+	'wlk-hidden' => array( 0, 'cachiê' ),
 );
 
 /** Igbo (Igbo) */
@@ -126,12 +174,34 @@ $magicWords['ja'] = array(
 $magicWords['ka'] = array(
 	'wlk-logo' => array( 0, 'ლოგო' ),
 	'wlk-subtitle' => array( 0, 'ქვესათაური' ),
+	'wlk-more' => array( 0, 'მეტი' ),
 );
 
-/** ‪Kurdî (latînî)‬ (‪Kurdî (latînî)‬) */
+/** Korean (한국어) */
+$magicWords['ko'] = array(
+	'wl-settings' => array( 0, 'wl-설정' ),
+	'wl-publish' => array( 0, 'wl-게시' ),
+	'wl-author' => array( 0, 'wl-저작자' ),
+	'wl-tags' => array( 0, 'wl-태그' ),
+	'wl-info' => array( 0, 'wl-정보' ),
+	'wlk-icon' => array( 0, 'wl-아이콘' ),
+	'wlk-logo' => array( 0, 'wl-로고' ),
+	'wlk-subtitle' => array( 0, '하위제목' ),
+	'wlk-summary' => array( '요약' ),
+	'wlk-hidden' => array( 0, '숨겨짐' ),
+	'wlk-more' => array( 0, '더보기' ),
+);
+
+/** Kurdish (Latin script) (Kurdî (latînî)‎) */
 $magicWords['ku-latn'] = array(
 	'wlk-subtitle' => array( 0, 'binnav' ),
 	'wlk-summary' => array( 'kurte' ),
+);
+
+/** Luxembourgish (Lëtzebuergesch) */
+$magicWords['lb'] = array(
+	'wlk-hidden' => array( 0, 'verstoppt' ),
+	'wlk-more' => array( 0, 'méi' ),
 );
 
 /** Malagasy (Malagasy) */
@@ -139,7 +209,7 @@ $magicWords['mg'] = array(
 	'wlk-hidden' => array( 0, 'voasitrika', 'hidden' ),
 );
 
-/** Macedonian (Македонски) */
+/** Macedonian (македонски) */
 $magicWords['mk'] = array(
 	'wl-settings' => array( 0, 'вд-нагодувања' ),
 	'wl-publish' => array( 0, 'вд-објави' ),
@@ -162,10 +232,26 @@ $magicWords['ml'] = array(
 	'wlk-more' => array( 0, 'കൂടുതൽ' ),
 );
 
-/** Erzya (Эрзянь) */
+/** Erzya (эрзянь) */
 $magicWords['myv'] = array(
 	'wlk-summary' => array( 'нурькинестэёвтазь' ),
 	'wlk-hidden' => array( 0, 'кекшезь' ),
+);
+
+/** Norwegian Bokmål (norsk (bokmål)‎) */
+$magicWords['nb'] = array(
+	'wlk-subtitle' => array( 0, 'undertekst' ),
+	'wlk-summary' => array( 'sammendrag' ),
+	'wlk-hidden' => array( 0, 'gjemt' ),
+	'wlk-more' => array( 0, 'mer' ),
+);
+
+/** Nedersaksisch (Nedersaksisch) */
+$magicWords['nds-nl'] = array(
+	'wl-publish' => array( 0, 'wl-publiseren' ),
+	'wl-tags' => array( 0, 'wl-etiketten' ),
+	'wlk-icon' => array( 0, 'wlk-ikoon' ),
+	'wlk-hidden' => array( 0, 'verbörgen' ),
 );
 
 /** Dutch (Nederlands) */
@@ -180,12 +266,12 @@ $magicWords['nl'] = array(
 	'wlk-more' => array( 0, 'meer' ),
 );
 
-/** Norwegian (bokmål)‬ (‪Norsk (bokmål)‬) */
-$magicWords['no'] = array(
-	'wlk-subtitle' => array( 0, 'undertekst', 'subtitle' ),
-	'wlk-summary' => array( '1', 'sammendrag', 'summary' ),
-	'wlk-hidden' => array( 0, 'gjemt', 'hidden' ),
-	'wlk-more' => array( 0, 'mer', 'more' ),
+/** Norwegian Nynorsk (norsk (nynorsk)‎) */
+$magicWords['nn'] = array(
+	'wl-settings' => array( 0, 'wl-innstillingar' ),
+	'wl-author' => array( 0, 'wl-forfattar' ),
+	'wl-tags' => array( 0, 'wl-merke' ),
+	'wlk-summary' => array( 'samandrag' ),
 );
 
 /** Oriya (ଓଡ଼ିଆ) */
@@ -198,6 +284,15 @@ $magicWords['or'] = array(
 	'wlk-more' => array( 0, 'ବେଶୀ' ),
 );
 
+/** Polish (polski) */
+$magicWords['pl'] = array(
+	'wlk-icon' => array( 0, 'ikonaWL' ),
+	'wlk-subtitle' => array( 0, 'podtytuł' ),
+	'wlk-summary' => array( 'podsumowanie' ),
+	'wlk-hidden' => array( 0, 'ukryty' ),
+	'wlk-more' => array( 0, 'więcej' ),
+);
+
 /** Pashto (پښتو) */
 $magicWords['ps'] = array(
 	'wlk-logo' => array( 0, 'نښه', 'logo' ),
@@ -207,7 +302,7 @@ $magicWords['ps'] = array(
 	'wlk-more' => array( 0, 'نور', 'more' ),
 );
 
-/** Portuguese (Português) */
+/** Portuguese (português) */
 $magicWords['pt'] = array(
 	'wl-settings' => array( 0, 'wl-configs', 'wl-settings' ),
 	'wl-publish' => array( 0, 'wl-publicar', 'wl-publish' ),
@@ -219,7 +314,7 @@ $magicWords['pt'] = array(
 	'wlk-more' => array( 0, 'mais', 'more' ),
 );
 
-/** Brazilian Portuguese (Português do Brasil) */
+/** Brazilian Portuguese (português do Brasil) */
 $magicWords['pt-br'] = array(
 	'wl-settings' => array( 0, 'wl-configs', 'wl-settings' ),
 	'wl-publish' => array( 0, 'wl-publicar', 'wl-publish' ),
@@ -231,7 +326,7 @@ $magicWords['pt-br'] = array(
 	'wlk-more' => array( 0, 'mais', 'more' ),
 );
 
-/** Russian (Русский) */
+/** Russian (русский) */
 $magicWords['ru'] = array(
 	'wl-settings' => array( 0, 'вл_настройки' ),
 	'wl-publish' => array( 0, 'вл_публикация' ),
@@ -246,7 +341,7 @@ $magicWords['ru'] = array(
 	'wlk-more' => array( 0, 'ещё' ),
 );
 
-/** Serbian Cyrillic ekavian (‪Српски (ћирилица)‬) */
+/** Serbian (Cyrillic script) (српски (ћирилица)‎) */
 $magicWords['sr-ec'] = array(
 	'wl-settings' => array( 0, 'вл-поставке' ),
 	'wl-publish' => array( 0, 'вл-објава' ),
@@ -260,7 +355,21 @@ $magicWords['sr-ec'] = array(
 	'wlk-more' => array( 0, 'више' ),
 );
 
-/** Swedish (Svenska) */
+/** Serbian (Latin script) (srpski (latinica)‎) */
+$magicWords['sr-el'] = array(
+	'wl-settings' => array( 0, 'wl-postavke' ),
+	'wl-publish' => array( 0, 'wl-objava' ),
+	'wl-author' => array( 0, 'wl-autor' ),
+	'wl-tags' => array( 0, 'wl-oznake' ),
+	'wl-info' => array( 0, 'wl-podaci' ),
+	'wlk-logo' => array( 0, 'logotip' ),
+	'wlk-subtitle' => array( 0, 'podnaslov' ),
+	'wlk-summary' => array( 'sažetak', 'opis' ),
+	'wlk-hidden' => array( 0, 'sakriveno' ),
+	'wlk-more' => array( 0, 'više' ),
+);
+
+/** Swedish (svenska) */
 $magicWords['sv'] = array(
 	'wlk-hidden' => array( 0, 'dold', 'hidden' ),
 	'wlk-more' => array( 0, 'mer', 'more' ),
@@ -274,9 +383,21 @@ $magicWords['ta'] = array(
 	'wlk-more' => array( 0, 'மேலும்' ),
 );
 
-/** Татарча (Татарча) */
+/** Tatar (Cyrillic script) (татарча) */
 $magicWords['tt-cyrl'] = array(
 	'wlk-more' => array( 0, 'күбрәк' ),
+);
+
+/** Ukrainian (українська) */
+$magicWords['uk'] = array(
+	'wl-settings' => array( 0, 'вл_налаштування' ),
+	'wl-publish' => array( 0, 'вл_публікація' ),
+	'wl-tags' => array( 0, 'вл_мітки' ),
+	'wl-info' => array( 0, 'вл_дані' ),
+	'wlk-subtitle' => array( 0, 'підзаголовок' ),
+	'wlk-summary' => array( 'опис' ),
+	'wlk-hidden' => array( 0, 'приховано' ),
+	'wlk-more' => array( 0, 'ще' ),
 );
 
 /** Vietnamese (Tiếng Việt) */
@@ -287,17 +408,17 @@ $magicWords['vi'] = array(
 	'wlk-more' => array( 0, 'thêm' ),
 );
 
-/** Simplified Chinese (‪中文(简体)‬) */
+/** Simplified Chinese (中文（简体）‎) */
 $magicWords['zh-hans'] = array(
 	'wl-settings' => array( 0, '设置' ),
 	'wl-publish' => array( 0, '发布' ),
 	'wl-author' => array( 0, '作者' ),
 	'wl-tags' => array( 0, '标签' ),
 	'wl-info' => array( 0, '信息' ),
-	'wlk-icon' => array( 0, '图标' ),
-	'wlk-logo' => array( 0, '徽标' ),
-	'wlk-subtitle' => array( 0, '小标题' ),
-	'wlk-summary' => array( '总结' ),
+	'wlk-icon' => array( 0, '记录图标' ),
+	'wlk-logo' => array( 0, '标志' ),
+	'wlk-subtitle' => array( 0, '子标题' ),
+	'wlk-summary' => array( '概要' ),
 	'wlk-hidden' => array( 0, '隐藏' ),
 	'wlk-more' => array( 0, '更多' ),
 );

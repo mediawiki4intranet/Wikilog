@@ -73,7 +73,18 @@ class WikilogHooks
 			$item->mTitle = $wi->getItemTitle();
 			$item->mParentName = $wi->getName();
 			$item->mParentTitle = $wi->getTitle();
-			$item->mParent = $item->mParentTitle->getArticleId();
+			$item->mParent = $item->mParentTitle->getArticleID();
+
+			# Override item name if {{DISPLAYTITLE:...}} was used.
+			$dtText = $editInfo->output->getDisplayTitle();
+			if ( $dtText ) {
+				# Tags are stripped on purpose.
+				$dtText = Sanitizer::stripAllTags( $dtText );
+				$dtParts = explode( '/', $dtText, 2 );
+				if ( count( $dtParts ) > 1 ) {
+					$item->mName = $dtParts[1];
+				}
+			}
 
 			$item->resetID( $article->getId() );
 
@@ -218,10 +229,11 @@ class WikilogHooks
 			$item = WikilogItem::newFromID( $pageid );
 			if ( $wi && $wi->isItem() && !$wi->isTalk() && $item ) {
 				$item->mName = $wi->getItemName();
+				# FIXME: need to reparse due to {{DISPLAYTITLE:...}}.
 				$item->mTitle = $wi->getItemTitle();
 				$item->mParentName = $wi->getName();
 				$item->mParentTitle = $wi->getTitle();
-				$item->mParent = $item->mParentTitle->getArticleId();
+				$item->mParent = $item->mParentTitle->getArticleID();
 				$item->saveData();
 			}
 		} elseif ( $newwl ) {
@@ -322,32 +334,19 @@ class WikilogHooks
 	 *
 	 * @todo Add support for PostgreSQL and SQLite databases.
 	 */
-	static function ExtensionSchemaUpdates( $updater = null ) {
+	static function ExtensionSchemaUpdates( $updater ) {
 		$dir = dirname( __FILE__ ) . '/';
 
-		if ( $updater === null ) {
-			global $wgDBtype, $wgExtNewIndexes, $wgExtNewTables;
-			if ( $wgDBtype == 'mysql' ) {
-				$wgExtNewTables[] = array( "wikilog_wikilogs", "{$dir}wikilog-tables.sql" );
-				$wgExtNewIndexes[] = array( "wikilog_comments", "wlc_timestamp", "{$dir}archives/patch-comments-indexes.sql" );
-			} else {
-				// TODO: PostgreSQL, SQLite, etc...
-				print "\n" .
-					"Warning: There are no table structures for the Wikilog\n" .
-					"extension other than for MySQL at this moment.\n\n";
-			}
+		if ( $updater->getDB()->getType() == 'mysql' ) {
+			$updater->addExtensionUpdate( array( 'addTable', "wikilog_wikilogs",
+				"{$dir}wikilog-tables.sql", true ) );
+			$updater->addExtensionUpdate( array( 'addIndex', "wikilog_comments",
+				"wlc_timestamp", "{$dir}archives/patch-comments-indexes.sql", true ) );
 		} else {
-			if ( $updater->getDB()->getType() == 'mysql' ) {
-				$updater->addExtensionUpdate( array( 'addTable', "wikilog_wikilogs",
-					"{$dir}wikilog-tables.sql", true ) );
-				$updater->addExtensionUpdate( array( 'addIndex', "wikilog_comments",
-					"wlc_timestamp", "{$dir}archives/patch-comments-indexes.sql", true ) );
-			} else {
-				// TODO: PostgreSQL, SQLite, etc...
-				print "\n" .
-					"Warning: There are no table structures for the Wikilog\n" .
-					"extension other than for MySQL at this moment.\n\n";
-			}
+			// TODO: PostgreSQL, SQLite, etc...
+			print "\n" .
+				"Warning: There are no table structures for the Wikilog\n" .
+				"extension other than for MySQL at this moment.\n\n";
 		}
 		return true;
 	}

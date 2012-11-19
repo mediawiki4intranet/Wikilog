@@ -159,7 +159,7 @@ class WikilogMainPage
 	/**
 	 * Returns wikilog description as formatted HTML.
 	 */
-	protected function formatWikilogDescription( Linker $skin ) {
+	protected function formatWikilogDescription( $skin ) {
 		$this->loadWikilogData();
 
 		$s = '';
@@ -188,7 +188,7 @@ class WikilogMainPage
 	/**
 	 * Returns wikilog information as formatted HTML.
 	 */
-	protected function formatWikilogInformation( Linker $skin ) {
+	protected function formatWikilogInformation( $skin ) {
 		$dbr = wfGetDB( DB_SLAVE );
 
 		$row = $dbr->selectRow(
@@ -196,7 +196,7 @@ class WikilogMainPage
 			'COUNT(*) as total, SUM(wlp_publish) as published',
 			array(
 				'wlp_page = page_id',
-				'wlp_parent' => $this->mTitle->getArticleId(),
+				'wlp_parent' => $this->mTitle->getArticleID(),
 				'page_is_redirect' => 0
 			),
 			__METHOD__

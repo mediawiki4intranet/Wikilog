@@ -158,7 +158,7 @@ class WikilogSummaryPager
 
 		# Article title heading, with direct link article page and optional
 		# edit link (if user can edit the article).
-		$titleText = $item->mName;
+		$titleText = Sanitizer::escapeHtmlAllowEntities( $item->mName );
 		if ( !$item->getIsPublished() )
 			$titleText .= wfMsgForContent( 'wikilog-draft-title-mark' );
 		$heading = $skin->link( $item->mTitle, $titleText, array(), array(),
@@ -472,13 +472,13 @@ class WikilogArchivesPager
 
 			case 'wlw_title':
 				$page = $this->mCurrentItem->mParentTitle;
-				$text = $this->mCurrentItem->mParentName;
+				$text = Sanitizer::escapeHtmlAllowEntities( $this->mCurrentItem->mParentName );
 				return $this->getSkin()->link( $page, $text, array(), array(),
 					array( 'known', 'noclasses' ) );
 
 			case 'wlp_title':
 				$page = $this->mCurrentItem->mTitle;
-				$text = $this->mCurrentItem->mName;
+				$text = Sanitizer::escapeHtmlAllowEntities( $this->mCurrentItem->mName );
 				$s = $this->getSkin()->link( $page, $text, array(), array(),
 					array( 'known', 'noclasses' ) );
 				if ( !$this->mCurrentRow->wlp_publish ) {

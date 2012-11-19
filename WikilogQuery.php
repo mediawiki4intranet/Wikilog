@@ -331,7 +331,7 @@ class WikilogItemQuery
 
 		# Filter by wikilog name.
 		if ( $this->mWikilogTitle !== null ) {
-			$q_conds['wlp_parent'] = $this->mWikilogTitle->getArticleId();
+			$q_conds['wlp_parent'] = $this->mWikilogTitle->getArticleID();
 		} elseif ( $this->mNamespace !== false ) {
 			$q_conds['p.page_namespace'] = $this->mNamespace;
 		}
@@ -566,7 +566,7 @@ class WikilogCommentQuery
 	 */
 	public function setItem( $item ) {
 		if ( $item instanceof Title ) {
-			$item = WikilogItem::newFromID( $item->getArticleId() );
+			$item = WikilogItem::newFromID( $item->getArticleID() );
 		}
 		$this->mItem = $item;
 	}
@@ -678,7 +678,7 @@ class WikilogCommentQuery
 			}
 		} elseif ( $this->mWikilog !== null ) {
 			$join_wlp = true;
-			$q_conds['wlp_parent'] = $this->mWikilog->getArticleId();
+			$q_conds['wlp_parent'] = $this->mWikilog->getArticleID();
 		} elseif ( $this->mNamespace !== false ) {
 			$q_conds['c.page_namespace'] = $this->mNamespace;
 		}

@@ -29,7 +29,7 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
-/*
+/**
  *              --- DO NOT MAKE CHANGES TO THESE VALUES ---
  *
  * In order to configure the extension, copy the variables you want to change

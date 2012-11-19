@@ -29,12 +29,6 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
-# NOTE (Mw1.16- COMPAT): GAID_FOR_UPDATE removed and replaced by
-# Title::GAID_FOR_UPDATE in Mw1.17. Remove this define and replace its
-# occurrence WikilogComment::getCommentArticleTitle() in Wl1.3.
-if ( !defined( 'GAID_FOR_UPDATE' ) )
-	define( 'GAID_FOR_UPDATE', Title::GAID_FOR_UPDATE );
-
 /**
  * Wikilog article comment database entry.
  */
@@ -244,14 +238,12 @@ class WikilogComment
 
 	/**
 	 * Returns comment article title.
-	 * @todo (In Wikilog 1.3.x) Replace GAID_FOR_UPDATE with
-	 *    Title::GAID_FOR_UPDATE.
 	 */
 	public function getCommentArticleTitle() {
 		if ( $this->mCommentTitle ) {
 			return $this->mCommentTitle;
 		} elseif ( $this->mCommentPage ) {
-			return Title::newFromID( $this->mCommentPage, GAID_FOR_UPDATE );
+			return Title::newFromID( $this->mCommentPage, Title::GAID_FOR_UPDATE );
 		} else {
 			$it = $this->mItem->mTitle;
 			return Title::makeTitle(

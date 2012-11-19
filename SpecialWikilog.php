@@ -168,7 +168,7 @@ class SpecialWikilog
 				$article = new Article( $title );
 				$content = $article->getContent();
 				$wgOut->setPageTitle( $title->getPrefixedText() );
-				$wgOut->addWikiTextWithTitle( $content, $title );
+				$wgOut->addWikiTextTitle( $content, $title );
 			}
 
 			# Display query options.
