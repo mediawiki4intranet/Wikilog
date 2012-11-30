@@ -344,19 +344,20 @@ class Wikilog
 	}
 
 	/**
-	 * LinkBegin hook handler function.
-	 * Links to wikilog comment pages are always "known" if the corresponding
-	 * article page exists.
+	 * LinkBegin hook handler function:
+	 * Links to threaded talk pages should be always "known" and
+	 * always edited normally, without adding the sections.
 	 */
 	static function LinkBegin( $skin, $target, &$text, &$attribs, &$query,
 			&$options, &$ret )
 	{
-		if ( $target->isTalkPage() && !in_array( 'known', $options ) ) {
-			$wi = self::getWikilogInfo( $target );
-			if ( $wi && $wi->isItem() && !$wi->getTrailing() && $wi->getItemTitle()->exists() ) {
-				if ( ( $i = array_search( 'broken', $options ) ) !== false ) {
-					array_splice( $options, $i, 1 );
-				}
+		// FIXME: Untie comments from other parts of Wikilog
+		global $wgWikilogNamespaces;
+		if ( $target->isTalkPage() &&
+			( $i = array_search( 'broken', $options ) ) !== false ) {
+			$ns = MWNamespace::getSubject( $target->getNamespace() );
+			if ( in_array( $ns, $wgWikilogNamespaces ) ) {
+				array_splice( $options, $i, 1 );
 				$options[] = 'known';
 			}
 		}
@@ -370,9 +371,11 @@ class Wikilog
 	static function SkinTemplateTabAction( &$skin, $title, $message, $selected,
 			$checkEdit, &$classes, &$query, &$text, &$result )
 	{
-		if ( $title->isTalkPage() && !$title->exists() ) {
-			$wi = self::getWikilogInfo( $title );
-			if ( $wi ) {
+		// FIXME: Untie comments from other parts of Wikilog
+		global $wgWikilogNamespaces;
+		if ( $checkEdit && $title->isTalkPage() && !$title->exists() ) {
+			$ns = MWNamespace::getSubject( $title->getNamespace() );
+			if ( in_array( $ns, $wgWikilogNamespaces ) ) {
 				$query = '';
 				if ( ( $i = array_search( 'new', $classes ) ) !== false ) {
 					array_splice( $classes, $i, 1 );
