@@ -368,8 +368,8 @@ class WikilogUtils {
 				$summary = new DOMDocument();
 				$h = false;
 				// Dive into imported <html><body>
-				$ch = $dom->documentElement->childNodes;
-				if ( $ch ) {
+				$ch = $dom->documentElement;
+				if ( $ch && ( $ch = $ch->childNodes ) ) {
 					foreach ( $ch->item( 0 )->childNodes as $node ) {
 						# Cut summary at first heading
 						if ( preg_match( '/^h\d$/is', $node->nodeName ) ) {
