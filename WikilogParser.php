@@ -447,10 +447,14 @@ class WikilogParser
 	 */
 	private static function trySetSummary( &$parser, $text ) {
 		if ( !$parser->mExtWikilog->mSummary ) {
-			$popt = clone $parser->getOptions();
+			$oldOpt = $parser->getOptions();
+			$popt = clone $oldOpt;
 			$popt->enableLimitReport( false );
+			// Fool some extensions like Cite to get a clean section output
+			$popt->setIsSectionPreview( true );
 			$output = $parser->parse( $text, $parser->getTitle(), $popt, true, false );
 			$parser->mExtWikilog->mSummary = $output->getText();
+			$parser->mOptions = $oldOpt;
 // 			wfDebug( "Wikilog summary set to:\n----\n" . $parser->mExtWikilog->mSummary . "\n----\n" );
 			return true;
 		} else {
