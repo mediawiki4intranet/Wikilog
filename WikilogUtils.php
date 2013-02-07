@@ -91,7 +91,8 @@ class WikilogUtils {
 	/**
 	 * Updates the number of article comments for page $pageID.
 	 */
-	public static function updateTalkInfo( $pageID ) {
+	public static function updateTalkInfo( $pageID, $isWikilogPost = false ) {
+		global $wgWikilogNamespaces;
 		$dbw = wfGetDB( DB_MASTER );
 
 		// Retrieve number of comments and max comment update timestamp
@@ -100,8 +101,15 @@ class WikilogUtils {
 		$row = $dbw->fetchRow( $result );
 		$dbw->freeResult( $result );
 
-		$pageUpdated = $dbw->selectField( array( 'page', 'revision' ), 'rev_timestamp',
-			array( 'page_latest=rev_id', 'page_id' => $pageID ), __METHOD__ );
+		if ( $isWikilogPost ) {
+			// Only update wti_talk_updated when wlp_pubdate changes, not on every post change
+			$pageUpdated = $dbw->selectField( 'wikilog_posts', 'wlp_pubdate',
+				array( 'wlp_page' => $pageID ), __METHOD__ );
+		} else {
+			$pageUpdated = $dbw->selectField( array( 'page', 'revision' ), 'rev_timestamp',
+				array( 'page_latest=rev_id', 'page_id' => $pageID ), __METHOD__ );
+		}
+
 		list( $count, $talkUpdated ) = $row;
 		if ( !$talkUpdated || $pageUpdated > $talkUpdated ) {
 			$talkUpdated = $pageUpdated;

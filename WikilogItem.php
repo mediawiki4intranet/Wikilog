@@ -127,7 +127,7 @@ class WikilogItem
 			),
 			__METHOD__
 		);
-		WikilogUtils::updateTalkInfo( $this->mID );
+		WikilogUtils::updateTalkInfo( $this->mID, true );
 		# Mark post created/edited by a user already read by him
 		foreach ( $this->mAuthors as $text => $id ) {
 			WikilogUtils::updateLastVisit( $this->mID, $this->mUpdated, $id );

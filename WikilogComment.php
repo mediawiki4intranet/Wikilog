@@ -222,8 +222,7 @@ class WikilogComment
 				array( 'wlc_id' => $this->mID ), __METHOD__ );
 		}
 
-		# Update number of comments
-		WikilogUtils::updateTalkInfo( $this->mPost );
+		$this->updateTalkInfo();
 
 		# Mark comment posted/edited by a user already read by him
 		if ( $this->mUserID ) {
@@ -344,6 +343,18 @@ class WikilogComment
 	}
 
 	/**
+	 * Updates talk info for this comment
+	 */
+	protected function updateTalkInfo() {
+		# Loose coupling with other Wikilog code
+		global $wgWikilogNamespaces;
+		$isWikilogPost = isset( $wgWikilogNamespaces ) && in_array( $this->mSubject->getNamespace(), $wgWikilogNamespaces );
+
+		# Update number of comments
+		WikilogUtils::updateTalkInfo( $this->mPost, $isWikilogPost );
+	}
+
+	/**
 	 * Deletes comment data from the database.
 	 */
 	public function deleteComment() {
@@ -351,7 +362,8 @@ class WikilogComment
 		$dbw->begin();
 
 		$dbw->delete( 'wikilog_comments', array( 'wlc_id' => $this->mID ), __METHOD__ );
-		WikilogUtils::updateTalkInfo( $this->mPost );
+
+		$this->updateTalkInfo();
 
 		$dbw->commit();
 
