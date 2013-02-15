@@ -19,6 +19,10 @@ $messages['en'] = array(
 	'right-wl-postcomment' => 'Post comments to wikilog articles',
 	'right-wl-moderation' => 'Moderation of wikilog article comments',
 
+	# User preferences
+	'wl-subscribetoall' => 'Subscribe to comments to all Wikilog posts in this Wiki',
+	'prefs-wikilog' => 'Wikilog',
+
 	# Calendar
 	'wikilogcalendar' => 'Wikilog calendar',
 	'wikilog-calendar-archive-link-title' => '$1 posts for $2',
@@ -144,6 +148,7 @@ Uncheck this box to keep the article as a draft.',
 	'wikilog-do-subscribe' => '<p>You are not yet subscribed to all comments to this post. <a href="$1">Subscribe</a>.</p><hr />',
 	'wikilog-do-unsubscribe' => '<p>You are <b>subscribed</b> to all comments to this post. <a href="$1">Unsubscribe</a>.</p><hr />',
 	'wikilog-do-unsubscribe-one' => '<p>You are subscribed to comments to <b>the whole blog</b>. <a href="$1">Unsubscribe from this single entry</a>.</p><hr />',
+	'wikilog-do-unsubscribe-global' => '<p>You are subscribed to comments to <b>all blogs</b> through user preference. <a href="$1">Unsubscribe from this single entry</a>.</p><hr />',
 	'wikilog-do-subscribe-all' => '<p>Now you need to subscribe to comments individually for each entry of this Wikilog. <a href="$1">Enable subscription to all entries by default</a>.</p><hr />',
 	'wikilog-do-unsubscribe-all' => '<p>Now you are subscribe to <b>all comments</b> to entries of this Wikilog by default. <a href="$1">Disable subscription by default</a>.</p><hr />',
 	'wikilog-subscribed-title-yes' => 'Subscribed to comments',
@@ -6542,6 +6547,8 @@ $messages['ru'] = array(
 	'right-wl-postcomment' => 'оставлять комментарии к статьям викилога',
 	'right-wl-moderation' => 'модерировать комментарии к статьям викилога',
 	'wikilog-specialwikilog-title' => 'Викилоги',
+	'wl-subscribetoall' => 'Подписаться на все комментарии ко всем записям Викилогов в данной Wiki',
+	'prefs-wikilog' => 'Викилог',
 
 	'wikilog-mark-all-read' => 'Отметить все записи как прочитанные',
 	'wikilog-sessionfailure' => 'Похоже, возникли проблемы с текущим сеансом работы;
@@ -6637,6 +6644,7 @@ $messages['ru'] = array(
 	'wikilog-do-subscribe' => '<p>Вы ещё не подписаны на все комментарии к этой записи. <a href="$1">Подписаться</a>.</p><hr />',
 	'wikilog-do-unsubscribe' => '<p>Вы <b>подписаны</b> на все комментарии к этой записи. <a href="$1">Отписаться</a>.</p><hr />',
 	'wikilog-do-unsubscribe-one' => '<p>Вы подписаны на комментарии <b>ко всем записям викилога</b>. <a href="$1">Отписаться от этой конкретной записи</a>.</p><hr />',
+	'wikilog-do-unsubscribe-global' => '<p>Вы подписаны на комментарии <b>ко всем записям всех викилогов</b> через пользовательскую настройку. <a href="$1">Отписаться от этой конкретной записи</a>.</p><hr />',
 	'wikilog-do-subscribe-all' => '<p>Сейчас вы подписываетесь отдельно на комментарии к каждой записи данного викилога. <a href="$1">Включить подписку на все комментарии по умолчанию</a>.</p><hr />',
 	'wikilog-do-unsubscribe-all' => '<p>Вы подписаны по e-mail на <b>все комментарии</b> к записям данного викилога. <a href="$1">Выключить подписку по умолчанию</a>.</p><hr />',
 	'wikilog-subscribed-title-yes' => 'Вы подписаны на комментарии',

@@ -141,6 +141,7 @@ $wgHooks['LinkBegin'][] = 'Wikilog::LinkBegin';
 $wgHooks['SkinTemplateTabAction'][] = 'Wikilog::SkinTemplateTabAction';
 $wgHooks['SkinTemplateTabs'][] = 'Wikilog::SkinTemplateTabs';
 $wgHooks['SkinTemplateNavigation'][] = 'Wikilog::SkinTemplateNavigation';
+$wgHooks['GetPreferences'][] = 'Wikilog::getPreferences';
 
 // Calendar
 $wgEnableSidebarCache = false;
@@ -290,6 +291,18 @@ class Wikilog
 		if ( $wgRequest->getVal( 'action' ) == 'render' ) {
 			WikilogParser::expandLocalUrls();
 		}
+	}
+
+	/**
+	 * Adds Wikilog user preference(s)
+	 */
+	static function getPreferences( $user, &$defaultPreferences ) {
+		$defaultPreferences['wl-subscribetoall'] = array(
+			'type' => 'toggle',
+			'label-message' => 'wl-subscribetoall',
+			'section' => 'misc/wikilog',
+		);
+		return true;
 	}
 
 	/**

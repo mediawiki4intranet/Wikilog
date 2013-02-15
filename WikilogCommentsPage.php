@@ -361,22 +361,18 @@ class WikilogCommentsPage
 	 * Generates and returns a subscribe/unsubscribe link.
 	 */
 	public function getSubscribeLink() {
-		global $wgScript, $wgUser;
+		global $wgScript, $wgUser, $wgWikilogNamespaces;
 		if ( !$wgUser->getId() || !$this->mSubject ) {
 			return '';
 		}
 		$all = false;
 		$subjId = $this->mSubject->getArticleId();
-		$sub = $this->isSubscribed( $subjId );
+		$one = $this->isSubscribed( $subjId );
 		if ( $this->includeSubpageComments() ) {
-			$msg = $sub ? 'wikilog-do-unsubscribe-all' : 'wikilog-do-subscribe-all';
+			$msg = $one ? 'wikilog-do-unsubscribe-all' : 'wikilog-do-subscribe-all';
 		} elseif ( !$this->mSingleComment ) {
 			$dbr = wfGetDB( DB_SLAVE );
-			// Is the user subscribed to all entries of the wikilog?
-			// (or to discussion of all subpages of a root page)
-			list( $parent ) = explode( '/', $this->mSubject->getText() );
-			$parent = Title::makeTitle( $this->mSubject->getNamespace(), $parent );
-			$all = $this->isSubscribed( $parent->getArticleId() );
+			// Is the user author? If yes, he can't unsubscribe.
 			$isa = $dbr->selectField( 'wikilog_authors', '1', array(
 				'wla_page' => $subjId,
 				'wla_author' => $wgUser->getId(),
@@ -384,12 +380,25 @@ class WikilogCommentsPage
 			if ( $isa ) {
 				return wfMsgNoTrans( 'wikilog-subscribed-as-author' );
 			}
-			if ( $sub === NULL && $all ) {
-				// User is subcribed to all entries and didn't care about this one explicitly
-				$sub = true;
+			// Is the user subscribed globally to comments to ALL Wikilog posts?
+			// This can be overridden by individual subscription settings (below)
+			$globalAll = $wgUser->getOption( 'wl-subscribetoall', 0 ) &&
+				in_array( $this->mSubject->getNamespace(), $wgWikilogNamespaces );
+			// Is the user subscribed/unsubscribed to/from all entries of the wikilog?
+			// (or to/from discussion of all subpages of a root page)
+			list( $parent ) = explode( '/', $this->mSubject->getText() );
+			$parent = Title::makeTitle( $this->mSubject->getNamespace(), $parent );
+			$all = $this->isSubscribed( $parent->getArticleId() );
+			if ( $globalAll && $all === NULL && $one === NULL ) {
+				// User is subscribed globally and didn't care about blog or post explicitly
+				$one = true;
+				$msg = 'wikilog-do-unsubscribe-global';
+			} elseif ( $one === NULL && $all ) {
+				// User is subcribed to the blog and didn't care about the post explicitly
+				$one = true;
 				$msg = 'wikilog-do-unsubscribe-one';
 			} else {
-				$msg = $sub ? 'wikilog-do-unsubscribe' : 'wikilog-do-subscribe';
+				$msg = $one ? 'wikilog-do-unsubscribe' : 'wikilog-do-subscribe';
 			}
 		} else {
 			return '';
@@ -400,14 +409,16 @@ class WikilogCommentsPage
 				'title' => $this->getTitle()->getPrefixedText(),
 				'action' => 'wikilog',
 				'wlActionSubscribe' => 1,
-				'wl-subscribe' => $sub ? 0 : 1,
+				'wl-subscribe' => $one ? 0 : 1,
 			) ) );
 	}
 
-	/* Returns:
-	   1 if current user is subcribed to comments to page with ID=$itemid
-	   0 if unsubscribed
-	   NULL if didn't care */
+	/**
+	 * Returns:
+	 * 1 if current user is subcribed to comments to page with ID=$itemid
+	 * 0 if unsubscribed
+	 * NULL if the user didn't care
+	 */
 	public function isSubscribed( $itemid ) {
 		global $wgUser;
 		$dbr = wfGetDB( DB_SLAVE );

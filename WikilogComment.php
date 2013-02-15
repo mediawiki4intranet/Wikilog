@@ -244,7 +244,7 @@ class WikilogComment
 	 * Notify about new comment by email
 	 */
 	public function sendCommentEmails() {
-		global $wgParser, $wgPasswordSender;
+		global $wgParser, $wgPasswordSender, $wgWikilogNamespaces;
 		/* Message arguments:
 		 * $1 = full page name of comment page
 		 * $2 = name of the user who posted the new comment
@@ -275,6 +275,7 @@ class WikilogComment
 		$parent = Title::makeTitle( $this->mSubject->getNamespace(), $this->mSubject->getBaseText() );
 		$wlid = $parent->getArticleId();
 		$s = $dbr->tableName( 'wikilog_subscriptions' );
+		$up = $dbr->tableName( 'user_properties' );
 		$result = $dbr->query(
 			// Notify users subscribed to this post
 			"SELECT ws_user, 1 FROM $s WHERE ws_page=$id AND ws_yes=1".
@@ -283,6 +284,16 @@ class WikilogComment
 			" SELECT s1.ws_user, 1 FROM $s s1 LEFT JOIN $s s2 ON s2.ws_user=s1.ws_user".
 			" AND s2.ws_page=$id AND s2.ws_yes=0 WHERE s1.ws_page=$wlid AND s1.ws_yes=1 AND s2.ws_user IS NULL".
 			" UNION ALL".
+			// Notify users subscribed to all blogs via user preference
+			// and not unsubscribed from this post and not unsubscribed from this blog,
+			// but only for comments to Wikilog posts (not to the ordinary pages)
+			( !empty( $wgWikilogNamespaces ) && in_array( $this->mSubject->getNamespace(), $wgWikilogNamespaces )
+				? " SELECT up_user, 1 FROM $up".
+				" LEFT JOIN $s ON ws_user=user_id AND ws_page IN ($id, $wlid) AND ws_yes=0".
+				" WHERE up_property='wl-subscribetoall' AND up_value='1' AND ws_user IS NULL".
+				" UNION ALL"
+				: ''
+			).
 			// Always notify post author(s), and they cannot unsubscribe (0 means that)
 			" SELECT wla_author, 0 FROM ".$dbr->tableName( 'wikilog_authors' )." WHERE wla_page=$id",
 			__METHOD__
