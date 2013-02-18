@@ -289,7 +289,7 @@ class WikilogComment
 			// but only for comments to Wikilog posts (not to the ordinary pages)
 			( !empty( $wgWikilogNamespaces ) && in_array( $this->mSubject->getNamespace(), $wgWikilogNamespaces )
 				? " SELECT up_user, 1 FROM $up".
-				" LEFT JOIN $s ON ws_user=user_id AND ws_page IN ($id, $wlid) AND ws_yes=0".
+				" LEFT JOIN $s ON ws_user=up_user AND ws_page IN ($id, $wlid) AND ws_yes=0".
 				" WHERE up_property='wl-subscribetoall' AND up_value='1' AND ws_user IS NULL".
 				" UNION ALL"
 				: ''
