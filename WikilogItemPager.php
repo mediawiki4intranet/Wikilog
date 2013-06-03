@@ -130,6 +130,20 @@ class WikilogSummaryPager
 		}
 	}
 
+	function reallyDoQuery( $offset, $limit, $descending ) {
+		// Wikilog is OVER-OBJECT-ORIENTED and requires such UGLY HACKS for sorting to work
+		$old = false;
+		if ( isset( WikilogArchivesPager::$indexFieldOverride[$this->mIndexField] ) ) {
+			$old = $this->mIndexField;
+			$this->mIndexField = WikilogArchivesPager::$indexFieldOverride[$this->mIndexField];
+		}
+		$r = parent::reallyDoQuery( $offset, $limit, $descending );
+		if ( $old ) {
+			$this->mIndexField = $old;
+		}
+		return $r;
+	}
+
 	function getStartBody() {
 		return "<div class=\"wl-roll visualClear\">\n";
 	}
@@ -424,6 +438,15 @@ class WikilogArchivesPager
 		'wti_talk_updated',
 	);
 
+	static $indexFieldOverride = array(
+		// FIXME These sort orders aren't that useful because you can't sort on two fields at once
+		// I.e. sort on wikilog title is mostly useless
+		'wlw_namespace'  => 'w.page_namespace',
+		'wlw_title'      => 'w.page_title',
+		'page_namespace' => 'p.page_namespace',
+		'page_title'     => 'p.page_title',
+	);
+
 	/**
 	 * Constructor.
 	 */
@@ -484,6 +507,20 @@ class WikilogArchivesPager
 		if ( $this->isFieldSortable( $field ) ) {
 			$this->mIndexField = $field;
 		}
+	}
+
+	function reallyDoQuery( $offset, $limit, $descending ) {
+		// Wikilog is OVER-OBJECT-ORIENTED and requires such UGLY HACKS for sorting to work
+		$old = false;
+		if ( isset( self::$indexFieldOverride[$this->mIndexField] ) ) {
+			$old = $this->mIndexField;
+			$this->mIndexField = self::$indexFieldOverride[$this->mIndexField];
+		}
+		$r = parent::reallyDoQuery( $offset, $limit, $descending );
+		if ( $old ) {
+			$this->mIndexField = $old;
+		}
+		return $r;
 	}
 
 	function getNavigationBar() {
