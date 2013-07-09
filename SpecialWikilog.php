@@ -212,6 +212,9 @@ class SpecialWikilog
 			# Add navigation bars.
 			$body .= $pager->getNavigationBar();
 
+            # Wikilog Subscribtions
+            $body .= '<p>' . SpecialWikilogSubscriptions::subcriptionsRuleLink() . '</p>';
+
 			# Wrap only when not including
 			$body = Xml::wrapClass( $body, 'wl-wrapper', 'div' );
 		}

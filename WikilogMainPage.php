@@ -60,7 +60,7 @@ class WikilogMainPage
 	 * View action handler.
 	 */
 	public function view() {
-		global $wgRequest, $wgOut, $wgMimeType;
+		global $wgRequest, $wgOut, $wgMimeType, $wgUser;
 
 		$query = new WikilogItemQuery( $this->mTitle );
 		$query->setPubStatus( $wgRequest->getVal( 'show' ) );
@@ -88,6 +88,11 @@ class WikilogMainPage
 
 		# Display wiki text page contents.
 		parent::view();
+
+        # Subscription
+        if ( !$wgUser->isAnon() ) {
+            $wgOut->addhtml('<p>' . SpecialWikilogSubscriptions::generateSubscriptionLink($this->mTitle) . '</p>');
+        }
 
 		# Create pager object, according to the type of listing.
 		if ( $view == 'archives' ) {

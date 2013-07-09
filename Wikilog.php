@@ -74,6 +74,7 @@ $wgAutoloadClasses += array(
 	'WikilogNavbar'             => $dir . 'WikilogUtils.php',
 	'SpecialWikilog'            => $dir . 'SpecialWikilog.php',
 	'SpecialWikilogComments'    => $dir . 'WikilogCommentsPage.php',
+	'SpecialWikilogSubscriptions'  => $dir . 'SpecialWikilogSubscriptions.php',
 
 	// Objects
 	'WikilogItem'               => $dir . 'WikilogItem.php',
@@ -125,6 +126,7 @@ $wgAutoloadClasses += array(
  */
 $wgSpecialPages['Wikilog'] = 'SpecialWikilog';
 $wgSpecialPages['WikilogComments'] = 'SpecialWikilogComments';
+$wgSpecialPages['WikilogSubscriptions'] = 'SpecialWikilogSubscriptions';
 $wgSpecialPageGroups['Wikilog'] = 'changes';
 $wgSpecialPageGroups['WikilogComments'] = 'changes';
 
@@ -152,6 +154,7 @@ $wgAutoloadClasses['WikilogCalendar'] = $dir . 'WikilogCalendar.php';
 $wgHooks['ArticleEditUpdates'][] = 'WikilogHooks::ArticleEditUpdates';
 $wgHooks['ArticleDeleteComplete'][] = 'WikilogHooks::ArticleDeleteComplete';
 $wgHooks['ArticleSave'][] = 'WikilogHooks::ArticleSave';
+$wgHooks['ArticleSaveComplete'][] = 'SpecialWikilogSubscriptions::sendEmails';
 $wgHooks['TitleMoveComplete'][] = 'WikilogHooks::TitleMoveComplete';
 $wgHooks['EditPage::attemptSave'][] = 'WikilogHooks::EditPageAttemptSave';
 $wgHooks['EditPage::showEditForm:fields'][] = 'WikilogHooks::EditPageEditFormFields';
