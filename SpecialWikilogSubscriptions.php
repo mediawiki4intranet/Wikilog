@@ -316,7 +316,7 @@ END_STRING;
             $articleID = $wi->mWikilogTitle->getArticleID();
             $res = $dbr->select( 'wikilog_blog_subscriptions', 'ws_user', "ws_page=$articleID AND ws_yes=1", __METHOD__ );
             
-            $emails = [];
+            $emails = array();
 
             foreach ( $res as $row ) {
                 $user = User::newFromId( $row->ws_user );
