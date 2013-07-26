@@ -344,10 +344,11 @@ class WikilogComment
 			}
 		}
 
-		$serverName = substr($wgServer, strpos($wgServer, '//') + 2);
+		$serverName = substr( $wgServer, strpos( $wgServer, '//' ) + 2 );
+		$aid = $this->mSubject->getSubjectPage()->getArticleID();
 		$headers = array(
-			'References'  => '<wikilog-' . $this->mSubject->getArticleID() . '@' . $serverName . '>',
-			'In-Reply-To'  => '<wikilog-' . $this->mSubject->getArticleID() . '@' . $serverName . '>',
+			'In-Reply-To' => '<wikilog-' . $aid . '@' . $serverName . '>',
+			'References' => '<wikilog-' . $aid . '@' . $serverName . '>',
 		);
 
 		// Send e-mails using $wgPasswordSender as from address

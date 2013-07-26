@@ -256,41 +256,38 @@ The comment will only appear after it is reviewed by a moderator.',
 	'wikilog-reject-lc' => 'reject',
 	'wikilog-page-lc' => 'page',		# noun
 	'wikilog-history-lc' => 'history',
-    
-    # Subscription
-    'wikilogsubscriptions' => 'Wikilog subscriptions',
-    'wikilog-subscription-unauthorized' => 'You are currently not logged in.',
-    'wikilog-subscription-access-denied' => 'You can not be subscribed to this Wikilog',
-    'wikilog-subscription-blogs' => 'Subscriptions to blogs:',
-    'wikilog-subscription-blogs-empty' => '<strong>You are not subscribed to any blog</strong>',
-    'wikilog-subscription-comments' => 'Subscriptions to comments:',
-    'wikilog-subscription-comments-empty' => '<strong>>You are not subscribed to any comment</strong>',
-    'wikilog-subscription-subscribe-prefix' => 'You have not subscribe to this blog yet. ',
-    'wikilog-subscription-unsubscribe-prefix' => 'You are already subscribed to this blog. ',
-    'wikilog-subscription-subscribe' => 'You can $1be subscribed$2 to the blog.',
-    'wikilog-subscription-unsubscribe' => 'You can $1cancel your subscription$2 to the blog.',
-    'wikilog-subscription-item-unsubscribe' => 'Cancel subscription',
-    'wikilog-subscription-header-action' => 'Action',
-    'wikilog-subscription-header-comments' => 'Title of the article or blog that you are subscribed to the comments to ones',
-    'wikilog-subscription-header-blogs' => 'Title of the blogs that you are subscribed',
-    'wikilog-subscription-blog-subscribed' => 'You are now subscribed to new articles in Wikilog <strong>$1</strong>.',
-    'wikilog-subscription-blog-unsubscribed' => 'You canceled the subscription to new articles in Wikilog <strong>$1</strong>.',
-    'wikilog-subscription-comment-unsubscribed-blog' => 'You canceled the subscription to the comments to articles of Wikilog <strong>$1</strong>.',
-    'wikilog-subscription-comment-unsubscribed-article' => 'You canceled the subscription to the comments to article <strong>$1</strong>.',
-    'wikilog-subscription-comment-subscription' => 'You can be subscribed to comments at discussion page: <a href="$1">$2</a>.',
-    'wikilog-subscription-return-link' => 'Subscription management page',
-    'wikilog-subscription-email-subject' => '[Wikilog] $2 - New article in blog $4',
-    'wikilog-subscription-email-body' =>
-'User [[{{ns:User}}:$2|$2]] published the article [$3 $1] in blog [[{{ns:Blog}}:$4]]
-<hr/>
-<div style="padding: 8px;">
-$5
-</div>
-<hr/>
-To the  article: [$3 $1].
 
-To the discussion: [$6 $7].',
-    
+	# Subscription
+	'wikilogsubscriptions' => 'Wikilog subscriptions',
+	'wikilog-subscription-unauthorized' => 'You are currently not logged in.',
+	'wikilog-subscription-access-denied' => 'You can not subscribe to this Wikilog',
+	'wikilog-subscription-blogs' => 'Subscriptions to blogs:',
+	'wikilog-subscription-blogs-empty' => '<strong>You are not subscribed to any blogs</strong>',
+	'wikilog-subscription-comments' => 'Subscriptions to comments:',
+	'wikilog-subscription-comments-empty' => '<strong>You are not subscribed to any comments</strong>',
+	'wikilog-subscription-subscribe' => 'You are not subscribed to blog $1 via email yet. <a href="$2">Subscribe</a>.',
+	'wikilog-subscription-unsubscribe' => 'You are already subscribed to blog $1 via email. <a href="$2">Cancel subscription</a>.',
+	'wikilog-subscription-item-unsubscribe' => 'Cancel subscription',
+	'wikilog-subscription-header-action' => 'Action',
+	'wikilog-subscription-header-comments' => 'Article/blog title you are subscribed to comments',
+	'wikilog-subscription-header-blogs' => 'Article/blog title you are subscribed to',
+	'wikilog-subscription-blog-subscribed' => 'You are now subscribed to new articles in Wikilog <strong>$1</strong>.',
+	'wikilog-subscription-blog-unsubscribed' => 'Your subscription to new articles in Wikilog <strong>$1</strong> is canceled.',
+	'wikilog-subscription-comment-unsubscribed-blog' => 'Your subscription to the comments in Wikilog <strong>$1</strong> is canceled.',
+	'wikilog-subscription-comment-unsubscribed-article' => 'Your subscription to the comments to article <strong>$1</strong> is canceled.',
+	'wikilog-subscription-comment-subscription' => 'You can subscribe to comments at discussion page: <a href="$1">$2</a>.',
+	'wikilog-subscription-return-link' => 'Subscription management page',
+	'wikilog-subscription-email-subject' => '[Wikilog] $2 - New article in blog $4',
+	'wikilog-subscription-email-body' =>
+'User [[{{ns:User}}:$2|$2]] published the article [$3 $1] in blog [[{{ns:Blog}}:$4]]:
+<hr/>
+$5
+<hr/>
+<ul>
+<li>See article: [$3 $1]</li>
+<li>See discussion: [$6 $7]</li>
+</ul>',
+
 	# Other
 	'wikilog-doc-import-comment' => "Imported Wikilog documentation",
 
@@ -6776,40 +6773,37 @@ $messages['ru'] = array(
 	'wikilog-page-lc' => 'страница',
 	'wikilog-history-lc' => 'история',
 	'wikilog-doc-import-comment' => 'Импортированная документация Викилога',
-    
-    # Subscription
-    'wikilogsubscriptions' => 'Wikilog: управление e-mail подписками на блоги и комментарии',
-    'wikilog-subscription-unauthorized' => 'Управление e-mail подписками на блоги и комментарии доступно только для авторизованных пользователей',
-    'wikilog-subscription-access-denied' => 'Вы не можете быть подписаны на этот блог',
-    'wikilog-subscription-blogs' => 'Подписки на блоги:',
-    'wikilog-subscription-blogs-empty' => '<strong>У вас нет e-mail подписок ни на один блог</strong>',
-    'wikilog-subscription-comments' => 'Подписки на комментарии:',
-    'wikilog-subscription-comments-empty' => '<strong>У вас нет e-mail подписок на комментарии</strong>',
-    'wikilog-subscription-subscribe-prefix' => 'У вас нет e-mail подписки на этот блог. ',
-    'wikilog-subscription-unsubscribe-prefix' => 'У вас уже есть e-mail подписка на этот блог. ',
-    'wikilog-subscription-subscribe' => 'Вы можете $1получить e-mail подписку$2 на блог <strong>$3</strong>.',
-    'wikilog-subscription-unsubscribe' => 'Вы можете $1отменить e-mail подписку$2 на блог <strong>$3</strong>.',
-    'wikilog-subscription-item-unsubscribe' => 'Отменить подписку',
-    'wikilog-subscription-header-action' => 'Действие',
-    'wikilog-subscription-header-comments' => 'Название статьи или блога, к комментариям которых Вы подписаны',
-    'wikilog-subscription-header-blogs' => 'Название блогов, к которым Вы подписаны',
-    'wikilog-subscription-blog-subscribed' => 'Теперь у Вас есть e-mail подписка на появление новых статей в викилоге <strong>$1</strong>.',
-    'wikilog-subscription-blog-unsubscribed' => 'Вы отменили e-mail подписку на появление новых статей в викилоге <strong>$1</strong>.',
-    'wikilog-subscription-comment-unsubscribed-blog' => 'Вы отменили e-mail подписку на комментарии к статьям викилога <strong>$1</strong>.',
-    'wikilog-subscription-comment-unsubscribed-article' => 'Вы отменили e-mail подписку на комментарии к статье <strong>$1</strong>.',
-    'wikilog-subscription-comment-subscription' => 'Подписаться на комментарии можно на странице обсуждения: <a href="$1">$2</a>.',
-    'wikilog-subscription-return-link' => 'Управление e-mail подписками на блоги и комментарии',
-    'wikilog-subscription-email-subject' => '[Wikilog] $2 - Новая статья в блоге $4',
-    'wikilog-subscription-email-body' =>
-'Пользователь [[{{ns:User}}:$2|$2]] опубликовал статью [$3 $1] в блоге [[{{ns:Blog}}:$4]]
+	
+	# Subscription
+	'wikilogsubscriptions' => 'Wikilog: управление e-mail подписками на блоги и комментарии',
+	'wikilog-subscription-unauthorized' => 'Управление e-mail подписками на блоги и комментарии доступно только для авторизованных пользователей',
+	'wikilog-subscription-access-denied' => 'Вы не можете быть подписаны на этот блог',
+	'wikilog-subscription-blogs' => 'Подписки на блоги:',
+	'wikilog-subscription-blogs-empty' => '<strong>У вас нет e-mail подписок ни на один блог</strong>',
+	'wikilog-subscription-comments' => 'Подписки на комментарии:',
+	'wikilog-subscription-comments-empty' => '<strong>У вас нет e-mail подписок на комментарии</strong>',
+	'wikilog-subscription-subscribe' => 'Вы ещё не подписаны на новые записи блога $1 по e-mail. <a href="$2">Подписаться</a>.',
+	'wikilog-subscription-unsubscribe' => 'Вы подписаны по e-mail на новые записи блога $1. <a href="$2">Отменить подписку</a>.',
+	'wikilog-subscription-item-unsubscribe' => 'Отменить подписку',
+	'wikilog-subscription-header-action' => 'Действие',
+	'wikilog-subscription-header-comments' => 'Название статьи или блога, на комментарии которых вы подписаны',
+	'wikilog-subscription-header-blogs' => 'Название блогов, на которые вы подписаны',
+	'wikilog-subscription-blog-subscribed' => 'Теперь у вас есть e-mail подписка на новые статьи в викилоге <strong>$1</strong>.',
+	'wikilog-subscription-blog-unsubscribed' => 'Вы отменили e-mail подписку на новые статьи в викилоге <strong>$1</strong>.',
+	'wikilog-subscription-comment-unsubscribed-blog' => 'Вы отменили e-mail подписку на комментарии к статьям викилога <strong>$1</strong> по умолчанию.',
+	'wikilog-subscription-comment-unsubscribed-article' => 'Вы отменили e-mail подписку на комментарии к статье <strong>$1</strong>.',
+	'wikilog-subscription-comment-subscription' => 'Подписаться на комментарии можно на странице обсуждения: <a href="$1">$2</a>.',
+	'wikilog-subscription-return-link' => 'Управление e-mail подписками на блоги и комментарии',
+	'wikilog-subscription-email-subject' => '[Wikilog] $2 - Новая статья в блоге $4',
+	'wikilog-subscription-email-body' =>
+'Пользователь [[{{ns:User}}:$2|$2]] опубликовал статью [$3 $1] в блоге [[{{ns:Blog}}:$4]]:
 <hr/>
-<div style="padding: 8px;">
 $5
-</div>
 <hr/>
-Перейти к статье: [$3 $1].
-
-Перейти к обсуждению: [$6 $7].',
+<ul>
+<li>Перейти к статье: [$3 $1]</li>
+<li>Перейти к обсуждению: [$6 $7]</li>
+</ul>',
 
 );
 
