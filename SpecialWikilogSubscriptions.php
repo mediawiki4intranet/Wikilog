@@ -283,7 +283,7 @@ END_STRING;
             $minoredit, $watchthis, $sectionanchor, &$flags, $revision, &$status, $baseRevId )
     {
         if ( isset( $article->mExtWikilog ) && $article->mExtWikilog['signpub'] ) {
-            global $wgUser, $wgParser, $wgPasswordSender;
+            global $wgUser, $wgParser, $wgPasswordSender, $wgServer;
             
             $dbr = wfGetDB( DB_SLAVE );
             
@@ -302,7 +302,7 @@ END_STRING;
             $popt = new ParserOptions( User::newFromId( $wgUser->getId( ) ) );
             $subject = $wgParser->parse( wfMsgNoTrans( 'wikilog-subscription-email-subject', $args ),
                 $title, $popt, false, false );
-            $subject = strip_tags( $subject->getText( ) );
+            $subject = 'Re: ' . strip_tags( $subject->getText( ) );
             $body = $wgParser->parse( wfMsgNoTrans( 'wikilog-subscription-email-body', $args),
                 $title, $popt, true, false );
             $body = $body->getText();
@@ -327,8 +327,13 @@ END_STRING;
             }
 
             if ( !empty( $emails ) ) {
+                $serverName = substr($wgServer, strpos($wgServer, '//') + 2);
+                $headers = array(
+                    'References'  => '<wikilog-' . $articleID . '@' . $serverName . '>',
+                    'In-Reply-To'  => '<wikilog-' . $articleID . '@' . $serverName . '>',
+                );
                 $from = new MailAddress( $wgPasswordSender, 'Wikilog' );
-                UserMailer::send( $emails, $from, $subject, $body );
+                UserMailer::send( $emails, $from, $subject, $body, null, null, $headers );
             }
         }
         return true;

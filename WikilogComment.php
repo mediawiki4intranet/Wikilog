@@ -309,7 +309,7 @@ class WikilogComment
 		$popt = new ParserOptions( User::newFromId( $this->mUserID ) );
 		$subject = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-subject', $args ),
 			$this->mSubject, $popt, false, false );
-		$subject = strip_tags( $subject->getText() );
+		$subject = 'Re: ' . strip_tags( $subject->getText() );
 		$body = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-body', $args),
 			$this->mSubject, $popt, true, false );
 		$body = $body->getText();
@@ -343,13 +343,20 @@ class WikilogComment
 				}
 			}
 		}
+
+		$serverName = substr($wgServer, strpos($wgServer, '//') + 2);
+		$headers = array(
+			'References'  => '<wikilog-' . $this->mSubject->getArticleID() . '@' . $serverName . '>',
+			'In-Reply-To'  => '<wikilog-' . $this->mSubject->getArticleID() . '@' . $serverName . '>',
+		);
+
 		// Send e-mails using $wgPasswordSender as from address
 		$from = new MailAddress( $wgPasswordSender, 'Wikilog' );
 		if ( $to_with ) {
-			UserMailer::send( $to_with, $from, $subject, $body . $unsubscribe );
+			UserMailer::send( $to_with, $from, $subject, $body . $unsubscribe, null, null, $headers );
 		}
 		if ( $to_without ) {
-			UserMailer::send( $to_without, $from, $subject, $body );
+			UserMailer::send( $to_without, $from, $subject, $body, null, null, $headers );
 		}
 	}
 
