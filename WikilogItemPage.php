@@ -109,7 +109,7 @@ class WikilogItemPage
 				$params
 			);
 			if ( !empty( $footerTxt ) ) {
-				$wgOut->addHtml( WikilogUtils::wrapDiv( 'wl-entry-footer', $footerTxt ) );
+                $wgOut->addHtml( WikilogUtils::wrapDiv( 'wl-entry-footer', $footerTxt ) );
 			}
 
 			# Add feed links.

@@ -80,7 +80,6 @@ You can copy-paste following [http://httpd.apache.org/docs/2.0/mod/mod_rewrite.h
 	'wikilog-wikilog' => 'Wikilog',
 	'wikilog-title' => 'Title',
 	'wikilog-actions' => 'Actions',
-	'wikilog-comments' => 'Comments',
 	'wikilog-replies' => 'Replies',
 	'wikilog-view-archives' => 'Archives',
 	'wikilog-view-summary' => 'Summary',
@@ -126,79 +125,27 @@ Uncheck this box to keep the article as a draft.',
 	# Comments
 	'wikilog-comment-header' => '',
 	'wikilog-comment-footer' => '— $2 • $5 $6',
-	'wikilog-comment-permalink' => '{{#if:$3|$1 at $2 ($3)|<b>$1 at $2 ($3) [unread]</b>}}',
-	'wikilog-comment-note-item' => 'posted to $1',
-	'wikilog-comment-note-edited' => 'last edited on $1 at $2',
-	'wikilog-comment-anonsig' => '$3 (anonymous)',
-	'wikilog-comment-pending' => 'This comment is awaiting approval.',
-	'wikilog-comment-deleted' => 'This comment was deleted.',
-	'wikilog-comment-omitted-x' => 'Comment omitted (#$1).',
-	'wikilog-comment-autosumm' => 'New comment by $1: $2',
-	'wikilog-reply-to-comment' => 'Post a reply to this comment',
-	'wikilog-login-to-comment' => 'Please [[Special:UserLogin|login]] to comment.',
-	'wikilog-comment-page' => "Go to this comment's page",
-	'wikilog-comment-edit' => 'Edit this comment',
-	'wikilog-comment-delete' => 'Delete this comment',
-	'wikilog-comment-history' => 'View comment history',
-	'wikilog-comment-approve' => 'Approve this comment (immediate action)',
-	'wikilog-comment-reject' => 'Reject this comment (immediate action)',
-	'wikilog-newtalk-text' => '<!-- blank page created by Wikilog -->',
-	'wikilog-newtalk-summary' => 'created automatically by Wikilog',
 
 	'wikilog-subscribe' => 'Subscribe to comments to this entry',
-	'wikilog-do-subscribe' => '<p>You are not yet subscribed to all comments to this post. <a href="$1">Subscribe</a>.</p><hr />',
-	'wikilog-do-unsubscribe' => '<p>You are <b>subscribed</b> to all comments to this post. <a href="$1">Unsubscribe</a>.</p><hr />',
 	'wikilog-do-unsubscribe-one' => '<p>You are subscribed to comments to <b>the whole blog</b>. <a href="$1">Unsubscribe from this single entry</a>.</p><hr />',
 	'wikilog-do-unsubscribe-global' => '<p>You are subscribed to comments to <b>all blogs</b> through user preference. <a href="$1">Unsubscribe from this single entry</a>.</p><hr />',
 	'wikilog-do-subscribe-all' => '<p>Now you need to subscribe to comments individually for each entry of this Wikilog. <a href="$1">Enable subscription to all entries by default</a>.</p><hr />',
 	'wikilog-do-unsubscribe-all' => '<p>Now you are subscribe to <b>all comments</b> to entries of this Wikilog by default. <a href="$1">Disable subscription by default</a>.</p><hr />',
-	'wikilog-subscribed-title-yes' => 'Subscribed to comments',
-	'wikilog-subscribed-title-no' => 'Unsubscribed from comments',
-	'wikilog-subscribed-text-yes' => 'You are now subcribed to all comments to Wikilog entry [[$1]] by e-mail.',
-	'wikilog-subscribed-text-no' => 'You are now unsubcribed from comments to Wikilog entry [[$1]] except the answers to your ones.',
 	'wikilog-subscribed-all-yes' => 'Subscription to all comments in Wikilog [[$1]] is now \'\'\'active\'\'\'.
 
 From now, you will be notified about all comments by default. You won\'t receive the notification only if you\'ll unsubscribe from an individual entry explicitly.',
 	'wikilog-subscribed-all-no' => 'Subscription to all comments in Wikilog [[$1]] is \'\'\'disabled\'\'\'.
 
 From now, you will be notified only if subscribed explicitly or if you\'re the author of post or the comment being replied.',
-	'wikilog-subscribed-as-author' => '<p>You will receive all comments to this entry by e-mail, because you are the author.</p><hr />',
 
-	/* These messages are parsed inside the context of item page, so {{SUBPAGENAME}} refers to the item,
-	   and <a href=""> is a crunch to output links instead of just bold text. */
-	'wikilog-comment-email-subject' => '[Wikilog] $2 - A new comment to {{SUBPAGENAME}}',
-	'wikilog-comment-email-body' =>
-'A new reply {{#if:$6|was added by [[{{ns:User}}:$2|$2]] to the following [[{{ns:User}}:$6|$6]]\'s
-comment to the post <html><a href="$3"></html>{{SUBPAGENAME}}<html></a></html>:
-
-<div style="border-style: solid; border-color: black; border-width: 0 0 0 3px; padding-left: 8px;">
-{{:$5}}
-</div>
-
-The reply was:|to <html><a href="$3"></html>{{SUBPAGENAME}}<html></a></html> was added by [[{{ns:User}}:$2|$2]]:}}
-
-<div style="border-style: solid; border-color: black; border-width: 0 0 0 3px; padding-left: 8px;">
-{{:$1}}
-</div>
-
-Available actions:
-
-* [[{{TALKPAGENAME}}#$4|Read the whole discussion]] of the post {{SUBPAGENAME}}.
-* <html><a href="$3"></html>Read the post {{SUBPAGENAME}}<html></a></html>.
-* [[$1|Reply to this comment]] and/or read discussion thread.',
-	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Unsubscribe</a> from comments to $1.</p>',
 
 	# Atom and RSS feeds
 	'wikilog-feed-title' => '{{SITENAME}} - $1 [$2]', # $1 = title, $2 = content language
 	'wikilog-feed-ns-title' => '$1 wikilog articles', # $1 = namespace name
 	'wikilog-feed-description' => 'Read the most recent posts in this feed.',
-	'wikilog-comment-feed-title1' => 'Comment by $2 (#$1)',
-	'wikilog-comment-feed-title2' => 'Comment by $2 to $3 (#$1)',
-	'wikilog-comment-feed-description' => 'Read the most recent comments in this feed.',
 
 	# Item and comments page titles
 	'wikilog-title-item-full' => '$1 - $2', # $1 = article title, $2 wikilog title
-	'wikilog-title-comments' => 'Comments - $1', # $1 = article title
 	'wikilog-title-comments-all' => 'All Wikilog Comments',
 	'wikilogcomments' => 'All Wikilog Comments',
 
@@ -216,9 +163,6 @@ Available actions:
 They should only be used in articles in the Wikilog namespace.',
 	'wikilog-too-many-authors' => 'Warning: Too many authors listed in this wikilog post.',
 	'wikilog-too-many-tags' => 'Warning: Too many tags listed in this wikilog post.',
-	'wikilog-comment-is-empty' => 'Posted comment is blank.',
-	'wikilog-comment-too-long' => 'Posted comment is too long.',
-	'wikilog-comment-invalid-name' => 'Provided name is invalid.',
 	'wikilog-no-such-article' => 'The requested wikilog article does not exist.',
 
 	'wikilog-reading-draft' => 'This wikilog article is a draft, it was not published yet.',
@@ -230,7 +174,6 @@ You should either provide a pseudonym above to identify your comment or $1 for i
 The comment will only appear after it is reviewed by a moderator.',
 
 	# Forms
-	'wikilog-post-comment' => 'Post a new comment',
 	'wikilog-post-reply' => 'Post a new reply',
 	'wikilog-form-legend' => 'Search for wikilog posts',
 	'wikilog-form-wikilog' => 'Wikilog:',
@@ -244,7 +187,6 @@ The comment will only appear after it is reviewed by a moderator.',
 	'wikilog-form-status' => 'Status:',
 	'wikilog-form-view' => 'View:',
 	'wikilog-form-preview' => 'Preview:',
-	'wikilog-form-comment' => 'Comment:',
 	'wikilog-show-all' => 'All posts',
 	'wikilog-show-published' => 'Published',
 	'wikilog-show-drafts' => 'Drafts',
@@ -272,13 +214,10 @@ The comment will only appear after it is reviewed by a moderator.',
 	'wikilog-subscription-unsubscribe-email' => 'You are already subscribed to blog $1 via email. To cancel subscribe click "unwatch" at main page of blog.',
 	'wikilog-subscription-item-unsubscribe' => 'Cancel subscription',
 	'wikilog-subscription-header-action' => 'Action',
-	'wikilog-subscription-header-comments' => 'Article/blog title you are subscribed to comments',
 	'wikilog-subscription-header-blogs' => 'Article/blog title you are subscribed to',
 	'wikilog-subscription-blog-subscribed' => 'Wikilog <strong>$1</strong> is now added to your watchlist. You will receive its new posts by email.',
 	'wikilog-subscription-blog-unsubscribed' => 'Your subscription to new articles in Wikilog <strong>$1</strong> is canceled. The blog is removed from your watchlist.',
 	'wikilog-subscription-comment-unsubscribed-blog' => 'Your subscription to the comments in Wikilog <strong>$1</strong> is canceled.',
-	'wikilog-subscription-comment-unsubscribed-article' => 'Your subscription to the comments to article <strong>$1</strong> is canceled.',
-	'wikilog-subscription-comment-subscription' => 'You can subscribe to comments at discussion page: <a href="$1">$2</a>.',
 	'wikilog-subscription-return-link' => 'Subscription management page',
 	'wikilog-subscription-email-subject' => '[Wikilog] $2 - New article in blog $4',
 	'wikilog-subscription-email-body' =>
@@ -6628,7 +6567,6 @@ $messages['ru'] = array(
 	'wikilog-wikilog' => 'Викилог',
 	'wikilog-title' => 'Название',
 	'wikilog-actions' => 'Действия',
-	'wikilog-comments' => 'Комментарии',
 	'wikilog-talk-updated' => 'Обновлено обсуждение',
 	'wikilog-replies' => 'Ответы',
 	'wikilog-view-archives' => 'Архивы',
@@ -6655,75 +6593,21 @@ $messages['ru'] = array(
 	'wikilog-edit-signpub' => 'Подписать и опубликовать эту статью',
 	'wikilog-edit-signpub-tooltip' => 'Вызывает подписывание и опубликование статьи в викилоге при сохранении.
 Снимите этот флажок, чтобы оставить статью в качестве черновика.',
-	'wikilog-comment-permalink' => '{{#if:$3|$1 в $2|<b>$1 в $2 (не прочитан)</b>}}',
-	'wikilog-comment-note-item' => 'размещён в $1',
-	'wikilog-comment-note-edited' => 'последняя правка $1 в $2',
-	'wikilog-comment-anonsig' => '$3 (анонимно)',
-	'wikilog-comment-pending' => 'Этот комментарий ожидает утверждения.',
-	'wikilog-comment-deleted' => 'Этот комментарий был удалён.',
-	'wikilog-comment-omitted-x' => 'Комментатор не указан (#$1).',
-	'wikilog-comment-autosumm' => 'Новый комментарий от $1: $2',
-	'wikilog-reply-to-comment' => 'Ответить на этот комментарий',
-	'wikilog-login-to-comment' => '[[Special:UserLogin|Войдите]], чтобы комментировать.',
-	'wikilog-comment-page' => 'Перейти на страницу этого комментария',
-	'wikilog-comment-edit' => 'Изменить этот комментарий',
-	'wikilog-comment-delete' => 'Удалить этот комментарий',
-	'wikilog-comment-history' => 'Посмотреть историю комментария',
-	'wikilog-comment-approve' => 'Утвердить этот комментарий (незамедлительное действие)',
-	'wikilog-comment-reject' => 'Отклонить этот комментарий (незамедлительное действие)',
-	'wikilog-newtalk-text' => '<!-- пустая страница создана викилогом -->',
-	'wikilog-newtalk-summary' => 'создана автоматически викилогом',
 	'wikilog-feed-ns-title' => '$1 статей викилога',
 
-	'wikilog-subscribe' => 'Подписаться на комментарии к этой записи',
-	'wikilog-do-subscribe' => '<p>Вы ещё не подписаны на все комментарии к этой записи. <a href="$1">Подписаться</a>.</p><hr />',
-	'wikilog-do-unsubscribe' => '<p>Вы <b>подписаны</b> на все комментарии к этой записи. <a href="$1">Отписаться</a>.</p><hr />',
 	'wikilog-do-unsubscribe-one' => '<p>Вы подписаны на комментарии <b>ко всем записям викилога</b>. <a href="$1">Отписаться от этой конкретной записи</a>.</p><hr />',
 	'wikilog-do-unsubscribe-global' => '<p>Вы подписаны на комментарии <b>ко всем записям всех викилогов</b> через пользовательскую настройку. <a href="$1">Отписаться от этой конкретной записи</a>.</p><hr />',
 	'wikilog-do-subscribe-all' => '<p>Сейчас вы подписываетесь отдельно на комментарии к каждой записи данного викилога. <a href="$1">Включить подписку на все комментарии по умолчанию</a>.</p><hr />',
 	'wikilog-do-unsubscribe-all' => '<p>Вы подписаны по e-mail на <b>все комментарии</b> к записям данного викилога. <a href="$1">Выключить подписку по умолчанию</a>.</p><hr />',
-	'wikilog-subscribed-title-yes' => 'Вы подписаны на комментарии',
-	'wikilog-subscribed-title-no' => 'Вы отписаны от комментариев',
-	'wikilog-subscribed-text-yes' => 'Теперь вы подписаны по e-mail на все комментарии к записи [[$1]].',
-	'wikilog-subscribed-text-no' => 'Теперь вы отписаны от комментариев к записи [[$1]], кроме ответов на лично ваши.',
 	'wikilog-subscribed-all-yes' => 'Теперь вы подписаны по e-mail на \'\'\'все комментарии\'\'\' к записям викилога [[$1]].
 
 С текущего момента вы будете получать уведомления обо всех комментариях ко всем записям этого блога, за исключением тех, от которых явно отписались.',
 	'wikilog-subscribed-all-no' => 'Теперь вы отписаны от комментариев к записям викилога [[$1]] по умолчанию.
 
 С текущего момента вы будете получать уведомления, только если явно подписывались на запись, или вы автор этой записи, или вы автор комментария, на который оставлен ответ.',
-	'wikilog-subscribed-as-author' => '<p>Вы будете получать все комментарии к этой записи по e-mail, потому что вы её автор.</p><hr />',
 
 	'wikilog-feed-description' => 'Читать последние сообщения на этом канале.',
-	'wikilog-comment-feed-title1' => 'Комментарии от $2 (#$1)',
-	'wikilog-comment-feed-title2' => 'Комментарий от $2 к $3 (#$1)',
-	'wikilog-comment-feed-description' => 'Читать последние комментарии на этом канале.',
 
-	/* These messages are parsed inside the context of item page, so {{SUBPAGENAME}} refers to the item,
-	   and <a href=""> is a crunch to output links instead of just bold text. */
-	'wikilog-comment-email-subject' => '[Wikilog] $2 - Новый комментарий к {{SUBPAGENAME}}',
-	'wikilog-comment-email-body' =>
-'Пользователь [[{{ns:User}}:$2|$2]] ответил на {{#if:$6|комментарий, оставленный
-[[{{ns:User}}:$6|$6]] к записи <html><a href="$3"></html>{{SUBPAGENAME}}<html></a></html>:
-
-<div style="border-style: solid; border-color: black; border-width: 0 0 0 3px; padding-left: 8px;">
-{{:$5}}
-</div>
-
-Ответ был таким:|запись <html><a href="$3"></html>{{SUBPAGENAME}}<html></a></html>:}}
-
-<div style="border-style: solid; border-color: black; border-width: 0 0 0 3px; padding-left: 8px;">
-{{:$1}}
-</div>
-
-Доступные действия:
-
-* [[{{TALKPAGENAME}}#$4|Просмотреть полное обсуждение]] записи {{SUBPAGENAME}}.
-* <html><a href="$3"></html>Прочитать запись {{SUBPAGENAME}}<html></a></html>.
-* [[$1|Ответить на этот комментарий]] и/или просмотреть ветвь обсуждения.',
-	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Отписаться</a> от комментариев к записи $1.</p>',
-
-	'wikilog-title-comments' => 'Комментарии — $1',
 	'wikilog-title-comments-all' => 'Все комментарии викилогов',
 	'wikilog-title-item-full' => '$1 — $2',
 	'wikilog-error-msg' => 'Викилог: $1',
@@ -6739,9 +6623,6 @@ $messages['ru'] = array(
 Метки следует использовать только в статьях пространства имён викилога.',
 	'wikilog-too-many-authors' => 'Предупреждение. В этой заметке викилога перечислено слишком много авторов.',
 	'wikilog-too-many-tags' => 'Предупреждение. В этой заметке викилога перечислено слишком много меток.',
-	'wikilog-comment-is-empty' => 'Отправленный комментарий пуст.',
-	'wikilog-comment-too-long' => 'Отправленный комментарий слишком длинный.',
-	'wikilog-comment-invalid-name' => 'Указанная имя является некорректным.',
 	'wikilog-no-such-article' => 'Запрашиваемой статьи викилога не существует.',
 	'wikilog-reading-draft' => 'Эта статья викилога является черновиком и ещё не была опубликована.',
 	'wikilog-posting-anonymously' => 'В настоящее время вы не представились системе;
@@ -6749,7 +6630,6 @@ $messages['ru'] = array(
 Вам следует либо указать псевдоним, либо $1, чтобы быть указанным как автор комментария.',
 	'wikilog-anonymous-moderated' => 'После отправки вашего комментария, он не будет сразу виден на этой странице.
 Комментарий появится только после его рассмотрения модератором.',
-	'wikilog-post-comment' => 'Написать новый комментарий',
 	'wikilog-post-reply' => 'Написать новый ответ',
 	'wikilog-form-legend' => 'Поиск по заметкам викилога',
 	'wikilog-form-wikilog' => 'Викилог:',
@@ -6763,7 +6643,6 @@ $messages['ru'] = array(
 	'wikilog-form-view' => 'Показать:',
 	'wikilog-form-status' => 'Состояние:',
 	'wikilog-form-preview' => 'Предпросмотр:',
-	'wikilog-form-comment' => 'Комментарий:',
 	'wikilog-show-all' => 'Все заметки',
 	'wikilog-show-published' => 'Опубликован',
 	'wikilog-show-drafts' => 'Черновики',
@@ -6792,13 +6671,10 @@ $messages['ru'] = array(
 	'wikilog-subscription-unsubscribe-email' => '<hr />Вы подписаны по e-mail на новые записи блога $1. <a href="$2">Отписаться</a>.',
 	'wikilog-subscription-item-unsubscribe' => 'Отменить подписку',
 	'wikilog-subscription-header-action' => 'Действие',
-	'wikilog-subscription-header-comments' => 'Название статьи или блога, на комментарии которых вы подписаны',
 	'wikilog-subscription-header-blogs' => 'Название блогов, на которые вы подписаны',
 	'wikilog-subscription-blog-subscribed' => 'Викилог <strong>$1</strong> добавлен в ваш список наблюдения. Теперь вы будете получать новые записи этого блога по e-mail.',
 	'wikilog-subscription-blog-unsubscribed' => 'Вы отменили e-mail подписку на новые статьи в викилоге <strong>$1</strong>. Викилог удалён из вашего списка наблюдения.',
 	'wikilog-subscription-comment-unsubscribed-blog' => 'Вы отменили e-mail подписку на комментарии к статьям викилога <strong>$1</strong> по умолчанию.',
-	'wikilog-subscription-comment-unsubscribed-article' => 'Вы отменили e-mail подписку на комментарии к статье <strong>$1</strong>.',
-	'wikilog-subscription-comment-subscription' => 'Подписаться на комментарии можно на странице обсуждения: <a href="$1">$2</a>.',
 	'wikilog-subscription-return-link' => 'Управление e-mail подписками на блоги и комментарии',
 	'wikilog-subscription-email-subject' => '[Wikilog] $2 - Новая статья в блоге $4',
 	'wikilog-subscription-email-body' =>

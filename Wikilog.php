@@ -91,26 +91,18 @@ $wgAutoloadClasses += array(
 	'WikilogTemplatePager'      => $dir . 'WikilogItemPager.php',
 	'WikilogArchivesPager'      => $dir . 'WikilogItemPager.php',
 
-	// WikilogCommentPager.php
-	'WikilogCommentPager'       => $dir . 'WikilogCommentPager.php',
-	'WikilogCommentListPager'   => $dir . 'WikilogCommentPager.php',
-	'WikilogCommentThreadPager' => $dir . 'WikilogCommentPager.php',
-
 	// WikilogFeed.php
 	'WikilogFeed'               => $dir . 'WikilogFeed.php',
 	'WikilogItemFeed'           => $dir . 'WikilogFeed.php',
-	'WikilogCommentFeed'        => $dir . 'WikilogFeed.php',
 
 	// WikilogQuery.php
 	'WikilogQuery'              => $dir . 'WikilogQuery.php',
 	'WikilogItemQuery'          => $dir . 'WikilogQuery.php',
-	'WikilogCommentQuery'       => $dir . 'WikilogQuery.php',
 
 	// Namespace pages
 	'WikilogMainPage'           => $dir . 'WikilogMainPage.php',
 	'WikilogItemPage'           => $dir . 'WikilogItemPage.php',
 	'WikilogWikiItemPage'       => $dir . 'WikilogItemPage.php',
-	'WikilogCommentsPage'       => $dir . 'WikilogCommentsPage.php',
 
 	// Captcha adapter
 	'WlCaptcha'                 => $dir . 'WlCaptchaAdapter.php',
@@ -137,10 +129,7 @@ $wgExtensionFunctions[] = array( 'Wikilog', 'ExtensionInit' );
 
 // Main Wikilog hooks
 $wgHooks['ArticleFromTitle'][] = 'Wikilog::ArticleFromTitle';
-$wgHooks['ArticleViewHeader'][] = 'Wikilog::ArticleViewHeader';
 $wgHooks['BeforePageDisplay'][] = 'Wikilog::BeforePageDisplay';
-$wgHooks['LinkBegin'][] = 'Wikilog::LinkBegin';
-$wgHooks['SkinTemplateTabAction'][] = 'Wikilog::SkinTemplateTabAction';
 $wgHooks['SkinTemplateTabs'][] = 'Wikilog::SkinTemplateTabs';
 $wgHooks['SkinTemplateNavigation'][] = 'Wikilog::SkinTemplateNavigation';
 $wgHooks['GetPreferences'][] = 'Wikilog::getPreferences';
@@ -175,13 +164,6 @@ $wgHooks['InternalParseBeforeLinks'][] = 'WikilogParser::InternalParseBeforeLink
 $wgHooks['GetLocalURL'][] = 'WikilogParser::GetLocalURL';
 $wgHooks['GetFullURL'][] = 'WikilogParser::GetFullURL';
 
-/**
- * Added rights.
- */
-$wgAvailableRights[] = 'wl-postcomment';
-$wgAvailableRights[] = 'wl-moderation';
-$wgGroupPermissions['user']['wl-postcomment'] = true;
-$wgGroupPermissions['sysop']['wl-moderation'] = true;
 
 /**
  * Reserved usernames.
@@ -323,13 +305,7 @@ class Wikilog
 		global $wgWikilogEnableComments;
 
 		if ( ( $wi = self::getWikilogInfo( $title ) ) ) {
-			if ( $title->isTalkPage() ) {
-				if ( $wgWikilogEnableComments ) {
-					$article = new WikilogCommentsPage( $title );
-				} else {
-					return true;
-				}
-			} elseif ( $wi->isItem() ) {
+			if ( $wi->isItem() ) {
 				$item = WikilogItem::newFromInfo( $wi );
 				$article = new WikilogItemPage( $title, $item );
 			} else {
@@ -341,68 +317,12 @@ class Wikilog
 	}
 
 	/**
-	 * ArticleViewHeader hook handler function.
-	 * If viewing a WikilogCommentsPage, and the page doesn't exist in the
-	 * database, don't show the "there is no text in this page" message
-	 * (msg:noarticletext), since it gives wrong instructions to visitors.
-	 * The comment form is self-explaining enough.
-	 */
-	static function ArticleViewHeader( &$article, &$outputDone, &$pcache ) {
-		if ( $article instanceof WikilogCommentsPage && $article->getID() == 0 ) {
-			$outputDone = true;
-		}
-		return true;
-	}
-
-	/**
 	 * BeforePageDisplay hook handler function.
 	 * Adds wikilog CSS to pages displayed.
 	 */
 	static function BeforePageDisplay( &$output, &$skin ) {
 		global $wgWikilogStylePath, $wgWikilogStyleVersion;
 		$output->addExtensionStyle( "{$wgWikilogStylePath}/wikilog.css?{$wgWikilogStyleVersion}" );
-		return true;
-	}
-
-	/**
-	 * LinkBegin hook handler function:
-	 * Links to threaded talk pages should be always "known" and
-	 * always edited normally, without adding the sections.
-	 */
-	static function LinkBegin( $skin, $target, &$text, &$attribs, &$query,
-			&$options, &$ret )
-	{
-		// FIXME: Untie comments from other parts of Wikilog
-		global $wgWikilogNamespaces;
-		if ( $target->isTalkPage() &&
-			( $i = array_search( 'broken', $options ) ) !== false ) {
-			$ns = MWNamespace::getSubject( $target->getNamespace() );
-			if ( in_array( $ns, $wgWikilogNamespaces ) ) {
-				array_splice( $options, $i, 1 );
-				$options[] = 'known';
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * SkinTemplateTabAction hook handler function.
-	 * Same as Wikilog::LinkBegin, but for the tab actions.
-	 */
-	static function SkinTemplateTabAction( &$skin, $title, $message, $selected,
-			$checkEdit, &$classes, &$query, &$text, &$result )
-	{
-		// FIXME: Untie comments from other parts of Wikilog
-		global $wgWikilogNamespaces;
-		if ( $checkEdit && $title->isTalkPage() && !$title->exists() ) {
-			$ns = MWNamespace::getSubject( $title->getNamespace() );
-			if ( in_array( $ns, $wgWikilogNamespaces ) ) {
-				$query = '';
-				if ( ( $i = array_search( 'new', $classes ) ) !== false ) {
-					array_splice( $classes, $i, 1 );
-				}
-			}
-		}
 		return true;
 	}
 
@@ -492,6 +412,7 @@ class Wikilog
 			return null;
 
 		$ns = MWNamespace::getSubject( $title->getNamespace() );
+
 		if ( in_array( $ns, $wgWikilogNamespaces ) ) {
 			$wi = new WikilogInfo( $title );
 			if ( $wi->mWikilogName ) {
