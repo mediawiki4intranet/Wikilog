@@ -30,7 +30,10 @@ if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
 $dir = dirname( __FILE__ ) . '/';
-$wgExtensionMessagesFiles['WikilogComment'] = $dir . 'WikilogComment.i18n.php';
+require_once $dir . 'Wikilog.php';
+
+
+$wgExtensionMessagesFiles['WikilogComment'] = $dir . 'Wikilog.i18n.php';
 $wgHooks['ArticleViewHeader'][] = 'WikilogComment::ArticleViewHeader';
 $wgHooks['LinkBegin'][] = 'WikilogComment::LinkBegin';
 $wgHooks['SkinTemplateTabAction'][] = 'WikilogComment::SkinTemplateTabAction';
@@ -41,13 +44,15 @@ $wgAutoloadClasses += array(
 	'WikilogCommentPager'       => $dir . 'WikilogCommentPager.php',
 	'WikilogCommentListPager'   => $dir . 'WikilogCommentPager.php',
 	'WikilogCommentThreadPager' => $dir . 'WikilogCommentPager.php',
-    
-	'WikilogCommentFeed'        => $dir . 'WikilogCommentFeed.php',
-    
-	'WikilogCommentQuery'       => $dir . 'WikilogCommentQuery.php',
-    
+
+	'WikilogCommentFeed'        => $dir . 'WikilogFeed.php',
+
+	'WikilogCommentQuery'   => $dir . 'WikilogQuery.php',
+
 	'WikilogCommentsPage'       => $dir . 'WikilogCommentsPage.php',
 );
+
+$wgExtensionFunctions[] = array( 'Wikilog', 'ExtensionInit' );
 
 /**
  * Added rights.
@@ -110,7 +115,6 @@ class WikilogComment
 	 * Whether the text was changed, and thus a database update is required.
 	 */
 	private $mTextChanged	= false;
-    
 
 	/**
 	 * ArticleFromTitle hook handler function.
@@ -126,7 +130,6 @@ class WikilogComment
         }
 		return true;
 	}
-    
 
 	/**
 	 * LinkBegin hook handler function:
@@ -180,7 +183,7 @@ class WikilogComment
 		}
 		return true;
 	}
-    
+
     /**
      * Проверка активности неймспейса обсуждения
      */
@@ -193,12 +196,7 @@ class WikilogComment
         $ns |= 1; // to be sure that talk page is enable for this title (ex., comments on blog page: $ns == 100, but $tns == 101)
         return in_array( $ns, $wgEnableCommentsList );
     }
-    
-    
-    
-    
-    
-    
+
 	/**
 	 * Constructor.
 	 */
@@ -405,7 +403,7 @@ class WikilogComment
 			// Notify users subscribed to all blogs via user preference
 			// and not unsubscribed from this post and not unsubscribed from this blog,
 			// but only for comments to Wikilog posts (not to the ordinary pages)
-            // FIXME: untie from Wikilog
+			// FIXME: untie from Wikilog
 			( !empty( $wgWikilogNamespaces ) && in_array( $this->mSubject->getNamespace(), $wgWikilogNamespaces )
 				? " SELECT up_user, 1 FROM $up".
 				" LEFT JOIN $s ON ws_user=up_user AND ws_page IN ($id, $wlid) AND ws_yes=0".

@@ -152,7 +152,7 @@ $wgWikilogMaxTags = 25;
  * Enable wikilog article commenting interface. When disabled, commenting is
  * still possible through article talk pages, like normal wiki pages.
  */
-$wgWikilogEnableComments = false;
+$wgWikilogEnableComments = true;
 
 /**
  * Maximum size for wikilog article comments, in bytes.

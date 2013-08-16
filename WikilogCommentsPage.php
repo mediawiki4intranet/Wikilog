@@ -125,7 +125,7 @@ class WikilogCommentsPage
 	 * By default - only for Wikilog blogs.
 	 */
 	public function includeSubpageComments() {
-		if ( $this->mWikilogInfo ) {
+		if ( class_exists( 'Wikilog' ) && $this->mWikilogInfo ) {
 			return $this->mWikilogInfo->isMain();
 		}
 		return false;

@@ -78,7 +78,6 @@ $wgAutoloadClasses += array(
 
 	// Objects
 	'WikilogItem'               => $dir . 'WikilogItem.php',
-	'WikilogComment'            => $dir . 'WikilogComment.php',
 	'WikilogCommentFormatter'   => $dir . 'WikilogComment.php',
 
 	// WikilogParser.php
@@ -411,7 +410,9 @@ class Wikilog
 		if ( !$title )
 			return null;
 
-		$ns = MWNamespace::getSubject( $title->getNamespace() );
+        // untie comments
+//		$ns = MWNamespace::getSubject( $title->getNamespace() );
+		$ns = $title->getNamespace();
 
 		if ( in_array( $ns, $wgWikilogNamespaces ) ) {
 			$wi = new WikilogInfo( $title );
