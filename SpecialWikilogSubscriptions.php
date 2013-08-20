@@ -37,26 +37,44 @@ class SpecialWikilogSubscriptions
             'blogs_limit' => $wgRequest->getInt( 'blimit' ) ?: self::SUBSCRIPTIONS_ON_PAGE,
             'comments_limit' => $wgRequest->getInt( 'climit' ) ?: self::SUBSCRIPTIONS_ON_PAGE,
         );
-        $dbOptions = array(
-            'blogs' => 'wikilog_blog_subscriptions',
-            'comments' => 'wikilog_subscriptions',
+
+        // Select subscribers to blogs
+        $tbl = 'watchlist';
+        $where = array( 'wl_user' => $id, 'wl_namespace' => NS_BLOG );
+        $opts['blogs_count'] = $dbr->selectField( $tbl, "COUNT(*)", $where );
+        if ( $opts['blogs_count'] <= $opts['blogs_offset'] ) {
+            $opts['blogs_offset'] = 0;
+        }
+        $qo = array(
+            'ORDER BY' => 'wl_title',
+            'LIMIT' => $opts['blogs_limit'],
+            'OFFSET' => $opts['blogs_offset']
         );
-        foreach ( $dbOptions as $key => $tbl ) {
-            $where = array( 'ws_user' => $id, 'ws_yes' => 1 );
-            $opts[$key . '_count'] = $dbr->selectField( $tbl, "COUNT(*)", $where );
-            if ( $opts[$key . '_count'] <= $opts[$key . '_offset'] ) {
-                $opts[$key . '_offset'] = 0;
+        $res = $dbr->select( $tbl, '*', $where, __METHOD__, $qo );
+        foreach ( $res as $row ) {
+            $title = Title::makeTitleSafe( $row->wl_namespace, $row->wl_title  );
+            $wi = Wikilog::getWikilogInfo( $title );
+            if ( $wi->isMain() ) {
+                $opts['blogs'][] = $title;
             }
-            $where[] = 'page_id=ws_page';
-            $qo = array(
-                'ORDER BY' => 'page_namespace, page_title',
-                'LIMIT' => $opts[$key . '_limit'],
-                'OFFSET' => $opts[$key . '_offset']
-            );
-            $res = $dbr->select( array( $tbl, 'page' ), 'page.*', $where, __METHOD__, $qo );
-            foreach ( $res as $row ) {
-                $opts[$key][] = Title::newFromRow( $row );
-            }
+        }
+
+        // Select subscriber to comments
+        $tbl = 'wikilog_subscriptions';
+        $where = array( 'ws_user' => $id, 'ws_yes' => 1 );
+        $opts['comments_count'] = $dbr->selectField( $tbl, "COUNT(*)", $where );
+        if ( $opts['comments_count'] <= $opts['comments_offset'] ) {
+            $opts['comments_offset'] = 0;
+        }
+        $where[] = 'page_id=ws_page';
+        $qo = array(
+            'ORDER BY' => 'page_namespace, page_title',
+            'LIMIT' => $opts['comments_limit'],
+            'OFFSET' => $opts['comments_offset']
+        );
+        $res = $dbr->select( array( $tbl, 'page' ), 'page.*', $where, __METHOD__, $qo );
+        foreach ( $res as $row ) {
+            $opts['comments'][] = Title::newFromRow( $row );
         }
 
         return $this->webOutput( $opts );
@@ -95,7 +113,7 @@ class SpecialWikilogSubscriptions
             $html .= '<tr><th>' . wfMsgNoTrans( 'wikilog-subscription-header-action');
             $html .= '</th><th>' . wfMsgNoTrans( 'wikilog-subscription-header-' . $key ) . '</th>';
             foreach ( $opts[$key] as $title ) {
-                $html .= $this->itemHTML( $title );
+                $html .= $this->itemHTML( $title, $key == 'comments' );
             }
             $html .= '</table>';
         } else {
@@ -144,18 +162,27 @@ class SpecialWikilogSubscriptions
             return $wgOut;
         }
 
-        $dbw = wfGetDB( DB_MASTER );
-        $dbw->replace(
-            $isComments ? 'wikilog_subscriptions' : 'wikilog_blog_subscriptions',
-            array( array( 'ws_page', 'ws_user' ) ),
-            array(
-                'ws_page' => $title->getArticleID(),
-                'ws_user' => $wgUser->getID(),
-                'ws_yes'  => $subscribe,
-                'ws_date' => wfTimestamp( TS_MW ),
-            ),
-            __METHOD__
-        );
+        if ( $isComments ) {
+            $dbw = wfGetDB( DB_MASTER );
+            $dbw->replace(
+                'wikilog_subscriptions',
+                array( array( 'ws_page', 'ws_user' ) ),
+                array(
+                    'ws_page' => $title->getArticleID(),
+                    'ws_user' => $wgUser->getID(),
+                    'ws_yes'  => $subscribe,
+                    'ws_date' => wfTimestamp( TS_MW ),
+                ),
+                __METHOD__
+            );
+        } else {
+            $watch = WatchedItem::fromUserTitle( $wgUser, $title );
+            if ( $subscribe ) {
+                $watch->addWatch();
+            } else {
+                $watch->removeWatch();
+            }
+        }
         $title->invalidateCache();
 
         $this->setAndOutputHeader();
@@ -230,10 +257,7 @@ END_STRING;
 
         $prefix = '';
         if ( $subscribed === null ) {
-            $id = $wgUser->getId();
-            $dbr = wfGetDB( DB_SLAVE );
-            $articleID = $title->getArticleID();
-            $subscribed = $dbr->selectField( 'wikilog_blog_subscriptions', '1', "ws_user=$id AND ws_page=$articleID AND ws_yes=1", __METHOD__ );
+            $subscribed = $wgUser->isWatched( $title );
         }
 
         $query = array(
@@ -296,11 +320,11 @@ END_STRING;
 
             // Select subscribers
             $blogID = $wi->mWikilogTitle->getArticleID();
-            $res = $dbr->select( 'wikilog_blog_subscriptions', 'ws_user',
-                "ws_page=$blogID AND ws_yes=1", __METHOD__ );
+            $res = $dbr->select( 'watchlist', 'wl_user',
+                'wl_namespace = ' . NS_BLOG . ' AND wl_title = ' . $dbr->addQuotes( $wi->mWikilogTitle->getText() ), __METHOD__ );
             $emails = array();
             foreach ( $res as $row ) {
-                $user = User::newFromId( $row->ws_user );
+                $user = User::newFromId( $row->wl_user );
                 $user->mGroups = NULL;
                 if ( !$user || $user->getId() == $wgUser->getId() ||
                     $title->getUserPermissionsErrors( 'read', $user ) ) {

@@ -356,7 +356,6 @@ class WikilogHooks
 				$wgExtNewTables[] = array( "wikilog_wikilogs", "{$dir}wikilog-tables.sql" );
 				$wgExtNewTables[] = array( "page_last_visit", "{$dir}archives/patch-visits.sql" );
 				$wgExtNewTables[] = array( "wikilog_subscriptions", "{$dir}archives/patch-subscriptions.sql" );
-				$wgExtNewTables[] = array( "wikilog_blog_subscriptions", "{$dir}archives/patch-blog-subscriptions.sql" );
 				$wgExtNewTables[] = array( "wikilog_talkinfo", "{$dir}archives/patch-talkinfo.sql" );
 				$wgExtNewIndexes[] = array( "wikilog_comments", "wlc_timestamp", "{$dir}archives/patch-comments-indexes.sql" );
 				$wgUpdates['mysql'][] = 'WikilogHooks::createForeignKeys';
@@ -374,8 +373,6 @@ class WikilogHooks
 					"{$dir}archives/patch-visits.sql", true ) );
 				$updater->addExtensionUpdate( array( 'addTable', "wikilog_subscriptions",
 					"{$dir}archives/patch-subscriptions.sql", true ) );
-				$updater->addExtensionUpdate( array( 'addTable', "wikilog_blog_subscriptions",
-					"{$dir}archives/patch-blog-subscriptions.sql", true ) );
 				$updater->addExtensionUpdate( array( 'addTable', "wikilog_talkinfo",
 					"{$dir}archives/patch-talkinfo.sql", true ) );
 				$updater->addExtensionUpdate( array( 'addIndex', "wikilog_comments",
