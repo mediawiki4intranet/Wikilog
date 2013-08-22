@@ -89,10 +89,11 @@ class WikilogMainPage
 		# Display wiki text page contents.
 		parent::view();
 
-        # Subscription
-        if ( !$wgUser->isAnon() ) {
-            $wgOut->addhtml('<p>' . SpecialWikilogSubscriptions::generateSubscriptionLink($this->mTitle) . '</p>');
-        }
+		# Subscription
+		if ( !$wgUser->isAnon() ) {
+			$link = SpecialWikilogSubscriptions::generateSubscriptionLink( $this->mTitle );
+			$wgOut->addHtml( '<p id="wl-subscription-link">' . $link . '</p>' );
+		}
 
 		# Create pager object, according to the type of listing.
 		if ( $view == 'archives' ) {

@@ -38,7 +38,7 @@ class SpecialWikilogSubscriptions
             'comments_limit' => $wgRequest->getInt( 'climit' ) ?: self::SUBSCRIPTIONS_ON_PAGE,
         );
 
-        // Select subscribers to blogs
+        // Select blog subscriptions (blog page watches)
         $tbl = 'watchlist';
         $where = array( 'wl_user' => $id, 'wl_namespace' => NS_BLOG );
         $opts['blogs_count'] = $dbr->selectField( $tbl, "COUNT(*)", $where );
@@ -59,7 +59,7 @@ class SpecialWikilogSubscriptions
             }
         }
 
-        // Select subscriber to comments
+        // Select comment subscriptions
         $tbl = 'wikilog_subscriptions';
         $where = array( 'ws_user' => $id, 'ws_yes' => 1 );
         $opts['comments_count'] = $dbr->selectField( $tbl, "COUNT(*)", $where );
@@ -188,16 +188,22 @@ class SpecialWikilogSubscriptions
         $this->setAndOutputHeader();
 
         if ( $subscribe ) {
-            $wgOut->addHtml( '<p>' . wfMsgNoTrans( 'wikilog-subscription-blog-subscribed' , $wgUser->getSkin()->link( $title, $title->getPrefixedText() ) ) . '</p><p>' . self::generateSubscriptionLink($title, true) . '</p>' );
+            $wgOut->addHtml(
+                '<p>' . wfMsgNoTrans( 'wikilog-subscription-blog-subscribed', $wgUser->getSkin()->link( $title, $title->getPrefixedText() ) ) .
+                '</p><p>' . self::generateSubscriptionLink( $title, true, true ) . '</p>'
+            );
         } elseif ( $isComments ) {
             $wi = Wikilog::getWikilogInfo( $title );
+            $key = ( $wi->isMain() ? 'wikilog-subscription-comment-unsubscribed-blog' : 'wikilog-subscription-comment-unsubscribed-article' );
             $wgOut->addHtml(
-                '<p>' . wfMsgNoTrans( 'wikilog-subscription-comment-unsubscribed-' .
-                ( $wi->isMain() ? 'blog' : 'article' ) , $title->getPrefixedText() ) .
+                '<p>' . wfMsgNoTrans( $key, $title->getPrefixedText() ) .
                 '</p><p>' . $this->getCommentSubscription( $title->getTalkPage() ) . '</p>'
             );
         } else {
-            $wgOut->addHtml( '<p>' . wfMsgNoTrans( 'wikilog-subscription-blog-unsubscribed' , $wgUser->getSkin()->link( $title, $title->getPrefixedText() ) ) . '</p><p>' . self::generateSubscriptionLink($title, false) . '</p>' );
+            $wgOut->addHtml(
+                '<p>' . wfMsgNoTrans( 'wikilog-subscription-blog-unsubscribed', $wgUser->getSkin()->link( $title, $title->getPrefixedText() ) ) .
+                '</p><p>' . self::generateSubscriptionLink( $title, false, true ) . '</p>'
+            );
         }
         $wgOut->addHtml( self::subcriptionsRuleLink() );
 
@@ -249,7 +255,7 @@ END_STRING;
      * @param boolean $subscribed Flag that current user is subscribed to article $title. If not null do not check
      * @return string
      */
-    public static function generateSubscriptionLink( $title, $subscribed = null ) {
+    public static function generateSubscriptionLink( $title, $subscribed = null, $forEmail = false ) {
         global $wgUser;
         if ( $wgUser->isAnon() ) {
             return '';
@@ -267,7 +273,9 @@ END_STRING;
         $spec = SpecialPage::getTitleFor( 'wikilogsubscriptions' );
         $link = $spec->getLocalUrl( $query );
 
-        $msg = $subscribed ? 'wikilog-subscription-unsubscribe' : 'wikilog-subscription-subscribe';
+        $msg = ( $forEmail
+            ? ( $subscribed ? 'wikilog-subscription-unsubscribe-email' : 'wikilog-subscription-subscribe-email' )
+            : ( $subscribed ? 'wikilog-subscription-unsubscribe' : 'wikilog-subscription-subscribe' ) );
         return $prefix . wfMsgNoTrans( $msg, $title->getText(), $link );
     }
 
@@ -314,7 +322,7 @@ END_STRING;
             $body = $wgParser->parse( wfMsgNoTrans( 'wikilog-subscription-email-body', $args),
                 $title, $popt, true, false );
             $body = $body->getText();
-            $body .= self::generateSubscriptionLink( $wi->mWikilogTitle, true ) .
+            $body .= self::generateSubscriptionLink( $wi->mWikilogTitle, true, true ) .
                 '<br />' . self::subcriptionsRuleLink();
             WikilogParser::expandLocalUrls( $saveExpUrls );
 
@@ -326,8 +334,7 @@ END_STRING;
             foreach ( $res as $row ) {
                 $user = User::newFromId( $row->wl_user );
                 $user->mGroups = NULL;
-                if ( !$user || $user->getId() == $wgUser->getId() ||
-                    $title->getUserPermissionsErrors( 'read', $user ) ) {
+                if ( !$user || $title->getUserPermissionsErrors( 'read', $user ) ) {
                     continue;
                 }
                 $emails[] = new MailAddress( $user->getEmail() );
