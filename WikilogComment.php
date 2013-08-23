@@ -84,6 +84,15 @@ class WikilogComment
 	private $mTextChanged	= false;
 
 	/**
+	 * BeforePageDisplay hook handler function.
+	 * Adds wikilog-comment js to pages displayed.
+	 */
+	static function BeforePageDisplay( &$output, &$skin ) {
+		$output->addModules( 'Wikilog' );
+		return true;
+	}
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct( Title $subject ) {
@@ -854,7 +863,7 @@ class WikilogCommentFormatter
 			} else {
 				// FIXME do not reuse wgParser
 				global $wgParser, $wgUser, $wgTitle;
-				$text = $comment->getText();
+				$text = $this->parseQoute( $comment->getText() );
 				$text = $wgParser->parse( $text, $wgTitle, ParserOptions::newFromUser( $wgUser ) );
 				$text = $text->getText();
 			}
@@ -1041,6 +1050,17 @@ class WikilogCommentFormatter
 					),
 					wfMsg( 'wikilog-reply-lc' )
 				);
+
+                // Ссылка "Цитировать комментарий"
+                $tools['quote'] = Xml::tags( 'a',
+					array(
+						'title' => wfMsg( 'wikilog-quote-comment' ),
+						'href' => '#',
+                        'onclick' => 'return wlCommentQuotation.onclick(this);',
+                        'data-text' => $this->makeQoute( $comment->getText() ) . "\n\n"
+					),
+					wfMsg( 'wikilog-quote-comment-link' )
+				);
 			}
 			if ( $this->mAllowModeration && $comment->mStatus == WikilogComment::S_PENDING ) {
 				$token = $wgUser->editToken();
@@ -1101,4 +1121,74 @@ class WikilogCommentFormatter
 			return '';
 		}
 	}
+
+    // Константы отображения
+    const QUOTE_BEGIN = '{{quote|1='; // для вывода
+    const QUOTE_END   = '}}';
+    const VIEW_QUOTE = '>'; // для редактирования
+
+    // Цитата для редактирования
+    public function makeQoute( $text ) {
+        $text = explode( "\n", $text );
+        foreach ( $text as &$line ) {
+            $line = static::VIEW_QUOTE . $line;
+        }
+        $text = implode( "\n", $text );
+
+        return $text;
+    }
+
+    // Достать текст цитаты из редактируемого тексты
+    public function getQouteText( $quote ) {
+        $quote = explode( "\n", $quote );
+        foreach ( $quote as &$line ) {
+            $line = substr ( $line, strlen( static::VIEW_QUOTE ) );
+        }
+        $quote = implode( "\n", $quote );
+
+        return $quote;
+    }
+    // Преобразуем цитаты из шаблона в "редактируемый" вид.
+    /* НЕ ИСПОЛЬЗУЕТСЯ (возможно понадобится, если делать сохранение уже шаблонного вида)
+    public function reparseQoute( $text ) {
+        $begin = strripos( $text, static::QUOTE_BEGIN );
+        if ( $begin === false)
+        {
+            return $text;
+        }
+        $end   = stripos( $text, static::QUOTE_END, $begin );
+
+        $bOffset = strlen( static::QUOTE_BEGIN );
+        $eOffset = strlen( static::QUOTE_END );
+
+        $text = substr( $text, 0, $begin ) .
+                $this->makeQoute( substr( $text, $begin + $bOffset, $end - $begin - $bOffset ) ).
+                substr( $text, $end + $eOffset );
+        return $this->reparseQoute( $text );
+    }
+    */
+
+    // Преобразуем цитаты из "редактируемого" вида в шаблон.
+    public function parseQoute( $text ) {
+        $vqLen = strlen( static::VIEW_QUOTE );
+        if ( substr( $text, 0, $vqLen ) == static::VIEW_QUOTE ) {
+            $begin = 0;
+        } else {
+            $begin = stripos($text, "\n" . static::VIEW_QUOTE);
+            if ( $begin === false )
+            {
+                return str_replace( '|', '&#x7C;', $text );
+            }
+            $begin++;
+        }
+        $end = stripos( $text, "\n\n", $begin );
+        if ( $end === false )
+        {
+            $end = strlen( $text );
+        }
+        $quote = $this->getQouteText( substr( $text, $begin, $end ) );
+
+        $text = substr( $text, 0, $begin ) . static::QUOTE_BEGIN . $this->parseQoute( $quote ) . static::QUOTE_END .   $this->parseQoute( substr( $text, $end ) );
+        return $text;
+    }
 }

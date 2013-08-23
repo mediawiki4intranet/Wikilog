@@ -170,6 +170,20 @@ class WikilogCommentsPage
 		return $query;
 	}
 
+    /**
+     * Переопределение Article::loadContent для того, чтобы можно было преобразовать комментарии
+     */
+    public function loadContent() {
+        if (!$this->mContentLoaded)
+        {
+            parent::loadContent();
+            if ($this->mContext->getRequest()->getVal('action') != 'edit') // для правки не фаршим
+            {
+                $this->mContent = $this->mFormatter->parseQoute( $this->mContent );
+            }
+        }
+    }
+
 	/**
 	 * Handler for action=view requests.
 	 */
@@ -529,7 +543,13 @@ class WikilogCommentsPage
 		$fields[] = array( '',
 			Xml::submitbutton( wfMsg( 'wikilog-submit' ), array( 'name' => 'wlActionCommentSubmit' ) ) . WL_NBSP .
 			Xml::submitbutton( wfMsg( 'wikilog-preview' ), array( 'name' => 'wlActionCommentPreview' ) ) .
-			$subscribe_html
+			$subscribe_html .
+            Html::element( 'a', array(
+                    'href' => '#',
+                    'onclick' => "return wlCommentQuotation.quoteSelection(this, '" . WikilogCommentFormatter::VIEW_QUOTE . "');",
+                    'style' => 'float: right;',
+                ), wfMsg( 'wikilog-comment-quote-selection' )
+            )
 		);
 
 		$form .= WikilogUtils::buildForm( $fields );

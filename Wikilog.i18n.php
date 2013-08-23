@@ -6811,6 +6811,10 @@ $5
 <li>Перейти к обсуждению: [$6 $7]</li>
 </ul>',
 
+    'wikilog-quote-comment' => 'Вставить комментарий как цитату',
+    'wikilog-quote-comment-link' => 'цитировать комментарий',
+    'wikilog-comment-quote-selection' => 'цитировать выделенное'
+
 );
 
 /** Rusyn (русиньскый)

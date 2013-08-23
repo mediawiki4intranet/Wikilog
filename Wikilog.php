@@ -197,6 +197,17 @@ $wgLogHeaders['wikilog'] = 'wikilog-log-pagetext';
 $wgLogActions['wikilog/c-approv'] = 'wikilog-log-cmt-approve';
 $wgLogActions['wikilog/c-reject'] = 'wikilog-log-cmt-reject';
 
+// Добавление js к странице
+$wgHooks['BeforePageDisplay'][] = 'WikilogComment::BeforePageDisplay';
+$wgResourceModules['Wikilog'] = array(
+	'scripts'       => array('wikilog-comment.js'),
+	'styles'        => array(),
+	'dependencies'  => array('jquery'),
+	'localBasePath' => __DIR__,
+	'remoteExtPath' => 'Wikilog',
+    'position'      => 'top',
+);
+
 /**
  * Default settings.
  */
