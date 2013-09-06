@@ -305,6 +305,11 @@ class Wikilog
 			'label-message' => 'wl-subscribetoall',
 			'section' => 'misc/wikilog',
 		);
+		$defaultPreferences['wl-subscribetoallblogs'] = array(
+			'type' => 'toggle',
+			'label-message' => 'wl-subscribetoallblogs',
+			'section' => 'misc/wikilog',
+		);
 		return true;
 	}
 

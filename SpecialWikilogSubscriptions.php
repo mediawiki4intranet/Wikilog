@@ -337,11 +337,30 @@ END_STRING;
                 if ( !$user || $title->getUserPermissionsErrors( 'read', $user ) ) {
                     continue;
                 }
-                $emails[] = new MailAddress( $user->getEmail() );
+                $emails[$row->wl_user] = new MailAddress( $user->getEmail() );
+            }
+            // Select users who watch ALL blogs
+            $res = $dbr->select( 'user_properties', 'up_user',
+                "up_property='wl-subscribetoallblogs' AND up_value='1'", __METHOD__ );
+            foreach ( $res as $row ) {
+                if( isset( $emails[$row->up_user] ) ) {
+                    continue;
+                }
+                $user = User::newFromId( $row->up_user );
+                $user->mGroups = NULL;
+                if ( !$user || $title->getUserPermissionsErrors( 'read', $user ) ) {
+                    continue;
+                }
+                $emails[$row->up_user] = new MailAddress( $user->getEmail() );
+            }
+            if ( isset( $emails[$wgUser->getId()] ) )
+            {
+                unset( $emails[$wgUser->getId()] );
             }
 
             // Send the message
             if ( $emails ) {
+                $emails = array_values( $emails );
                 $serverName = substr( $wgServer, strpos( $wgServer, '//' ) + 2 );
                 $headers = array(
                     'Message-ID' => '<wikilog-' . $article->getId() . '@' . $serverName . '>',

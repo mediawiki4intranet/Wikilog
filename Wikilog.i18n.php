@@ -21,6 +21,7 @@ $messages['en'] = array(
 
 	# User preferences
 	'wl-subscribetoall' => 'Subscribe to comments to all Wikilog posts in this Wiki',
+	'wl-subscribetoallblogs' => 'Subscribe to all Wikilog new posts in this Wiki',
 	'prefs-wikilog' => 'Wikilog',
 
 	# Calendar
@@ -6581,6 +6582,7 @@ $messages['ru'] = array(
 	'right-wl-moderation' => 'модерировать комментарии к статьям викилога',
 	'wikilog-specialwikilog-title' => 'Викилоги',
 	'wl-subscribetoall' => 'Подписаться на все комментарии ко всем записям Викилогов в данной Wiki',
+    'wl-subscribetoallblogs' => 'Подписаться на новые записи во всех Викилогах в данной Wiki',
 	'prefs-wikilog' => 'Викилог',
 
 	'wikilog-mark-all-read' => 'Отметить все записи как прочитанные',
