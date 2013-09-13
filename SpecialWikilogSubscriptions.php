@@ -353,10 +353,6 @@ END_STRING;
                 }
                 $emails[$row->up_user] = new MailAddress( $user->getEmail() );
             }
-            if ( isset( $emails[$wgUser->getId()] ) )
-            {
-                unset( $emails[$wgUser->getId()] );
-            }
 
             // Send the message
             if ( $emails ) {
