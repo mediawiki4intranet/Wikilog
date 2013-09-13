@@ -21,7 +21,7 @@ $messages['en'] = array(
 
 	# User preferences
 	'wl-subscribetoall' => 'Subscribe to comments to all Wikilog posts in this Wiki',
-	'wl-subscribetoallblogs' => 'Subscribe to all Wikilog new posts in this Wiki',
+	'wl-subscribetoallblogs' => 'Subscribe to new posts in all Wikilogs in this Wiki',
 	'prefs-wikilog' => 'Wikilog',
 
 	# Calendar
