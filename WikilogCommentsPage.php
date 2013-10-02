@@ -146,9 +146,9 @@ class WikilogCommentsPage
 	 * Just show the comments without other page details
 	 */
 	public function outputComments() {
-        if ( wikilogComment::isNamespaceActive() ) {
-            $this->viewComments( $this->getQuery() );
-        }
+		if ( wikilog::isNamespaceActive() ) {
+			$this->viewComments( $this->getQuery() );
+		}
 	}
 
 	/**

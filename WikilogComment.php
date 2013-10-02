@@ -29,41 +29,6 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
-$dir = dirname( __FILE__ ) . '/';
-require_once $dir . 'Wikilog.php';
-
-
-$wgExtensionMessagesFiles['WikilogComment'] = $dir . 'Wikilog.i18n.php';
-$wgHooks['ArticleViewHeader'][] = 'WikilogComment::ArticleViewHeader';
-$wgHooks['LinkBegin'][] = 'WikilogComment::LinkBegin';
-$wgHooks['SkinTemplateTabAction'][] = 'WikilogComment::SkinTemplateTabAction';
-$wgHooks['ArticleFromTitle'][] = 'WikilogComment::ArticleFromTitle';
-
-$wgAutoloadClasses += array(
-	// WikilogCommentPager.php
-	'WikilogCommentPager'       => $dir . 'WikilogCommentPager.php',
-	'WikilogCommentListPager'   => $dir . 'WikilogCommentPager.php',
-	'WikilogCommentThreadPager' => $dir . 'WikilogCommentPager.php',
-
-	'WikilogCommentFeed'        => $dir . 'WikilogFeed.php',
-
-	'WikilogCommentQuery'   => $dir . 'WikilogQuery.php',
-
-	'WikilogCommentsPage'       => $dir . 'WikilogCommentsPage.php',
-);
-
-$wgExtensionFunctions[] = array( 'Wikilog', 'ExtensionInit' );
-
-/**
- * Added rights.
- */
-$wgAvailableRights[] = 'wl-postcomment';
-$wgAvailableRights[] = 'wl-moderation';
-$wgGroupPermissions['user']['wl-postcomment'] = true;
-$wgGroupPermissions['sysop']['wl-moderation'] = true;
-
-$wgEnableCommentsList = array();
-
 /**
  * Wikilog article comment database entry.
  */
@@ -115,87 +80,6 @@ class WikilogComment
 	 * Whether the text was changed, and thus a database update is required.
 	 */
 	private $mTextChanged	= false;
-
-	/**
-	 * ArticleFromTitle hook handler function.
-	 * Detects if the article is a talk page and returns the proper class
-	 * instance for the article.
-	 */
-	static function ArticleFromTitle( &$title, &$article ) {
-        if ( $title->isTalkPage() ) {
-            if ( self::isNamespaceActive( $title ) ) {
-                $article = new WikilogCommentsPage( $title );
-                return false;	// stop processing
-            }
-        }
-		return true;
-	}
-
-	/**
-	 * LinkBegin hook handler function:
-	 * Links to threaded talk pages should be always "known" and
-	 * always edited normally, without adding the sections.
-	 */
-	static function LinkBegin( $skin, $target, &$text, &$attribs, &$query,
-			&$options, &$ret )
-	{
-		if ( $target->isTalkPage() &&
-			( $i = array_search( 'broken', $options ) ) !== false ) {
-			if ( self::isNamespaceActive( $target ) ) {
-				array_splice( $options, $i, 1 );
-				$options[] = 'known';
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * SkinTemplateTabAction hook handler function.
-	 * Same as WikilogComment::LinkBegin, but for the tab actions.
-	 */
-	static function SkinTemplateTabAction( &$skin, $title, $message, $selected,
-			$checkEdit, &$classes, &$query, &$text, &$result )
-	{
-		if ( $checkEdit && $title->isTalkPage() && !$title->exists() ) {
-			if ( self::isNamespaceActive( $title ) ) {
-				$query = '';
-				if ( ( $i = array_search( 'new', $classes ) ) !== false ) {
-					array_splice( $classes, $i, 1 );
-				}
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * ArticleViewHeader hook handler function.
-	 * If viewing a WikilogCommentsPage, and the page doesn't exist in the
-	 * database, don't show the "there is no text in this page" message
-	 * (msg:noarticletext), since it gives wrong instructions to visitors.
-	 * The comment form is self-explaining enough.
-	 */
-	static function ArticleViewHeader( &$article, &$outputDone, &$pcache ) {
-		if ( $article instanceof WikilogCommentsPage ) {
-            if ( $article->getID() == 0 ) {
-                $outputDone = true;
-            }
-            return false;
-		}
-		return true;
-	}
-
-    /**
-     * Проверка активности неймспейса обсуждения
-     */
-    public static function isNamespaceActive ( $title = null ) {
-		global $wgEnableCommentsList, $wgTitle;
-        if ( $title == null ) {
-            $title = $wgTitle;
-        }
-        $ns = $title->getNamespace();
-        $ns |= 1; // to be sure that talk page is enable for this title (ex., comments on blog page: $ns == 100, but $tns == 101)
-        return in_array( $ns, $wgEnableCommentsList );
-    }
 
 	/**
 	 * Constructor.

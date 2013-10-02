@@ -78,6 +78,7 @@ $wgAutoloadClasses += array(
 
 	// Objects
 	'WikilogItem'               => $dir . 'WikilogItem.php',
+	'WikilogComment'            => $dir . 'WikilogComment.php',
 	'WikilogCommentFormatter'   => $dir . 'WikilogComment.php',
 
 	// WikilogParser.php
@@ -90,18 +91,26 @@ $wgAutoloadClasses += array(
 	'WikilogTemplatePager'      => $dir . 'WikilogItemPager.php',
 	'WikilogArchivesPager'      => $dir . 'WikilogItemPager.php',
 
+	// WikilogCommentPager.php
+	'WikilogCommentPager'       => $dir . 'WikilogCommentPager.php',
+	'WikilogCommentListPager'   => $dir . 'WikilogCommentPager.php',
+	'WikilogCommentThreadPager' => $dir . 'WikilogCommentPager.php',
+
 	// WikilogFeed.php
 	'WikilogFeed'               => $dir . 'WikilogFeed.php',
 	'WikilogItemFeed'           => $dir . 'WikilogFeed.php',
+	'WikilogCommentFeed'        => $dir . 'WikilogFeed.php',
 
 	// WikilogQuery.php
 	'WikilogQuery'              => $dir . 'WikilogQuery.php',
 	'WikilogItemQuery'          => $dir . 'WikilogQuery.php',
+	'WikilogCommentQuery'       => $dir . 'WikilogQuery.php',
 
 	// Namespace pages
 	'WikilogMainPage'           => $dir . 'WikilogMainPage.php',
 	'WikilogItemPage'           => $dir . 'WikilogItemPage.php',
 	'WikilogWikiItemPage'       => $dir . 'WikilogItemPage.php',
+	'WikilogCommentsPage'       => $dir . 'WikilogCommentsPage.php',
 
 	// Captcha adapter
 	'WlCaptcha'                 => $dir . 'WlCaptchaAdapter.php',
@@ -128,7 +137,10 @@ $wgExtensionFunctions[] = array( 'Wikilog', 'ExtensionInit' );
 
 // Main Wikilog hooks
 $wgHooks['ArticleFromTitle'][] = 'Wikilog::ArticleFromTitle';
+$wgHooks['ArticleViewHeader'][] = 'Wikilog::ArticleViewHeader';
 $wgHooks['BeforePageDisplay'][] = 'Wikilog::BeforePageDisplay';
+$wgHooks['LinkBegin'][] = 'Wikilog::LinkBegin';
+$wgHooks['SkinTemplateTabAction'][] = 'Wikilog::SkinTemplateTabAction';
 $wgHooks['SkinTemplateTabs'][] = 'Wikilog::SkinTemplateTabs';
 $wgHooks['SkinTemplateNavigation'][] = 'Wikilog::SkinTemplateNavigation';
 $wgHooks['GetPreferences'][] = 'Wikilog::getPreferences';
@@ -163,6 +175,13 @@ $wgHooks['InternalParseBeforeLinks'][] = 'WikilogParser::InternalParseBeforeLink
 $wgHooks['GetLocalURL'][] = 'WikilogParser::GetLocalURL';
 $wgHooks['GetFullURL'][] = 'WikilogParser::GetFullURL';
 
+/**
+ * Added rights.
+ */
+$wgAvailableRights[] = 'wl-postcomment';
+$wgAvailableRights[] = 'wl-moderation';
+$wgGroupPermissions['user']['wl-postcomment'] = true;
+$wgGroupPermissions['sysop']['wl-moderation'] = true;
 
 /**
  * Reserved usernames.
@@ -232,7 +251,7 @@ class Wikilog
 	 * Setup Blog: namespace with i18n aliases
 	 */
 	static function setupBlogNamespace( $ns ) {
-		global $wgExtensionMessagesFiles, $wgExtraNamespaces, $wgWikilogNamespaces;
+		global $wgExtensionMessagesFiles, $wgExtraNamespaces, $wgWikilogNamespaces, $wgEnableCommentsList;
 		if ( $ns < 100 ) {
 			echo "Wikilog setup: custom namespaces should start " .
 				 "at 100 to avoid conflict with standard namespaces.\n";
@@ -241,6 +260,7 @@ class Wikilog
 		$ns = $ns & ~1;
 		define( 'NS_BLOG', $ns );
 		define( 'NS_BLOG_TALK', $ns+1 );
+		$wgEnableCommentsList[] = NS_BLOG_TALK;
 		$wgExtraNamespaces[ NS_BLOG ] = 'Blog';
 		$wgExtraNamespaces[ NS_BLOG_TALK ] = 'Blog_talk';
 		$wgWikilogNamespaces[] = $ns;
@@ -301,9 +321,12 @@ class Wikilog
 	 * instance for the article.
 	 */
 	static function ArticleFromTitle( &$title, &$article ) {
-		global $wgWikilogEnableComments;
-
-		if ( ( $wi = self::getWikilogInfo( $title ) ) ) {
+		if ( $title->isTalkPage() ) {
+			if ( self::isNamespaceActive( $title ) ) {
+				$article = new WikilogCommentsPage( $title );
+				return false;	// stop processing
+			}
+		} elseif ( ( $wi = self::getWikilogInfo( $title ) ) ) {
 			if ( $wi->isItem() ) {
 				$item = WikilogItem::newFromInfo( $wi );
 				$article = new WikilogItemPage( $title, $item );
@@ -316,12 +339,64 @@ class Wikilog
 	}
 
 	/**
+	 * ArticleViewHeader hook handler function.
+	 * If viewing a WikilogCommentsPage, and the page doesn't exist in the
+	 * database, don't show the "there is no text in this page" message
+	 * (msg:noarticletext), since it gives wrong instructions to visitors.
+	 * The comment form is self-explaining enough.
+	 */
+	static function ArticleViewHeader( &$article, &$outputDone, &$pcache ) {
+		if ( $article instanceof WikilogCommentsPage ) {
+			if ( $article->getID() == 0 ) {
+				$outputDone = true;
+			}
+			return false;
+		}
+		return true;
+	}
+	/**
 	 * BeforePageDisplay hook handler function.
 	 * Adds wikilog CSS to pages displayed.
 	 */
 	static function BeforePageDisplay( &$output, &$skin ) {
 		global $wgWikilogStylePath, $wgWikilogStyleVersion;
 		$output->addExtensionStyle( "{$wgWikilogStylePath}/wikilog.css?{$wgWikilogStyleVersion}" );
+		return true;
+	}
+
+	/**
+	 * LinkBegin hook handler function:
+	 * Links to threaded talk pages should be always "known" and
+	 * always edited normally, without adding the sections.
+	 */
+	static function LinkBegin( $skin, $target, &$text, &$attribs, &$query,
+			&$options, &$ret )
+	{
+		if ( $target->isTalkPage() &&
+			( $i = array_search( 'broken', $options ) ) !== false ) {
+			if ( self::isNamespaceActive( $target ) ) {
+				array_splice( $options, $i, 1 );
+				$options[] = 'known';
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * SkinTemplateTabAction hook handler function.
+	 * Same as Wikilog::LinkBegin, but for the tab actions.
+	 */
+	static function SkinTemplateTabAction( &$skin, $title, $message, $selected,
+			$checkEdit, &$classes, &$query, &$text, &$result )
+	{
+		if ( $checkEdit && $title->isTalkPage() && !$title->exists() ) {
+			if ( self::isNamespaceActive( $title ) ) {
+				$query = '';
+				if ( ( $i = array_search( 'new', $classes ) ) !== false ) {
+					array_splice( $classes, $i, 1 );
+				}
+			}
+		}
 		return true;
 	}
 
@@ -410,10 +485,8 @@ class Wikilog
 		if ( !$title )
 			return null;
 
-        // untie comments
-//		$ns = MWNamespace::getSubject( $title->getNamespace() );
+		// untie comments
 		$ns = $title->getNamespace();
-
 		if ( in_array( $ns, $wgWikilogNamespaces ) ) {
 			$wi = new WikilogInfo( $title );
 			if ( $wi->mWikilogName ) {
@@ -421,6 +494,19 @@ class Wikilog
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Проверка активности неймспейса обсуждения
+	 */
+	public static function isNamespaceActive ( $title = null ) {
+		global $wgEnableCommentsList, $wgTitle;
+		if ( $title == null ) {
+			$title = $wgTitle;
+		}
+		$ns = $title->getNamespace();
+		$ns |= 1; // to be sure that talk page is enable for this title (ex., comments on blog page: $ns == 100, but $tns == 101)
+		return in_array( $ns, $wgEnableCommentsList );
 	}
 }
 
