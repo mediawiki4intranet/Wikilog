@@ -189,6 +189,11 @@ $wgGroupPermissions['sysop']['wl-moderation'] = true;
 $wgReservedUsernames[] = 'msg:wikilog-auto';
 
 /**
+ * Ajax
+ */
+$wgAjaxExportList[] = "Wikilog::markRead";
+
+/**
  * Logs.
  */
 $wgLogTypes[] = 'wikilog';
@@ -499,6 +504,32 @@ class Wikilog
 			}
 		}
 		return null;
+	}
+
+	public static function markRead ( $id ) {
+		global $wgUser;
+		if ($wgUser->isAnon()) {
+			return "";
+		}
+		$title = Title::newFromID( $id );
+		$wi = self::getWikilogInfo( $title );
+		$result = array();
+		if ( $title->isTalkPage() || !$wi->isItem() )
+		{
+			$result['error'] = true;
+		}
+		else
+		{
+			$dbw = wfGetDB( DB_MASTER );
+			$dbw->query("REPLACE INTO " . $dbw->tableName( "page_last_visit" ) .
+				" SELECT " . $wgUser->getID() . " as pv_user, wlc_comment_page as pv_page, " .
+				wfTimestamp( TS_MW ) . " as pv_date " . " FROM " . $dbw->tableName( "wikilog_comments" ) .
+				" WHERE wlc_post = " . $dbw->addQuotes( $id ) );
+			$dbw->query("REPLACE INTO " . $dbw->tableName( "page_last_visit" ) .
+				" (pv_user, pv_page, pv_date) VALUES(" . $wgUser->getID() . " , " . $dbw->addQuotes( $id ) . ", " .
+				wfTimestamp( TS_MW ) . ")");
+		}
+		return json_encode( $result );
 	}
 }
 

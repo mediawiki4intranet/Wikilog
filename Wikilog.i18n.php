@@ -298,6 +298,8 @@ $5
 	'wikilog-summary' => '',			# Special page summary
 	'wikilog-backlink' => '← $1',
 	'wikilog-brackets' => '[$1]',
+	#
+	'wikilog-mark-read' => 'Пометить прочитанным',
 );
 
 /** Message documentation (Message documentation)
@@ -6810,6 +6812,8 @@ $5
 <li>Перейти к статье: [$3 $1]</li>
 <li>Перейти к обсуждению: [$6 $7]</li>
 </ul>',
+	#
+	'wikilog-mark-read' => 'Пометить прочитанным',
 
 );
 

@@ -211,11 +211,18 @@ div.wl-comment-placeholder {
 
 .TablePager .TablePager_col_wlp_talk_updated { padding: 0; text-align: center; }
 
-.TablePager .wl-unread .TablePager_col_wlp_title {
+/*.TablePager .wl-unread .TablePager_col_wlp_title {
 	background-position: 3px center;
 	padding-left: 24px;
 	background-image: url(wl-unread.gif);
 	background-repeat: no-repeat;
+}*/
+.TablePager .wl-unread .TablePager_col_wlp_title .wl-unread-link {
+    display: inline-block;
+    margin: -1px 2px 0 -2px;
+    vertical-align: top;
+    width: 19px;
+    float: right;
 }
 
 .TablePager .wl-unread td {

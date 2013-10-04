@@ -560,7 +560,7 @@ class WikilogArchivesPager
 		}
 		foreach ( $this->getFieldNames() as $field => $name ) {
 			$value = isset( $row->$field ) ? $row->$field : null;
-			$formatted = strval( $this->formatValue( $field, $value ) );
+			$formatted = strval( $this->formatValue( $field, $value, $row->wlp_last_visit < $row->wlp_updated || $row->wlp_unread_comments ) );
 			if ( $formatted == '' ) {
 				$formatted = WL_NBSP;
 			}
@@ -570,8 +570,8 @@ class WikilogArchivesPager
 		return Xml::tags( 'tr', $attribs, implode( "\n", $columns ) ) . "\n";
 	}
 
-	function formatValue( $name, $value ) {
-		global $wgLang;
+	function formatValue( $name, $value, $new = false ) {
+		global $wgLang, $wgWikilogStylePath;
 
 		switch ( $name ) {
 			case 'wlp_pubdate':
@@ -605,7 +605,7 @@ class WikilogArchivesPager
 					$draft = wfMsg( 'wikilog-draft-title-mark' );
 					$s = Xml::wrapClass( "$s $draft", 'wl-draft-inline' );
 				}
-				return $s;
+				return  ($new ? '<a href="#" class="wl-unread-link" title="' . wfMsg("wikilog-mark-read") . '" data-id="' . Sanitizer::escapeHtmlAllowEntities( $this->mCurrentItem->mID ) . '"><img src="extensions/Wikilog/style/wl-unread.gif"/></a>' : '') . $s;
 
 			case 'wti_num_comments':
 				$page = $this->mCurrentItem->mTitle->getTalkPage();
