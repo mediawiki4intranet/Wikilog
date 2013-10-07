@@ -132,7 +132,7 @@ class WikilogCommentsPage
 	/**
 	 * Override getRobotPolicy()
 	 */
-	public function getRobotPolicy( $action ) {
+	public function getRobotPolicy( $action, $pOutput = false ) {
 		if ( $this->mSingleComment ) {
 			// Do not index individual comment pages
 			return array( 'index' => 'noindex', 'follow' => 'nofollow' );
