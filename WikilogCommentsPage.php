@@ -79,6 +79,8 @@ class WikilogCommentsPage
 
 	public    $mSingleComment;		///< Used when viewing a single comment.
 
+	var $mWikilogInfo, $mSubject;
+
 	/**
 	 * Constructor.
 	 *

@@ -180,7 +180,7 @@ class WikilogWikiItemPage
 	 * Constructor from a page ID.
 	 * @param $id Int article ID to load.
 	 */
-	public static function newFromID( $id ) {
+	public static function newFromID( $id, $from = 'fromdb' ) {
 		$t = Title::newFromID( $id );
 		return $t == null ? null : new self( $t );
 	}
