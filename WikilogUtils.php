@@ -555,13 +555,23 @@ class WikilogUtils {
 		return $row ? Revision::newFromRow( $row ) : null;
 	}
 
+	// 7bit 0bbbbbbb
+	// 14bit 10bbbbbb bbbbbbbb
+	// 21bit 110bbbbb bbbbbbbb bbbbbbbb
+	// 28bit 1110bbbb bbbbbbbb bbbbbbbb bbbbbbbb
+	// 35bit 11110bbb bbbbbbbb bbbbbbbb bbbbbbbb bbbbbbbb
 	static function encodeVarint( $int ) {
-		$s = '';
-		while ( $int > 0x7F ) {
-			$s = chr( 0x80 | ( $int & 0x7F ) ) . $s;
-			$int = $int >> 7;
+		if ( $int < 0x80 ) {
+			return chr( $int );
+		} elseif ( $int < 0x4000 ) {
+			return chr( 0x80 | ( $int >> 8 ) ) . chr( $int & 0xFF );
+		} elseif ( $int < 0x200000 ) {
+			return chr( 0xC0 | ( $int >> 16 ) ) . chr( ( $int >> 8 ) & 0xFF ) . chr( $int & 0xFF );
+		} elseif ( $int < 0x10000000 ) {
+			return chr( 0xE0 | ( $int >> 24 ) ) . chr( ( $int >> 16 ) & 0xFF ) . chr( ( $int >> 8 ) & 0xFF ) . chr( $int & 0xFF );
+		} else {
+			return chr( 0xF0 | ( $int >> 32 ) ) . chr( ( $int >> 24 ) & 0xFF ) . chr( ( $int >> 16 ) & 0xFF ) . chr( ( $int >> 8 ) & 0xFF ) . chr( $int & 0xFF );
 		}
-		return chr( $int & 0x7F ) . $s;
 	}
 
 	static function encodeVarintArray( $a ) {
@@ -574,21 +584,21 @@ class WikilogUtils {
 
 	static function decodeVarintArray( $s ) {
 		$l = strlen( $s );
-		if ( !$l ) {
-			return array();
-		}
 		$array = array();
-		$int = ord( $s[0] );
-		for ( $i = 1; $i < $l; $i++ ) {
-			$b = ord( $s[$i] );
+		for ( $i = 0; $i < $l; ) {
+			$b = ord( $s[$i++] );
 			if ( !( $b & 0x80 ) ) {
-				$array[] = $int;
-				$int = $b;
+				$array[] = $b;
+			} elseif ( !( $b & 0x40 ) ) {
+				$array[] = ( ( $b & 0x7F ) << 8 ) | ord( $s[$i++] );
+			} elseif ( !( $b & 0x20 ) ) {
+				$array[] = ( ( $b & 0x7F ) << 16 ) | ord( $s[$i++] ) << 8 | ord( $s[$i++] );
+			} elseif ( !( $b & 0x10 ) ) {
+				$array[] = ( ( $b & 0x7F ) << 24 ) | ord( $s[$i++] ) << 16 | ord( $s[$i++] ) << 8 | ord( $s[$i++] );
 			} else {
-				$int = ( $int << 7 ) | ( $b & 0x7F );
+				$array[] = ord( $s[$i++] ) << 24 | ord( $s[$i++] ) << 16 | ord( $s[$i++] ) << 8 | ord( $s[$i++] );
 			}
 		}
-		$array[] = $int;
 		return $array;
 	}
 
