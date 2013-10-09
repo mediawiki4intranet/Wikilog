@@ -146,10 +146,7 @@ class WikilogCommentsPage
 	 * Just show the comments without other page details
 	 */
 	public function outputComments() {
-		global $wgTitle;
-		if ( Wikilog::nsHasComments( $wgTitle ) ) {
-			$this->viewComments( $this->getQuery() );
-		}
+		$this->viewComments( $this->getQuery() );
 	}
 
 	/**
