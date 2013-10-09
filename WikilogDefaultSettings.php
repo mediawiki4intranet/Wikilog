@@ -153,7 +153,7 @@ $wgWikilogMaxTags = 25;
  * still possible through article talk pages, like normal wiki pages.
  */
 $wgWikilogEnableComments = true;
-$wgEnableCommentsList = array();
+$wgWikilogCommentNamespaces = array();
 
 /**
  * Maximum size for wikilog article comments, in bytes.

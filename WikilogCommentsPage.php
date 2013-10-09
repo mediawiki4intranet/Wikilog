@@ -146,7 +146,8 @@ class WikilogCommentsPage
 	 * Just show the comments without other page details
 	 */
 	public function outputComments() {
-		if ( wikilog::isNamespaceActive() ) {
+		global $wgTitle;
+		if ( Wikilog::nsHasComments( $wgTitle ) ) {
 			$this->viewComments( $this->getQuery() );
 		}
 	}

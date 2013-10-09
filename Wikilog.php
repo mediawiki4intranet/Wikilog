@@ -251,7 +251,7 @@ class Wikilog
 	 * Setup Blog: namespace with i18n aliases
 	 */
 	static function setupBlogNamespace( $ns ) {
-		global $wgExtensionMessagesFiles, $wgExtraNamespaces, $wgWikilogNamespaces, $wgEnableCommentsList;
+		global $wgExtensionMessagesFiles, $wgExtraNamespaces, $wgWikilogNamespaces, $wgWikilogCommentNamespaces;
 		if ( $ns < 100 ) {
 			echo "Wikilog setup: custom namespaces should start " .
 				 "at 100 to avoid conflict with standard namespaces.\n";
@@ -260,9 +260,9 @@ class Wikilog
 		$ns = $ns & ~1;
 		define( 'NS_BLOG', $ns );
 		define( 'NS_BLOG_TALK', $ns+1 );
-		$wgEnableCommentsList[] = NS_BLOG_TALK;
-		$wgExtraNamespaces[ NS_BLOG ] = 'Blog';
-		$wgExtraNamespaces[ NS_BLOG_TALK ] = 'Blog_talk';
+		$wgWikilogCommentNamespaces[NS_BLOG_TALK] = true;
+		$wgExtraNamespaces[NS_BLOG] = 'Blog';
+		$wgExtraNamespaces[NS_BLOG_TALK] = 'Blog_talk';
 		$wgWikilogNamespaces[] = $ns;
 		$wgExtensionMessagesFiles[ 'WikilogNamespace' ] = dirname( __FILE__ ).'/Wikilog.i18n.ns.php';
 	}
@@ -322,7 +322,7 @@ class Wikilog
 	 */
 	static function ArticleFromTitle( &$title, &$article ) {
 		if ( $title->isTalkPage() ) {
-			if ( self::isNamespaceActive( $title ) ) {
+			if ( self::nsHasComments( $title ) ) {
 				$article = new WikilogCommentsPage( $title );
 				return false;	// stop processing
 			}
@@ -346,10 +346,8 @@ class Wikilog
 	 * The comment form is self-explaining enough.
 	 */
 	static function ArticleViewHeader( &$article, &$outputDone, &$pcache ) {
-		if ( $article instanceof WikilogCommentsPage ) {
-			if ( $article->getID() == 0 ) {
-				$outputDone = true;
-			}
+		if ( $article instanceof WikilogCommentsPage && $article->getID() == 0 ) {
+			$outputDone = true;
 			return false;
 		}
 		return true;
@@ -374,7 +372,7 @@ class Wikilog
 	{
 		if ( $target->isTalkPage() &&
 			( $i = array_search( 'broken', $options ) ) !== false ) {
-			if ( self::isNamespaceActive( $target ) ) {
+			if ( self::nsHasComments( $target ) ) {
 				array_splice( $options, $i, 1 );
 				$options[] = 'known';
 			}
@@ -390,7 +388,7 @@ class Wikilog
 			$checkEdit, &$classes, &$query, &$text, &$result )
 	{
 		if ( $checkEdit && $title->isTalkPage() && !$title->exists() ) {
-			if ( self::isNamespaceActive( $title ) ) {
+			if ( self::nsHasComments( $title ) ) {
 				$query = '';
 				if ( ( $i = array_search( 'new', $classes ) ) !== false ) {
 					array_splice( $classes, $i, 1 );
@@ -485,8 +483,7 @@ class Wikilog
 		if ( !$title )
 			return null;
 
-		// untie comments
-		$ns = $title->getNamespace();
+		$ns = MWNamespace::getSubject( $title->getNamespace() );
 		if ( in_array( $ns, $wgWikilogNamespaces ) ) {
 			$wi = new WikilogInfo( $title );
 			if ( $wi->mWikilogName ) {
@@ -497,16 +494,12 @@ class Wikilog
 	}
 
 	/**
-	 * Проверка активности неймспейса обсуждения
+	 * Checks if threaded comments are enabled in the namespace of $title
 	 */
-	public static function isNamespaceActive ( $title = null ) {
-		global $wgEnableCommentsList, $wgTitle;
-		if ( $title == null ) {
-			$title = $wgTitle;
-		}
-		$ns = $title->getNamespace();
-		$ns |= 1; // to be sure that talk page is enable for this title (ex., comments on blog page: $ns == 100, but $tns == 101)
-		return in_array( $ns, $wgEnableCommentsList );
+	public static function nsHasComments( $title ) {
+		global $wgWikilogCommentNamespaces;
+		$ns = MWNamespace::getTalk( $title->getNamespace() );
+		return isset( $wgWikilogCommentNamespaces[$ns] );
 	}
 }
 
