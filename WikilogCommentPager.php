@@ -260,7 +260,7 @@ class WikilogCommentThreadPager
 		// Determine root thread level
 		$rootThread = $this->mQuery->getThread();
 		if ( $rootThread ) {
-			$this->mRootLevel = substr_count( $rootThread, '/' );
+			$this->mRootLevel = count( WikilogUtils::decodeVarintArray( $rootThread ) );
 		}
 
 		// Fold non-forking comment threads when level goes above $this->mMinFoldLevel

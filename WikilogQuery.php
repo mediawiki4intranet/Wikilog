@@ -613,9 +613,6 @@ class WikilogCommentQuery
 	 * @param $thread Thread path identifier to query for (array or string).
 	 */
 	public function setThread( $thread ) {
-		if ( is_array( $thread ) ) {
-			$thread = implode( '/', $thread );
-		}
 		$this->mThread = $thread;
 	}
 
@@ -739,7 +736,7 @@ class WikilogCommentQuery
 			} else {
 				$q_conds['wlc_post'] = $this->mSubject->getArticleId();
 				if ( $this->mThread ) {
-					$q_conds[] = 'wlc_thread ' . $db->buildLike( $this->mThread . '/', $db->anyString() );
+					$q_conds[] = 'wlc_thread ' . $db->buildLike( $this->mThread, $db->anyString() );
 				}
 			}
 		} elseif ( $this->mNamespace !== false ) {
@@ -821,15 +818,18 @@ class WikilogCommentQuery
 		$res = $dbr->select( $tables, 'wlc_post, wlc_thread', $tmpConds, __METHOD__, $tmpOpts, $joins );
 		$row = $res->fetchObject();
 		if ( $row ) {
-			$p = $parentThread ? 1+strlen( $parentThread ) : 0;
 			$other = (object)array(
 				'post' => $row->wlc_post,
-				'thread' => substr( $row->wlc_thread, 0, $p+6 ),
+				'thread' => $row->wlc_thread,
 			);
 			if ( !$backwards ) {
-				// Next thread number (for LessThan)
-				$other->thread = substr( $other->thread, 0, -6 ) .
-					sprintf( "%06d", 1 + substr( $other->thread, -6 ) );
+				// Next child thread number under this parent (for LessThan condition)
+				$parentThread = WikilogUtils::decodeVarintArray( $parentThread );
+				$p = count( $parentThread );
+				$thread = WikilogUtils::decodeVarintArray( $row->wlc_thread );
+				$thread[$p]++;
+				array_splice( $thread, $p+1 );
+				$other->thread = WikilogUtils::encodeVarintArray( $thread );
 			}
 			$tmpConds = $conds;
 			$tmpConds[] = $this->getPostThreadCond( $dbr, $backwards ? $first : $other, $backwards ? $other : $last );

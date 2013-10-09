@@ -352,6 +352,9 @@ class WikilogHooks
 	 * @todo Add support for PostgreSQL and SQLite databases.
 	 */
 	static function ExtensionSchemaUpdates( $updater ) {
+		global $wikilogRegenThreads;
+		$wikilogRegenThreads = new WikilogRegenThreads();
+
 		$dir = dirname( __FILE__ ) . '/';
 
 		if ( $updater === null ) {
@@ -458,4 +461,31 @@ class WikilogHooks
 		return true;
 	}
 
+}
+
+class WikilogRegenThreads {
+	function __destruct() {
+		$dbw = wfGetDB( DB_MASTER );
+		if ( !$dbw->selectField( 'wikilog_comments', 'wlc_id',
+			array( 'wlc_thread=LPAD(wlc_id, 6, \'0\')' ), __METHOD__ ) ) {
+			return;
+		}
+		print "Regenerating wlc_thread for Wikilog comments\n";
+		$res = $dbw->select( 'wikilog_comments','wlc_id, wlc_parent',
+			array( '1' ), __METHOD__, array( 'ORDER BY' => 'wlc_id' ) );
+		$rows = array();
+		foreach ( $res as $row ) {
+			if ( !$row->wlc_parent ) {
+				$row->wlc_thread = WikilogUtils::encodeVarint( $row->wlc_id );
+			} else {
+				$p = $rows[$row->wlc_parent];
+				$row->wlc_thread = $p->wlc_thread . WikilogUtils::encodeVarint( $row->wlc_id - $p->wlc_id );
+			}
+			$rows[$row->wlc_id] = $row;
+		}
+		foreach ( $rows as $row ) {
+			$dbw->update( 'wikilog_comments', array( 'wlc_thread' => $row->wlc_thread ),
+				array( 'wlc_id' => $row->wlc_id ), __METHOD__ );
+		}
+	}
 }

@@ -206,6 +206,7 @@ class WikilogComment
 
 		# Main update.
 		$emailnotify = false;
+		$forCreation = false;
 		if ( $this->mID ) {
 			$dbw->update( 'wikilog_comments', $data,
 				array( 'wlc_id' => $this->mID ), __METHOD__ );
@@ -216,17 +217,20 @@ class WikilogComment
 			$this->mID = $dbw->insertId();
 
 			# Now that we have an ID, we can generate the thread.
-			$this->mThread = array();
 			if ( $this->mParent ) {
-				$this->mThread = $this->getParentObj()->mThread;
+				$p = $this->getParentObj();
+				# We anyway rely on that newer comments have greater IDs, so this difference is OK
+				$this->mThread = $p->mThread . WikilogUtils::encodeVarint( $this->mID - $p->mID );
+			} else {
+				$this->mThread = WikilogUtils::encodeVarint( $this->mID );
 			}
-			$this->mThread[] = self::padID( $this->mID );
-			$delayed['wlc_thread'] = implode( '/', $this->mThread );
+			$delayed['wlc_thread'] = $this->mThread;
 			$emailnotify = true;
+			$forCreation = !$this->mCommentTitle && !$this->mCommentPage;
 		}
 
 		# Save article with comment text.
-		$this->mCommentTitle = $this->getCommentArticleTitle();
+		$this->mCommentTitle = $this->getCommentArticleTitle( $forCreation );
 		if ( $this->mTextChanged ) {
 			$parent = $this->getParentObj();
 			$parent = $parent ? $parent->mCommentTitle->getText() : '';
@@ -450,18 +454,36 @@ class WikilogComment
 
 	/**
 	 * Returns comment article title.
+	 *
+	 * @param $forCreation If true, a new non-colliding title will be generated
 	 */
-	public function getCommentArticleTitle() {
+	public function getCommentArticleTitle( $forCreation = false ) {
 		if ( $this->mCommentTitle ) {
 			return $this->mCommentTitle;
 		} elseif ( $this->mCommentPage ) {
 			return Title::newFromID( $this->mCommentPage, Title::GAID_FOR_UPDATE );
 		} else {
 			$it = $this->mSubject;
-			return Title::makeTitle(
+			$title = Title::makeTitle(
 				MWNamespace::getTalk( $it->getNamespace() ),
 				$it->getText() . '/c' . self::padID( $this->mID )
 			);
+			if ( $forCreation && $title->exists() ) {
+				// Collision! Are there imported comments?
+				// Generate another title.
+				$dbw = wfGetDB( DB_MASTER );
+				$max = $dbw->selectField( 'page', 'MAX( page_title )', array(
+					'page_namespace' => $title->getNamespace(),
+					'page_title ' . $dbw->buildLike( $title->getDBkey().'-', $dbw->anyString() )
+				), __METHOD__ );
+				if ( !$max ) {
+					$max = $title->getDBkey().'-1';
+				} else {
+					$max = preg_replace_callback( '/(\D)(\d*)$/s', function($m) { return $m[1].($m[2]+1); }, $max);
+				}
+				$title = Title::makeTitle( $title->getNamespace(), $max );
+			}
+			return $title;
 		}
 	}
 
@@ -475,38 +497,6 @@ class WikilogComment
 			max( 0, 200 - strlen( wfMsgForContent( 'wikilog-comment-autosumm' ) ) ),
 			'...' );
 		return wfMsgForContent( 'wikilog-comment-autosumm', $user, $summ );
-	}
-
-	/**
-	 * Returns the discussion history for a given comment. This is used to
-	 * populate the $comment->mThread of a new comment whose id is @a $id
-	 * and parent is @a $parent.
-	 *
-	 * @param $id Comment id of the new comment.
-	 * @param $parent Comment id of its parent.
-	 * @return Array of ids from the history since the first comment until
-	 *   the given one.
-	 */
-	public static function getThreadHistory( $id, $parent ) {
-		$thread = array();
-
-		if ( $parent ) {
-			$dbr = wfGetDB( DB_SLAVE );
-			$thread = $dbr->selectField(
-				'wikilog_comments',
-				'wlc_thread',
-				array( 'wlc_id' => intval( $parent ) ),
-				__METHOD__
-			);
-			if ( $thread !== false ) {
-				$thread = explode( '/', $thread );
-			} else {
-				throw new MWException( 'Invalid parent history.' );
-			}
-		}
-
-		$thread[] = self::padID( $id );
-		return $thread;
 	}
 
 	/**
@@ -534,7 +524,7 @@ class WikilogComment
 		$comment = new WikilogComment( $subjectTitle );
 		$comment->mID           = intval( $row->wlc_id );
 		$comment->mParent       = intval( $row->wlc_parent );
-		$comment->mThread       = explode( '/', $row->wlc_thread );
+		$comment->mThread       = $row->wlc_thread;
 		$comment->mPost         = intval( $row->wlc_post );
 		$comment->mUserID       = intval( $row->wlc_user );
 		$comment->mUserText     = strval( $row->wlc_user_text );

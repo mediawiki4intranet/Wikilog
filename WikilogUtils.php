@@ -555,6 +555,43 @@ class WikilogUtils {
 		return $row ? Revision::newFromRow( $row ) : null;
 	}
 
+	static function encodeVarint( $int ) {
+		$s = '';
+		while ( $int > 0x7F ) {
+			$s = chr( 0x80 | ( $int & 0x7F ) ) . $s;
+			$int = $int >> 7;
+		}
+		return chr( $int & 0x7F ) . $s;
+	}
+
+	static function encodeVarintArray( $a ) {
+		$s = '';
+		foreach ( $a as $int ) {
+			$s .= self::encodeVarint( $int );
+		}
+		return $s;
+	}
+
+	static function decodeVarintArray( $s ) {
+		$l = strlen( $s );
+		if ( !$l ) {
+			return array();
+		}
+		$array = array();
+		$int = ord( $s[0] );
+		for ( $i = 1; $i < $l; $i++ ) {
+			$b = ord( $s[$i] );
+			if ( !( $b & 0x80 ) ) {
+				$array[] = $int;
+				$int = $b;
+			} else {
+				$int = ( $int << 7 ) | ( $b & 0x7F );
+			}
+		}
+		$array[] = $int;
+		return $array;
+	}
+
 }
 
 /**

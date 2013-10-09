@@ -77,7 +77,7 @@ class WikilogBloggerImport
                     $refs[$id] = array(
                         'title' => $refs[$ref]['title'],
                         'wlc_id' => $comment_ai,
-                        'thread' => trim($refs[$ref]['thread'] . '/' . sprintf("%06d", $comment_ai), '/'),
+                        'thread' => $refs[$ref]['thread'] . WikilogUtils::encodeVarint($comment_ai),
                     );
                     $ns = $params['ns_blog_talk'];
                     /* Add comment row */
