@@ -51,6 +51,8 @@ class WikilogComment
 		self::S_DELETED			=> 'deleted',
 	);
 
+	static $saveInProgress = array();
+
 	/**
 	 * Title this comment is associated to.
 	 */
@@ -123,6 +125,29 @@ class WikilogComment
 	}
 
 	/**
+	 * Returns the subject title of this comment.
+	 */
+	public function getSubject() {
+		return $this->mSubject;
+	}
+
+	/**
+	 * Get the parent comment object
+	 */
+	public function getParentObj() {
+		if ( !$this->mParent ) {
+			return NULL;
+		}
+		if ( !$this->mParentObj ) {
+			$this->mParentObj = WikilogComment::newFromID( $this->mParent );
+		}
+		if ( !$this->mParentObj || !$this->mParentObj->mThread ) {
+			throw new MWException( 'Invalid parent history.' );
+		}
+		return $this->mParentObj;
+	}
+
+	/**
 	 * Changes the wikitext of the comment.
 	 */
 	public function setText( $text ) {
@@ -173,7 +198,8 @@ class WikilogComment
 			'wlc_anon_name' => $this->mAnonName,
 			'wlc_status'    => $this->mStatus,
 			'wlc_timestamp' => $dbw->timestamp( $this->mTimestamp ),
-			'wlc_updated'   => $dbw->timestamp( $this->mUpdated )
+			'wlc_updated'   => $dbw->timestamp( $this->mUpdated ),
+			'wlc_comment_page' => $this->mCommentPage,
 		);
 
 		$delayed = array();
@@ -192,13 +218,7 @@ class WikilogComment
 			# Now that we have an ID, we can generate the thread.
 			$this->mThread = array();
 			if ( $this->mParent ) {
-				if ( !$this->mParentObj ) {
-					$this->mParentObj = WikilogComment::newFromID( $this->mParent );
-				}
-				if ( !$this->mParentObj || !$this->mParentObj->mThread ) {
-					throw new MWException( 'Invalid parent history.' );
-				}
-				$this->mThread = $this->mParentObj->mThread;
+				$this->mThread = $this->getParentObj()->mThread;
 			}
 			$this->mThread[] = self::padID( $this->mID );
 			$delayed['wlc_thread'] = implode( '/', $this->mThread );
@@ -208,9 +228,23 @@ class WikilogComment
 		# Save article with comment text.
 		$this->mCommentTitle = $this->getCommentArticleTitle();
 		if ( $this->mTextChanged ) {
+			$parent = $this->getParentObj();
+			$parent = $parent ? $parent->mCommentTitle->getText() : '';
+			# Append comment metadata
+			$metadata = "\n{{wl-comment: $parent";
+			if ( $this->mAnonName ) {
+				$metadata .= " | " . htmlspecialchars( str_replace( '}}', '', $this->mAnonName ) ) . " ";
+			}
+			$metadata .= " }}";
+			$this->mText = preg_replace( '/\{\{\s*#wl-comment\s*:[^\}]*\}\}\s*$/is', '', $this->mText );
+			$this->mText .= $metadata;
+
+			# Prevent WikilogHooks from generating a second WikilogComment object
+			self::$saveInProgress[$this->mCommentTitle->getPrefixedText()] = true;
 			$art = new Article( $this->mCommentTitle );
 			$art->doEdit( $this->mText, $this->getAutoSummary() );
 			$this->mTextChanged = false;
+			unset( self::$saveInProgress[$this->mCommentTitle->getPrefixedText()] );
 
 			$this->mCommentPage = $art->getID();
 			$delayed['wlc_comment_page'] = $this->mCommentPage;
@@ -535,6 +569,43 @@ class WikilogComment
 		$comment->mTimestamp = $ts;
 		$comment->mUpdated   = $ts;
 		$comment->setText( $text );
+		return $comment;
+	}
+
+	/**
+	 * Creates a comment object for a previously created page.
+	 * The resulting object won't try to overwrite that page during save.
+	 *
+	 * @param Title $title Comment page title
+	 * @param string|Title $parent Parent comment title
+	 * @param string|NULL $anonName Name of anonymous user who did post that comment
+	 */
+	public static function newFromCreatedPage( Title $title, $parent, $anonName ) {
+		$subject = Title::makeTitle( MWNamespace::getSubject( $title->getNamespace() ), $title->getBaseText() );
+		if ( $parent && !$parent instanceof Title ) {
+			$parentTitle = Title::newFromText( $parent, $title->getNamespace() );
+		} else {
+			$parentTitle = $parent;
+		}
+		if ( $parentTitle && $parentTitle->getArticleId() ) {
+			$parentComment = WikilogComment::newFromPageId( $parentTitle->getArticleId() );
+			$parentCommentId = $parentComment->getId();
+		} else {
+			$parentCommentId = NULL;
+		}
+		$oldRev = WikilogUtils::getOldestRevision( $title->getArticleId() );
+		$comment = new WikilogComment( $subject );
+		$comment->mParent = $parentCommentId;
+		$comment->mStatus = self::S_OK;
+		$comment->mUserID = $oldRev->getUser( Revision::RAW );
+		$comment->mUserText = $oldRev->getUserText( Revision::RAW );
+		if ( !$comment->mUserID ) {
+			$comment->mAnonName = $anonName;
+		}
+		$comment->mTimestamp = $oldRev->getTimestamp();
+		$comment->mUpdated = wfTimestamp( TS_MW );
+		$comment->mCommentPageTitle = $title;
+		$comment->mCommentPage = $title->getArticleId();
 		return $comment;
 	}
 

@@ -538,6 +538,23 @@ class WikilogUtils {
 		return array( $date, $time, $tz );
 	}
 
+	static function getOldestRevision( $articleId ) {
+		$row = NULL;
+		$db = wfGetDB( DB_SLAVE );
+		$revSelectFields = Revision::selectFields();
+		while ( !$row ) {
+			$row = $db->selectRow(
+				array( 'revision' ), $revSelectFields,
+				array( 'rev_page' => $articleId ), __METHOD__,
+				array( 'ORDER BY' => 'rev_timestamp ASC', 'LIMIT' => 1 )
+			);
+			if ( !$row ) {
+				$db = wfGetDB( DB_MASTER );
+			}
+		}
+		return $row ? Revision::newFromRow( $row ) : null;
+	}
+
 }
 
 /**

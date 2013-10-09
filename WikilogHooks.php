@@ -36,33 +36,36 @@ class WikilogHooks
 {
 	/**
 	 * ArticleEditUpdates hook handler function.
-	 * Performs post-edit updates if article is a wikilog article.
+	 * Performs post-edit updates if article is a wikilog article or a comment.
 	 */
 	static function ArticleEditUpdates( &$article, &$editInfo, $changed ) {
-		# When editing through MW interface, article is derived from
-		# WikilogCommentsPage. In this case, update the comment object.
-		if ( $article instanceof WikilogCommentsPage && $changed ) {
-			$cmt =& $article->mSingleComment;
-			if ( $cmt && !$cmt->isTextChanged() && $changed ) {
-				$cmt->mUpdated = wfTimestamp( TS_MW );
-				$cmt->saveComment();
-			}
-		}
-
 		$title = $article->getTitle();
 		$wi = Wikilog::getWikilogInfo( $title );
+
+		$title = $article->getTitle();
+		if ( $title->isTalkPage() ) {
+			if ( Wikilog::nsHasComments( $title ) &&
+				!isset( WikilogComment::$saveInProgress[$title->getPrefixedText()] ) ) {
+				$comment = $article instanceof WikilogCommentsPage
+					? $article->mSingleComment : WikilogComment::newFromPageID( $article->getId() );
+				if ( $comment ) {
+					$comment->mUpdated = wfTimestamp( TS_MW );
+					$comment->saveComment();
+				} elseif ( isset( $editInfo->output->mExtWikilog ) &&
+					$editInfo->output->mExtWikilog->mComment ) {
+					list( $parent, $anonName ) = $editInfo->output->mExtWikilog->mComment;
+					# Update entry in wikilog_comments table
+					$comment = WikilogComment::newFromCreatedPage( $title, $parent, $anonName );
+					$comment->saveComment();
+				}
+			}
+			return true;
+		}
 
 		# Do nothing if not a wikilog article.
 		if ( !$wi ) return true;
 
-		if ( $title->isTalkPage() ) {
-			# ::WikilogCommentsPage::
-			# Invalidate cache of wikilog item page.
-			if ( $wi->getItemTitle() && $wi->getItemTitle()->exists() ) {
-				$wi->getItemTitle()->invalidateCache();
-				$wi->getItemTitle()->purgeSquid();
-			}
-		} elseif ( $wi->isItem() ) {
+		if ( $wi->isItem() ) {
 			# ::WikilogItemPage::
 			$item = WikilogItem::newFromInfo( $wi );
 			if ( !$item ) {
@@ -165,7 +168,7 @@ class WikilogHooks
 	static function ArticleDeleteComplete( &$article, &$user, $reason, $id = NULL ) {
 		# Deleting comment through MW interface.
 		if ( $article instanceof WikilogCommentsPage ) {
-			$cmt =& $article->mSingleComment;
+			$cmt = $article->mSingleComment;
 			if ( $cmt ) {
 				$cmt->mStatus = WikilogComment::S_DELETED;
 				$cmt->saveComment();
@@ -174,8 +177,9 @@ class WikilogHooks
 
 		# Retrieve wikilog information.
 		$wi = Wikilog::getWikilogInfo( $article->getTitle() );
-		if ( is_null($id) && $article )
+		if ( is_null( $id ) && $article ) {
 			$id = $article->getId();
+		}
 
 		# Take special procedures if it is a wikilog page.
 		if ( $wi ) {

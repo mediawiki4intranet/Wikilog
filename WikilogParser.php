@@ -69,6 +69,7 @@ class WikilogParser
 
 		$parser->setFunctionHook( 'wl-settings', array( 'WikilogParser', 'settings' ), SFH_NO_HASH );
 		$parser->setFunctionHook( 'wl-publish',  array( 'WikilogParser', 'publish'  ), SFH_NO_HASH );
+		$parser->setFunctionHook( 'wl-comment',  array( 'WikilogParser', 'comment'  ), SFH_NO_HASH );
 		$parser->setFunctionHook( 'wl-author',   array( 'WikilogParser', 'author'   ), SFH_NO_HASH );
 		$parser->setFunctionHook( 'wl-tags',     array( 'WikilogParser', 'tags'     ), SFH_NO_HASH );
 		$parser->setFunctionHook( 'wl-info',     array( 'WikilogParser', 'info'     ), SFH_NO_HASH );
@@ -282,6 +283,17 @@ class WikilogParser
 				break;
 		}
 
+		return '<!-- -->';
+	}
+
+	/**
+	 * {{wl-comment: parent comment title | anonymous author name }} parser function handler.
+	 */
+	public static function comment( $parser, $parent, $anon_name = NULL ) {
+		if ( $anon_name === '' ) {
+			$anon_name = NULL;
+		}
+		$parser->mExtWikilog->mComment = array( $parent, $anon_name );
 		return '<!-- -->';
 	}
 
@@ -611,7 +623,10 @@ class WikilogParserOutput
 	public $mIcon = null;
 	public $mLogo = null;
 
-	/* Acessor functions, lacking... */
+	/* Comment metadata */
+	public $mComment = null;
+
+	/* Accessor functions, lacking... */
 	public function getAuthors() { return $this->mAuthors; }
 	public function getTags() { return $this->mTags; }
 }

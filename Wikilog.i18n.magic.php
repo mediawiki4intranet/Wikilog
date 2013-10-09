@@ -12,6 +12,7 @@ $magicWords = array();
 $magicWords['en'] = array(
 	'wl-settings'  => array( 0, 'wl-settings' ),
 	'wl-publish'   => array( 0, 'wl-publish' ),
+	'wl-comment'   => array( 0, 'wl-comment' ),
 	'wl-author'    => array( 0, 'wl-author' ),
 	'wl-tags'      => array( 0, 'wl-tags' ),
 	'wl-info'      => array( 0, 'wl-info' ),
@@ -83,7 +84,7 @@ $magicWords['ce'] = array(
 /** German (Deutsch) */
 $magicWords['de'] = array(
 	'wl-settings' => array( 0, 'wl-einstellungen' ),
-	'wl-publish' => array( 0, 'wl-veröffentlichung' ),
+	'wl-publish' => array( 0, 'wl-veröffentlichung', 'wl-publish' ),
 	'wl-author' => array( 0, 'wl-autor' ),
 	'wl-tags' => array( 0, 'wl-stichwörter' ),
 	'wlk-icon' => array( 0, 'wl-piktogramm', 'wl-symbol', 'wl-icon' ),
@@ -119,7 +120,7 @@ $magicWords['eo'] = array(
 /** Spanish (español) */
 $magicWords['es'] = array(
 	'wl-settings' => array( 0, 'configuracion-wl', 'configuración-wl' ),
-	'wl-publish' => array( 0, 'publicar-wl' ),
+	'wl-publish' => array( 0, 'publicar-wl', 'wl-publish' ),
 	'wl-author' => array( 0, 'autor-wl' ),
 	'wl-tags' => array( 0, 'etiquetas-wl' ),
 	'wl-info' => array( 0, 'informacion-wl', 'información-wl' ),
@@ -186,7 +187,7 @@ $magicWords['ka'] = array(
 /** Korean (한국어) */
 $magicWords['ko'] = array(
 	'wl-settings' => array( 0, 'wl-설정' ),
-	'wl-publish' => array( 0, 'wl-게시' ),
+	'wl-publish' => array( 0, 'wl-게시', 'wl-publish' ),
 	'wl-author' => array( 0, 'wl-저작자' ),
 	'wl-tags' => array( 0, 'wl-태그' ),
 	'wl-info' => array( 0, 'wl-정보' ),
@@ -254,7 +255,7 @@ $magicWords['nb'] = array(
 
 /** Nedersaksisch (Nedersaksisch) */
 $magicWords['nds-nl'] = array(
-	'wl-publish' => array( 0, 'wl-publiseren' ),
+	'wl-publish' => array( 0, 'wl-publiseren', 'wl-publish' ),
 	'wl-tags' => array( 0, 'wl-etiketten' ),
 	'wlk-icon' => array( 0, 'wlk-ikoon' ),
 	'wlk-hidden' => array( 0, 'verbörgen' ),
@@ -270,7 +271,7 @@ $magicWords['nb'] = array(
 
 /** Nedersaksisch (Nedersaksisch) */
 $magicWords['nds-nl'] = array(
-	'wl-publish' => array( 0, 'wl-publiseren' ),
+	'wl-publish' => array( 0, 'wl-publiseren', 'wl-publish' ),
 	'wl-tags' => array( 0, 'wl-etiketten' ),
 	'wlk-icon' => array( 0, 'wlk-ikoon' ),
 	'wlk-hidden' => array( 0, 'verbörgen' ),
@@ -279,7 +280,7 @@ $magicWords['nds-nl'] = array(
 /** Dutch (Nederlands) */
 $magicWords['nl'] = array(
 	'wl-settings' => array( 0, 'wl-instellingen' ),
-	'wl-publish' => array( 0, 'wl-publiceren' ),
+	'wl-publish' => array( 0, 'wl-publiceren', 'wl-publish' ),
 	'wl-author' => array( 0, 'wl-auteur' ),
 	'wl-tags' => array( 0, 'wl-labels' ),
 	'wlk-subtitle' => array( 0, 'ondertitel' ),
@@ -389,7 +390,7 @@ $magicWords['sr-ec'] = array(
 /** Serbian (Latin script) (‪Srpski (latinica)‬) */
 $magicWords['sr-el'] = array(
 	'wl-settings' => array( 0, 'wl-postavke' ),
-	'wl-publish' => array( 0, 'wl-objava' ),
+	'wl-publish' => array( 0, 'wl-objava', 'wl-publish' ),
 	'wl-author' => array( 0, 'wl-autor' ),
 	'wl-tags' => array( 0, 'wl-oznake' ),
 	'wl-info' => array( 0, 'wl-podaci' ),
@@ -403,7 +404,7 @@ $magicWords['sr-el'] = array(
 /** Serbian (Latin script) (srpski (latinica)‎) */
 $magicWords['sr-el'] = array(
 	'wl-settings' => array( 0, 'wl-postavke' ),
-	'wl-publish' => array( 0, 'wl-objava' ),
+	'wl-publish' => array( 0, 'wl-objava', 'wl-publish' ),
 	'wl-author' => array( 0, 'wl-autor' ),
 	'wl-tags' => array( 0, 'wl-oznake' ),
 	'wl-info' => array( 0, 'wl-podaci' ),
@@ -436,7 +437,7 @@ $magicWords['tt-cyrl'] = array(
 /** Ukrainian (українська) */
 $magicWords['uk'] = array(
 	'wl-settings' => array( 0, 'вл_налаштування' ),
-	'wl-publish' => array( 0, 'вл_публікація' ),
+	'wl-publish' => array( 0, 'вл_публікація', 'wl-publish' ),
 	'wl-tags' => array( 0, 'вл_мітки' ),
 	'wl-info' => array( 0, 'вл_дані' ),
 	'wlk-subtitle' => array( 0, 'підзаголовок' ),
