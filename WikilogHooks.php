@@ -410,11 +410,9 @@ class WikilogHooks
 			array( 'wikilog_talkinfo', 'wti_page', 'page', 'page_id' ),
 		);
 		foreach ( $keys as $k ) {
-			$exists = $dbw->selectField( 'information_schema.table_constraints', 'table_name', array(
-				'table_schema=schema()',
-				'constraint_name' => $k[0].'_'.$k[1].'_'.$k[3],
-				'constraint_type' => 'FOREIGN KEY',
-			), __METHOD__ );
+			$res = $dbw->query( 'SHOW CREATE TABLE '.$dbw->tableName( $k[0] ), __METHOD__ );
+			$sql = $res->fetchRow();
+			$exists = strpos( $sql[1], "CONSTRAINT `$k[0]_$k[1]_$k[3]`" ) !== false;
 			if ( !$exists ) {
 				$dbw->query(
 					"DELETE FROM ".$dbw->tableName( $k[0] ).
