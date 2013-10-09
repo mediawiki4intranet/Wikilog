@@ -205,7 +205,7 @@ class WikilogComment
 		$delayed = array();
 
 		# Main update.
-		$sendtext = false;
+		$emailnotify = false;
 		if ( $this->mID ) {
 			$dbw->update( 'wikilog_comments', $data,
 				array( 'wlc_id' => $this->mID ), __METHOD__ );
@@ -278,7 +278,15 @@ class WikilogComment
 	 * Notify about new comment by email
 	 */
 	public function sendCommentEmails() {
-		global $wgParser, $wgPasswordSender, $wgWikilogNamespaces;
+		global $wgParser, $wgPasswordSender, $wgWikilogNamespaces, $wgTitle;
+		if ( $wgTitle->getNamespace() == NS_SPECIAL ) {
+			$alias = SpecialPageFactory::resolveAlias( $wgTitle->getText() );
+			if ( $alias[0] == 'Import' ) {
+				// Suppress notifications during Import
+				// FIXME This should be probably done better but WikiImporter has no appropriate hooks...
+				return;
+			}
+		}
 		/* Message arguments:
 		 * $1 = full page name of comment page
 		 * $2 = name of the user who posted the new comment
