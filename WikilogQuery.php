@@ -818,19 +818,18 @@ class WikilogCommentQuery
 		$res = $dbr->select( $tables, 'wlc_post, wlc_thread', $tmpConds, __METHOD__, $tmpOpts, $joins );
 		$row = $res->fetchObject();
 		if ( $row ) {
-			$other = (object)array(
-				'post' => $row->wlc_post,
-				'thread' => $row->wlc_thread,
-			);
+			$thread = WikilogUtils::decodeVarintArray( $row->wlc_thread );
+			$parentThread = WikilogUtils::decodeVarintArray( $parentThread );
+			$p = count( $parentThread );
+			array_splice( $thread, $p+1 );
 			if ( !$backwards ) {
 				// Next child thread number under this parent (for LessThan condition)
-				$parentThread = WikilogUtils::decodeVarintArray( $parentThread );
-				$p = count( $parentThread );
-				$thread = WikilogUtils::decodeVarintArray( $row->wlc_thread );
 				$thread[$p]++;
-				array_splice( $thread, $p+1 );
-				$other->thread = WikilogUtils::encodeVarintArray( $thread );
 			}
+			$other = (object)array(
+				'post' => $row->wlc_post,
+				'thread' => WikilogUtils::encodeVarintArray( $thread ),
+			);
 			$tmpConds = $conds;
 			$tmpConds[] = $this->getPostThreadCond( $dbr, $backwards ? $first : $other, $backwards ? $other : $last );
 			$tmpOpts['OFFSET'] = 0;
