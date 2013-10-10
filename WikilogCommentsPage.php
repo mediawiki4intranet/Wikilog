@@ -113,7 +113,17 @@ class WikilogCommentsPage
 		# This flags if we are viewing a single comment (subpage).
 		$this->mSingleComment =
 			WikilogComment::newFromPageID( $this->getID() );
+
+		# We do not print any data from subject page, but its ID is required to correctly post comments
+		# So disable permission check for the time
+		if ( defined( 'HACL_HALOACL_VERSION' ) ) {
+			$hacl = haclfDisableTitlePatch();
+		}
 		$this->mSubject = $title->getNamespace() != NS_SPECIAL ? $title->getSubjectPage() : NULL;
+		if ( defined( 'HACL_HALOACL_VERSION' ) ) {
+			haclfRestoreTitlePatch( $hacl );
+		}
+
 		if ( $this->mSingleComment ) {
 			$this->mSubject = $this->mSingleComment->mSubject;
 		}

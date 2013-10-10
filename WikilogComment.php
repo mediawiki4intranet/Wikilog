@@ -322,6 +322,7 @@ class WikilogComment
 		$wlid = $parent->getArticleId();
 		$s = $dbr->tableName( 'wikilog_subscriptions' );
 		$up = $dbr->tableName( 'user_properties' );
+		$w = $dbr->tableName( 'watchlist' );
 		$result = $dbr->query(
 			// Notify users subscribed to this post
 			"SELECT ws_user, 1 FROM $s WHERE ws_page=$id AND ws_yes=1".
@@ -329,6 +330,11 @@ class WikilogComment
 			// Notify users subscribed to the blog and not unsubscribed from this post
 			" SELECT s1.ws_user, 1 FROM $s s1 LEFT JOIN $s s2 ON s2.ws_user=s1.ws_user".
 			" AND s2.ws_page=$id AND s2.ws_yes=0 WHERE s1.ws_page=$wlid AND s1.ws_yes=1 AND s2.ws_user IS NULL".
+			" UNION ALL".
+			// Notify users subscribed to talk via watchlist and not unsubscribed from the post
+			" SELECT wl_user, 1 FROM $w LEFT JOIN $s s2 ON s2.ws_user=wl_user".
+			" AND s2.ws_page=$id AND s2.ws_yes=0 WHERE wl_namespace=".MWNamespace::getTalk( $this->mSubject->getNamespace() ).
+			" AND wl_title=".$dbr->addQuotes( $this->mSubject->getDBkey() )." AND s2.ws_user IS NULL".
 			" UNION ALL".
 			// Notify users subscribed to all blogs via user preference
 			// and not unsubscribed from this post and not unsubscribed from this blog,
