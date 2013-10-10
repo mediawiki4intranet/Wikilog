@@ -736,7 +736,7 @@ class WikilogCommentQuery
 			} else {
 				$q_conds['wlc_post'] = $this->mSubject->getArticleId();
 				if ( $this->mThread ) {
-					$q_conds[] = 'wlc_thread ' . $db->buildLike( $this->mThread, $db->anyString() );
+					$q_conds[] = 'wlc_thread ' . $db->buildLike( $this->mThread, $db->anyChar(), $db->anyString() );
 				}
 			}
 		} elseif ( $this->mNamespace !== false ) {
