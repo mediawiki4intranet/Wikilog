@@ -1,0 +1,70 @@
+= Wikilog =
+
+Wikilog is a MediaWiki extension that enhances the wiki software with some
+common blogging features, making it a wiki-blog-forum hybrid.
+
+This is a version heavily modified by Mediawiki4Intranet project, home page is:
+
+  http://wiki.4intra.net/Wikilog
+
+Version control access and issue tracking are available on github:
+
+  https://github.com/mediawiki4intranet/Wikilog
+
+Information about previous versions can be found on:
+
+  http://www.mediawiki.org/wiki/Extension:Wikilog
+  http://groups.google.com/group/mediawiki-wikilog
+
+= Requirements =
+
+* MediaWiki 1.19-1.21 or higher, or Mediawiki4Intranet 1.18.
+* A MySQL database backend.
+
+= Installation =
+
+* Download the extension and install it as `./extensions/Wikilog`
+* Backup your database and local configuration, it is always a good idea
+* Add minimal configuration to your LocalSettings.php:
+  require_once( 'extensions/Wikilog/Wikilog.php' );
+  Wikilog::setupBlogNamespace( 100 );
+* Run the `php maintenance/update.php` script in order to create or update the tables used by the extension.
+
+== Updating ==
+
+Always run php maintenance/update.php when you're updating Wikilog. Some of the updates
+may not need it, bun an extra run will never harm :)
+
+If you are upgrading from one of previous versions of Wikilog, you should also run
+
+  php maintenance/patchSql.php extensions/Wikilog/archives/fill-wikilog-comment-meta.sql
+
+in your Wiki document root. This command should be only run once.
+
+= General notes =
+
+Check the file RELEASE-NOTES.mediawiki for important notes and upgrade procedures for the current version of Wikilog.
+
+= MediaWiki4Intranet =
+
+MediaWiki4Intranet is a MediaWiki bundled together with many useful extensions.
+It includes this Wikilog version, as well.
+
+  http://wiki.4intra.net/Mediawiki4Intranet
+
+= License =
+
+Wikilog is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+http://www.gnu.org/copyleft/gpl.html

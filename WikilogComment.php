@@ -407,10 +407,10 @@ class WikilogComment
 		// Send e-mails using $wgPasswordSender as from address
 		$from = new MailAddress( $wgPasswordSender, 'Wikilog' );
 		if ( $to_with ) {
-			UserMailer::send( $to_with, $from, $subject, $body . $unsubscribe, null, null, $headers );
+			UserMailer::send( $to_with, $from, $subject, $body . $unsubscribe, null, 'text/html; charset=UTF-8', $headers );
 		}
 		if ( $to_without ) {
-			UserMailer::send( $to_without, $from, $subject, $body, null, null, $headers );
+			UserMailer::send( $to_without, $from, $subject, $body, null, 'text/html; charset=UTF-8', $headers );
 		}
 	}
 

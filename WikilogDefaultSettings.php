@@ -105,6 +105,32 @@ $wgWikilogNumComments = 50;
  */
 $wgWikilogExtSummaries = false;
 
+/**
+ * Date format to use for entries and comments
+ * Should be set to one of MW date format options, for example 'ymd hms'
+ * (see $datePreferences in languages/messages/Messages??.php)
+ */
+$wgWikilogPagerDateFormat = false;
+
+/**
+ * Default value for "not in category" field
+ * You can set for example to some "Hidden" category so your users
+ * can "soft-hide" some of their entries in the aggregated view
+ */
+$wgWikilogDefaultNotCategory = false;
+
+/**
+ * Use drop-down selectboxes for "Wikilog", "Author" and "Category" fields
+ * on Special:Wikilog (turn them off with 'false')
+ */
+$wgWikilogSearchDropdowns = true;
+
+/**
+ * Show existing comments on each item page just below the post content
+ * Turn off with 'false'
+ */
+$wgWikilogCommentsOnItemPage = true;
+
 /* *** Editing *** */
 
 /**
@@ -165,7 +191,7 @@ $wgWikilogCommentNamespaces = array();
 /**
  * Maximum size for wikilog article comments, in bytes.
  */
-$wgWikilogMaxCommentSize = 2048;	// bytes
+$wgWikilogMaxCommentSize = 0x7FFFFFFF;	// bytes
 
 /**
  * Moderation options for comments. When set to true, new comments by anonymous
