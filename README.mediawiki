@@ -25,9 +25,10 @@ Information about previous versions can be found on:
 
 * Download the extension and install it as `./extensions/Wikilog`
 * Backup your database and local configuration, it is always a good idea
-* Add minimal configuration to your LocalSettings.php:
+* Add minimal configuration to your LocalSettings.php (100 should be the first unused in your wiki namespace number):
   require_once( 'extensions/Wikilog/Wikilog.php' );
   Wikilog::setupBlogNamespace( 100 );
+* (Optional) You can override some configuration from WikilogDefaultSettings.php
 * Run the `php maintenance/update.php` script in order to create or update the tables used by the extension.
 
 == Updating ==
