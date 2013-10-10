@@ -260,7 +260,9 @@ class Wikilog
 		$ns = $ns & ~1;
 		define( 'NS_BLOG', $ns );
 		define( 'NS_BLOG_TALK', $ns+1 );
-		$wgWikilogCommentNamespaces[NS_BLOG_TALK] = true;
+		if ( $wgWikilogCommentNamespaces !== true ) {
+			$wgWikilogCommentNamespaces[NS_BLOG_TALK] = true;
+		}
 		$wgExtraNamespaces[NS_BLOG] = 'Blog';
 		$wgExtraNamespaces[NS_BLOG_TALK] = 'Blog_talk';
 		$wgWikilogNamespaces[] = $ns;
@@ -499,7 +501,7 @@ class Wikilog
 	public static function nsHasComments( $title ) {
 		global $wgWikilogCommentNamespaces;
 		$ns = MWNamespace::getTalk( $title->getNamespace() );
-		return isset( $wgWikilogCommentNamespaces[$ns] );
+		return $wgWikilogCommentNamespaces === true || isset( $wgWikilogCommentNamespaces[$ns] );
 	}
 }
 

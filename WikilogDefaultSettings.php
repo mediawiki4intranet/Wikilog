@@ -153,6 +153,13 @@ $wgWikilogMaxTags = 25;
  * still possible through article talk pages, like normal wiki pages.
  */
 $wgWikilogEnableComments = true;
+
+/**
+ * Set to array(NS_TALK => true, NS_<something>_TALK => true)
+ * to enable threaded Wikilog-style comments in these namespaces.
+ *
+ * Set to boolean 'true' to enable such comments in ALL Talk namespaces.
+ */
 $wgWikilogCommentNamespaces = array();
 
 /**
