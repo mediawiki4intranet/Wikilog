@@ -392,9 +392,6 @@ class Wikilog
 		if ( $checkEdit && $title->isTalkPage() && !$title->exists() ) {
 			if ( self::nsHasComments( $title ) ) {
 				$query = '';
-				if ( ( $i = array_search( 'new', $classes ) ) !== false ) {
-					array_splice( $classes, $i, 1 );
-				}
 			}
 		}
 		return true;
