@@ -122,18 +122,6 @@ abstract class WikilogCommentPager
 		return parent::getDefaultQuery();
 	}
 
-	function doQuery() {
-		# If displaying comments for a single item, save the item.
-		# Otherwise, set query option to return items along with their
-		# comments.
-		if ( ( $item = $this->mQuery->getItem() ) ) {
-			$this->mSingleItem = $item;
-		} else {
-			$this->mQuery->setOption( 'include-item' );
-		}
-		return parent::doQuery();
-	}
-
 	function getStartBody() {
 		return Xml::openElement( 'div', array( 'class' => 'wl-threads' ) );
 	}
@@ -189,8 +177,8 @@ class WikilogCommentListPager
 
 	function formatRow( $row ) {
 		# Retrieve comment data.
-		$item = $this->mSingleItem ? $this->mSingleItem : WikilogItem::newFromRow( $row );
-		$comment = WikilogComment::newFromRow( $item, $row );
+		$subject = $this->mQuery->getIncludeSubpageComments() ? NULL : $this->mQuery->getSubject();
+		$comment = WikilogComment::newFromRow( $row, $subject );
 		$comment->loadText();
 		return $this->mFormatter->formatComment( $comment );
 	}
