@@ -100,6 +100,16 @@ div.wl-entry-footer {
 .ltr div.wl-thread div.wl-thread { margin-left: 2.0em; }
 .rtl div.wl-thread div.wl-thread { margin-right: 2.0em; }
 
+div.wl-thread div.wl-thread div.wl-thread div.wl-thread
+div.wl-thread div.wl-thread div.wl-thread div.wl-thread
+div.wl-thread div.wl-thread div.wl-thread div.wl-thread { margin-left: 1.0em; }
+
+div.wl-thread div.wl-thread div.wl-thread div.wl-thread
+div.wl-thread div.wl-thread div.wl-thread div.wl-thread
+div.wl-thread div.wl-thread div.wl-thread div.wl-thread
+div.wl-thread div.wl-thread div.wl-thread div.wl-thread
+div.wl-thread div.wl-thread div.wl-thread div.wl-thread { margin-left: 0.5em; }
+
 .ltr .wl-indent { margin-left: 2.0em; }
 .rtl .wl-indent { margin-right: 2.0em; }
 
