@@ -165,7 +165,7 @@ class WikilogHooks
 	 * ArticleDelete hook handler function.
 	 * Purges wikilog metadata when an article is deleted.
 	 */
-	static function ArticleDelete( $article, $user, $reason, &$error, &$status ) {
+	static function ArticleDelete( $article, $user, $reason, &$error ) {
 		# Delete comment.
 		$title = $article->getTitle();
 		if ( $title->isTalkPage() ) {
