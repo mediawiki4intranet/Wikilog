@@ -152,7 +152,7 @@ $wgAutoloadClasses['WikilogCalendar'] = $dir . 'WikilogCalendar.php';
 
 // General Wikilog hooks
 $wgHooks['ArticleEditUpdates'][] = 'WikilogHooks::ArticleEditUpdates';
-$wgHooks['ArticleDeleteComplete'][] = 'WikilogHooks::ArticleDeleteComplete';
+$wgHooks['ArticleDelete'][] = 'WikilogHooks::ArticleDelete';
 $wgHooks['ArticleSave'][] = 'WikilogHooks::ArticleSave';
 $wgHooks['ArticleSaveComplete'][] = 'SpecialWikilogSubscriptions::sendEmails';
 $wgHooks['TitleMoveComplete'][] = 'WikilogHooks::TitleMoveComplete';

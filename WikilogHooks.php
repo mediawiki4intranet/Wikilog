@@ -162,24 +162,33 @@ class WikilogHooks
 	}
 
 	/**
-	 * ArticleDeleteComplete hook handler function.
+	 * ArticleDelete hook handler function.
 	 * Purges wikilog metadata when an article is deleted.
 	 */
-	static function ArticleDeleteComplete( &$article, &$user, $reason, $id = NULL ) {
-		# Deleting comment through MW interface.
-		if ( $article instanceof WikilogCommentsPage ) {
-			$cmt = $article->mSingleComment;
-			if ( $cmt ) {
-				$cmt->mStatus = WikilogComment::S_DELETED;
-				$cmt->saveComment();
+	static function ArticleDelete( $article, $user, $reason, &$error, &$status ) {
+		# Delete comment.
+		$title = $article->getTitle();
+		if ( $title->isTalkPage() ) {
+			if ( Wikilog::nsHasComments( $title ) ) {
+				$comment = $article instanceof WikilogCommentsPage
+					? $article->mSingleComment : WikilogComment::newFromPageID( $article->getId() );
+				if ( $comment ) {
+					$dbw = wfGetDB( DB_MASTER );
+					$hasChildren = $dbw->selectField( 'wikilog_comments', 'wlc_id', array( 'wlc_parent' => $comment->mID ), __METHOD__, array( 'LIMIT' => 1 ) );
+					if ( $hasChildren ) {
+						$comment->mStatus = WikilogComment::S_DELETED;
+						$comment->saveComment();
+					} else {
+						$comment->deleteComment();
+					}
+				}
 			}
+			return true;
 		}
 
 		# Retrieve wikilog information.
 		$wi = Wikilog::getWikilogInfo( $article->getTitle() );
-		if ( is_null( $id ) && $article ) {
-			$id = $article->getId();
-		}
+		$id = $article->getId();
 
 		# Take special procedures if it is a wikilog page.
 		if ( $wi ) {
@@ -403,27 +412,47 @@ class WikilogHooks
 		// Try to setup foreign keys on Wikilog tables (MySQL/InnoDB only)
 		// Rather a hack for MediaWiki
 		$keys = array(
-			array( 'wikilog_comments', 'wlc_post', 'page', 'page_id' ),
-			array( 'wikilog_comments', 'wlc_comment_page', 'page', 'page_id' ),
-			array( 'wikilog_posts',    'wlp_page', 'page', 'page_id' ),
-			array( 'wikilog_wikilogs', 'wlw_page', 'page', 'page_id' ),
-			array( 'wikilog_talkinfo', 'wti_page', 'page', 'page_id' ),
+			array( 'wikilog_comments', 'wlc_post', 'page', 'page_id', 'CASCADE' ),
+			array( 'wikilog_comments', 'wlc_comment_page', 'page', 'page_id', 'SET NULL' ),
+			array( 'wikilog_comments', 'wlc_parent', 'wikilog_comments', 'wlc_id', 'SET NULL' ),
+			array( 'wikilog_posts',    'wlp_page', 'page', 'page_id', 'CASCADE' ),
+			array( 'wikilog_wikilogs', 'wlw_page', 'page', 'page_id', 'CASCADE' ),
+			array( 'wikilog_talkinfo', 'wti_page', 'page', 'page_id', 'CASCADE' ),
 		);
+		$rand = "_tmp_".rand();
 		foreach ( $keys as $k ) {
-			$res = $dbw->query( 'SHOW CREATE TABLE '.$dbw->tableName( $k[0] ), __METHOD__ );
+			$res = $dbw->query( "SHOW CREATE TABLE ".$dbw->tableName( $k[0] ), __METHOD__ );
 			$sql = $res->fetchRow();
 			$exists = strpos( $sql[1], "CONSTRAINT `$k[0]_$k[1]_$k[3]`" ) !== false;
+			$equal = strpos( $sql[1], "CONSTRAINT `$k[0]_$k[1]_$k[3]` ".
+				"FOREIGN KEY (`$k[1]`) REFERENCES ".$dbw->tableName( $k[2] )." (`$k[3]`) ON DELETE $k[4] ON UPDATE CASCADE" ) !== false;
+			if ( $exists && !$equal ) {
+				print "Removing foreign key on $k[0] ($k[1]) -> $k[2] ($k[3])\n";
+				$dbw->query( "ALTER TABLE ".$dbw->tableName( $k[0] )." DROP FOREIGN KEY `$k[0]_$k[1]_$k[3]`" );
+				$exists = false;
+			}
 			if ( !$exists ) {
+				print "Adding foreign key on $k[0] ($k[1]) -> $k[2] ($k[3])\n";
 				$dbw->query(
-					"DELETE FROM ".$dbw->tableName( $k[0] ).
-					" WHERE (SELECT $k[3] FROM ".$dbw->tableName( $k[2] ).
-					" WHERE $k[3]=$k[1]) IS NULL"
+					"CREATE TEMPORARY TABLE `$rand` AS SELECT $k[3] i FROM ".$dbw->tableName( $k[2] )
 				);
+				if ( $k[4] == 'DELETE' ) {
+					$dbw->query(
+						"DELETE FROM ".$dbw->tableName( $k[0] ).
+						" WHERE NOT EXISTS (SELECT `i` FROM `$rand` WHERE `i`=$k[1])"
+					);
+				} else {
+					$dbw->query(
+						"UPDATE ".$dbw->tableName( $k[0] ).
+						" SET $k[1]=NULL WHERE NOT EXISTS (SELECT `i` FROM `$rand` WHERE `i`=$k[1])"
+					);
+				}
 				$dbw->query(
 					"ALTER TABLE ".$dbw->tableName( $k[0] )." ADD CONSTRAINT $k[0]_$k[1]_$k[3]".
 					" FOREIGN KEY ($k[1]) REFERENCES ".$dbw->tableName( $k[2] ).
-					" ($k[3]) ON DELETE CASCADE ON UPDATE CASCADE"
+					" ($k[3]) ON DELETE ".$k[4]." ON UPDATE CASCADE"
 				);
+				$dbw->query("DROP TABLE `$rand`");
 			}
 		}
 	}

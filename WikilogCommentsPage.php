@@ -95,8 +95,8 @@ class WikilogCommentsPage
 		}
 
 		# Check if user can post.
-		$this->mUserCanPost = $wgUser->isAllowed( 'wl-postcomment' ) ||
-			( $wgUser->isAllowed( 'edit' ) && $wgUser->isAllowed( 'createtalk' ) );
+		$this->mUserCanPost = !$wgUser->isBlocked() && ( $wgUser->isAllowed( 'wl-postcomment' ) ||
+			( $wgUser->isAllowed( 'edit' ) && $wgUser->isAllowed( 'createtalk' ) ) );
 		$this->mUserCanModerate = $wgUser->isAllowed( 'wl-moderation' );
 
 		# Prepare the skin and the comment formatter.
