@@ -433,18 +433,23 @@ class WikilogHooks
 			}
 			if ( !$exists ) {
 				print "Adding foreign key on $k[0] ($k[1]) -> $k[2] ($k[3])\n";
-				$dbw->query(
-					"CREATE TEMPORARY TABLE `$rand` AS SELECT $k[3] i FROM ".$dbw->tableName( $k[2] )
-				);
+				if ( $k[2] == $k[0] ) {
+					$dbw->query(
+						"CREATE TEMPORARY TABLE `$rand` AS SELECT $k[3] FROM ".$dbw->tableName( $k[2] )
+					);
+					$t = "`$rand`";
+				} else {
+					$t = $dbw->tableName( $k[2] );
+				}
 				if ( $k[4] == 'DELETE' ) {
 					$dbw->query(
 						"DELETE FROM ".$dbw->tableName( $k[0] ).
-						" WHERE NOT EXISTS (SELECT `i` FROM `$rand` WHERE `i`=$k[1])"
+						" WHERE NOT EXISTS (SELECT $k[3] FROM $t WHERE $k[3]=$k[1])"
 					);
 				} else {
 					$dbw->query(
 						"UPDATE ".$dbw->tableName( $k[0] ).
-						" SET $k[1]=NULL WHERE NOT EXISTS (SELECT `i` FROM `$rand` WHERE `i`=$k[1])"
+						" SET $k[1]=NULL WHERE NOT EXISTS (SELECT $k[3] FROM $t WHERE $k[3]=$k[1])"
 					);
 				}
 				$dbw->query(
@@ -452,7 +457,9 @@ class WikilogHooks
 					" FOREIGN KEY ($k[1]) REFERENCES ".$dbw->tableName( $k[2] ).
 					" ($k[3]) ON DELETE ".$k[4]." ON UPDATE CASCADE"
 				);
-				$dbw->query("DROP TABLE `$rand`");
+				if ( $k[2] == $k[0] ) {
+					$dbw->query("DROP TABLE `$rand`");
+				}
 			}
 		}
 	}
