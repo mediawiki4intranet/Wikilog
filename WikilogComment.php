@@ -529,7 +529,7 @@ class WikilogComment
 		global $wgUser;
 		$comment = new WikilogComment( $subjectTitle );
 		$comment->mID           = intval( $row->wlc_id );
-		$comment->mParent       = intval( $row->wlc_parent );
+		$comment->mParent       = $row->wlc_parent;
 		$comment->mThread       = $row->wlc_thread;
 		$comment->mPost         = intval( $row->wlc_post );
 		$comment->mUserID       = intval( $row->wlc_user );
