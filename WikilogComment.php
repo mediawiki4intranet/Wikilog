@@ -874,10 +874,11 @@ class WikilogCommentFormatter
 		if ( $highlight ) {
 			$divclass[] = 'wl-comment-highlight';
 		}
+		$anchor = $comment->mID ? Xml::tags( 'a', array('name' => "id" . $comment->mID), '' ) : '';
 		return Xml::tags( 'div', array(
 			'class' => implode( ' ', $divclass ),
 			'id' => ( $comment->mID ? "c{$comment->mID}" : 'cpreview' )
-		), $html );
+		), $anchor . $html );
 	}
 
 	/**
@@ -978,6 +979,23 @@ class WikilogCommentFormatter
 				);
 			}
 		}
+		if ( WikilogCommentPagerSwitcher::getType() == WikilogCommentPagerSwitcher::PT_LIST &&
+				$comment->mParent && $comment->isVisible() &&
+				$comment->getParentObj()->mCommentTitle->exists()
+			) {
+			$link = $this->mSkin->link( $comment->getParentObj()->mCommentTitle,
+				wfMsg( 'wikilog-ptswitsher-comment-lable' ),
+				array( 'title' => wfMsg( 'wikilog-ptswitsher-to-comment' ) ),
+				array( 'section' => false ),
+				'known'
+			);
+			list( $updDate, $updTime, $updTz ) = WikilogUtils::getLocalDateTime( $comment->mUpdated );
+			$extra[] = wfMsg('wikilog-ptswitsher-to-parent', array(
+				$link, $authorFmt,
+				$updDate, $updTime, $updTz
+			));
+		}
+
 		if ( $extra ) {
 			$extra = implode( ' | ', $extra );
 		} else {

@@ -95,6 +95,7 @@ $wgAutoloadClasses += array(
 	'WikilogCommentPager'       => $dir . 'WikilogCommentPager.php',
 	'WikilogCommentListPager'   => $dir . 'WikilogCommentPager.php',
 	'WikilogCommentThreadPager' => $dir . 'WikilogCommentPager.php',
+	'WikilogCommentPagerSwitcher' => $dir . 'WikilogCommentPagerSwitcher.php',
 
 	// WikilogFeed.php
 	'WikilogFeed'               => $dir . 'WikilogFeed.php',
@@ -325,6 +326,11 @@ class Wikilog
 	 * instance for the article.
 	 */
 	static function ArticleFromTitle( &$title, &$article ) {
+		global $wgRequest;
+		if ( $wgRequest->getVal( 'comment_pager_type' ) !== null ) {
+			WikilogCommentPagerSwitcher::setType( $wgRequest->getVal( 'comment_pager_type' ) );
+		}
+		WikilogCommentPagerSwitcher::checkType();
 		if ( $title->isTalkPage() ) {
 			if ( self::nsHasComments( $title ) ) {
 				$article = new WikilogCommentsPage( $title );

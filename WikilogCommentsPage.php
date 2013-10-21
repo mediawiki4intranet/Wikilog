@@ -238,11 +238,12 @@ class WikilogCommentsPage
 	 * them in threads.
 	 */
 	protected function viewComments( WikilogCommentQuery $query ) {
-		global $wgOut, $wgRequest, $wgUser;
+		global $wgOut, $wgRequest, $wgUser, $wgRequest;
 
 		# Prepare query and pager objects.
 		$replyTo = $wgRequest->getInt( 'wlParent' );
-		$pager = new WikilogCommentThreadPager( $query, $this->mFormatter );
+		$pagerClass = WikilogCommentPagerSwitcher::getClass();
+		$pager = new $pagerClass( $query, $this->mFormatter );
 
 		# Different behavior when displaying a single comment.
 		if ( $this->mSingleComment ) {
@@ -260,9 +261,22 @@ class WikilogCommentsPage
 		# Enclose all comments or replies in a div.
 		$wgOut->addHtml( Xml::openElement( 'div', array( 'class' => 'wl-comments' ) ) );
 
+		# Switch pager
+		$type = WikilogCommentPagerSwitcher::getType();
+		$msg = wfMsg( $type != WikilogCommentPagerSwitcher::PT_THREAD ?
+			'wikilog-ptswitcher-thread' : 'wikilog-ptswitcher-list'
+		);
+		$url = $wgRequest->appendQueryValue( 'comment_pager_type',
+			$type != WikilogCommentPagerSwitcher::PT_THREAD ? WikilogCommentPagerSwitcher::PT_THREAD : WikilogCommentPagerSwitcher::PT_LIST
+		);
+		$link = Xml::tags( 'a', array( 'href' => $url ),  $msg );
+		$pagerType = Xml::tags( 'span', array( 'style' => 'float:right;font-size:12px;' ),
+			'[ '. $link . ' ]'
+		);
+
 		# Comments/Replies header.
 		$header = Xml::tags( 'h2', array( 'id' => 'wl-comments-header' ),
-			wfMsgExt( $headerMsg, array( 'parseinline' ) )
+			$pagerType . wfMsgExt( $headerMsg, array( 'parseinline' ) )
 		);
 		$wgOut->addHtml( $header );
 

@@ -187,6 +187,11 @@ Available actions:
 * <html><a href="$3"></html>Read the post {{SUBPAGENAME}}<html></a></html>.
 * [[$1|Reply to this comment]] and/or read discussion thread.',
 	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Unsubscribe</a> from comments to $1.</p>',
+	'wikilog-ptswitsher-to-parent' => 'answer to $1 from $2 $3 at $4',
+	'wikilog-ptswitsher-to-comment' => 'To comment page',
+	'wikilog-ptswitsher-comment-lable' => 'comment',
+	'wikilog-ptswitcher-thread' => 'Thread view',
+	'wikilog-ptswitcher-list' => 'List view',
 
 	# Atom and RSS feeds
 	'wikilog-feed-title' => '{{SITENAME}} - $1 [$2]', # $1 = title, $2 = content language
@@ -6722,6 +6727,11 @@ $messages['ru'] = array(
 * <html><a href="$3"></html>Прочитать запись {{SUBPAGENAME}}<html></a></html>.
 * [[$1|Ответить на этот комментарий]] и/или просмотреть ветвь обсуждения.',
 	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Отписаться</a> от комментариев к записи $1.</p>',
+	'wikilog-ptswitsher-to-parent' => 'ответ на $1 от $2 $3 в $4',
+	'wikilog-ptswitsher-to-comment' => 'Перейти к комментарию',
+	'wikilog-ptswitsher-comment-lable' => 'комментарий',
+	'wikilog-ptswitcher-thread' => 'Иерархический вид',
+	'wikilog-ptswitcher-list' => 'Хронологический вид',
 
 	'wikilog-title-comments' => 'Комментарии — $1',
 	'wikilog-title-comments-all' => 'Все комментарии викилогов',
