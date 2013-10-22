@@ -251,7 +251,8 @@ class Wikilog
 	 * Setup Blog: namespace with i18n aliases
 	 */
 	static function setupBlogNamespace( $ns ) {
-		global $wgExtensionMessagesFiles, $wgExtraNamespaces, $wgWikilogNamespaces, $wgWikilogCommentNamespaces;
+		global $wgExtensionMessagesFiles, $wgExtraNamespaces, $wgWikilogNamespaces,
+			$wgWikilogCommentNamespaces, $wgContentNamespaces;
 		if ( $ns < 100 ) {
 			echo "Wikilog setup: custom namespaces should start " .
 				 "at 100 to avoid conflict with standard namespaces.\n";
@@ -266,6 +267,7 @@ class Wikilog
 		$wgExtraNamespaces[NS_BLOG] = 'Blog';
 		$wgExtraNamespaces[NS_BLOG_TALK] = 'Blog_talk';
 		$wgWikilogNamespaces[] = $ns;
+		$wgContentNamespaces[] = $ns;
 		$wgExtensionMessagesFiles[ 'WikilogNamespace' ] = dirname( __FILE__ ).'/Wikilog.i18n.ns.php';
 	}
 
