@@ -127,6 +127,12 @@ class WikilogCommentsPage
 		if ( $this->mSingleComment ) {
 			$this->mSubject = $this->mSingleComment->mSubject;
 		}
+
+		// Set and check WikilogCommentPager type
+		if ( $wgRequest->getVal( 'comment_pager_type' ) !== null ) {
+			WikilogCommentPagerSwitcher::setType( $wgRequest->getVal( 'comment_pager_type' ) );
+		}
+		WikilogCommentPagerSwitcher::checkType();
 	}
 
 	/**
