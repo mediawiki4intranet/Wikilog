@@ -1127,7 +1127,7 @@ class WikilogCommentFormatter
 	}
 
 	protected function prepareCommentQuote( $text ) {
-        global $wgWikilogCommentQuoteTemplateBegin, $wgWikilogCommentQuoteTemplateEnd;
+		global $wgWikilogCommentQuoteTemplateBegin, $wgWikilogCommentQuoteTemplateEnd;
 		if ( ( $begin = mb_stripos( $text, '{{wl-comment' ) ) !== false ) {
 			$end = mb_stripos( $text, '}}', $begin );
 			$text = mb_substr( $text, 0, $begin ) . mb_substr( $text, $end + 2 );

@@ -206,7 +206,7 @@ $wgResourceModules['Wikilog'] = array(
 	'dependencies'  => array('jquery'),
 	'localBasePath' => __DIR__,
 	'remoteExtPath' => 'Wikilog',
-    'position'      => 'top',
+	'position'      => 'top',
 );
 
 /**
