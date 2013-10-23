@@ -250,3 +250,11 @@ $wgWikilogNamespaces = array();
  * default is to clone since this seems to work better.
  */
 $wgWikilogCloneParser = false;
+
+
+/* *** Quoting *** */
+/**
+ * WikilogComment quoting settings
+ */
+$wgWikilogCommentQuoteTemplateBegin = '{{quote|1=';
+$wgWikilogCommentQuoteTemplateEnd = '}}';

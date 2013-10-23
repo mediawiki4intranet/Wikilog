@@ -80,6 +80,7 @@ $wgAutoloadClasses += array(
 	'WikilogItem'               => $dir . 'WikilogItem.php',
 	'WikilogComment'            => $dir . 'WikilogComment.php',
 	'WikilogCommentFormatter'   => $dir . 'WikilogComment.php',
+	'WikilogCommentQuote'       => $dir . 'WikilogCommentQuote.php',
 
 	// WikilogParser.php
 	'WikilogParser'             => $dir . 'WikilogParser.php',

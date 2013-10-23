@@ -188,6 +188,9 @@ Available actions:
 * [[$1|Reply to this comment]] and/or read discussion thread.',
 	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Unsubscribe</a> from comments to $1.</p>',
 
+	'wikilog-quote-comment' => 'Add quote',
+	'wikilog-quote-comment-link' => 'quote',
+
 	# Atom and RSS feeds
 	'wikilog-feed-title' => '{{SITENAME}} - $1 [$2]', # $1 = title, $2 = content language
 	'wikilog-feed-ns-title' => '$1 wikilog articles', # $1 = namespace name
@@ -6811,9 +6814,8 @@ $5
 <li>Перейти к обсуждению: [$6 $7]</li>
 </ul>',
 
-    'wikilog-quote-comment' => 'Вставить комментарий как цитату',
-    'wikilog-quote-comment-link' => 'цитировать комментарий',
-    'wikilog-comment-quote-selection' => 'цитировать выделенное'
+	'wikilog-quote-comment' => 'Вставить цитату',
+	'wikilog-quote-comment-link' => 'цитировать',
 
 );
 
