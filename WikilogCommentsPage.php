@@ -286,8 +286,8 @@ class WikilogCommentsPage
 			$type != 'thread' ? 'thread' : 'list'
 		);
 		$link = Xml::tags( 'a', array( 'href' => $url ),  $msg );
-		$pagerType = Xml::tags( 'span', array( 'style' => 'float:right;font-size:12px;' ),
-			'[ '. $link . ' ]'
+		$pagerType = Xml::tags(
+			'span', array( 'style' => 'float: right; font-size: 70%' ), '[ '. $link . ' ]'
 		);
 
 		# Comments/Replies header.
