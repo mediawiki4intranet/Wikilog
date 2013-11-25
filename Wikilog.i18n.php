@@ -189,7 +189,7 @@ Available actions:
 	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Unsubscribe</a> from comments to $1.</p>',
 	'wikilog-ptswitsher-to-parent' => 'answer to $1 from $2 $3 at $4',
 	'wikilog-ptswitsher-to-comment' => 'To comment page',
-	'wikilog-ptswitsher-comment-lable' => 'comment',
+	'wikilog-ptswitsher-comment-label' => 'comment',
 	'wikilog-ptswitcher-thread' => 'Thread view',
 	'wikilog-ptswitcher-list' => 'List view',
 
@@ -6729,7 +6729,7 @@ $messages['ru'] = array(
 	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Отписаться</a> от комментариев к записи $1.</p>',
 	'wikilog-ptswitsher-to-parent' => 'ответ на $1 от $2 $3 в $4',
 	'wikilog-ptswitsher-to-comment' => 'Перейти к комментарию',
-	'wikilog-ptswitsher-comment-lable' => 'комментарий',
+	'wikilog-ptswitsher-comment-label' => 'комментарий',
 	'wikilog-ptswitcher-thread' => 'Иерархический вид',
 	'wikilog-ptswitcher-list' => 'Хронологический вид',
 

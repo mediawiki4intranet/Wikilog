@@ -80,6 +80,7 @@ class WikilogCommentsPage
 	public    $mSingleComment;		///< Used when viewing a single comment.
 
 	var $mWikilogInfo, $mSubject;
+	var $mCommentPagerType;
 
 	/**
 	 * Constructor.
@@ -124,15 +125,21 @@ class WikilogCommentsPage
 			haclfRestoreTitlePatch( $hacl );
 		}
 
+		// Set WikilogCommentPager type
+		if ( $wgRequest->getVal( 'comment_pager_type' ) !== null ) {
+			WikilogCommentPagerSwitcher::setType( $this->mSubject, $wgRequest->getVal( 'comment_pager_type' ) );
+		}
+		// Refresh cache after switching
+		WikilogCommentPagerSwitcher::checkType( $this->mSubject );
+		$this->mCommentPagerType = WikilogCommentPagerSwitcher::getType( $this->mSubject );
+		if ( $this->mCommentPagerType === 'list' ) {
+			$this->mFormatter->mWithParent = true;
+		}
+
+		// Set single comment subject AFTER selecting comment pager type!
 		if ( $this->mSingleComment ) {
 			$this->mSubject = $this->mSingleComment->mSubject;
 		}
-
-		// Set and check WikilogCommentPager type
-		if ( $wgRequest->getVal( 'comment_pager_type' ) !== null ) {
-			WikilogCommentPagerSwitcher::setType( $wgRequest->getVal( 'comment_pager_type' ) );
-		}
-		WikilogCommentPagerSwitcher::checkType();
 	}
 
 	/**
@@ -203,7 +210,10 @@ class WikilogCommentsPage
 			$name = $this->mSubject->getSubpageText();
 
 			# Single comment view, show comment followed by its replies.
+			$old = $this->mFormatter->mWithParent;
+			$this->mFormatter->mWithParent = true;
 			$params = $this->mFormatter->getCommentMsgParams( $this->mSingleComment );
+			$this->mFormatter->mWithParent = $old;
 
 			# Display the comment header and other status messages.
 			$wgOut->addHtml( $this->mFormatter->formatCommentHeader( $this->mSingleComment, $params ) );
@@ -248,7 +258,7 @@ class WikilogCommentsPage
 
 		# Prepare query and pager objects.
 		$replyTo = $wgRequest->getInt( 'wlParent' );
-		$pagerClass = WikilogCommentPagerSwitcher::getClass();
+		$pagerClass = $this->mCommentPagerType == 'list' ? 'WikilogCommentListPager' : 'WikilogCommentThreadPager';
 		$pager = new $pagerClass( $query, $this->mFormatter );
 
 		# Different behavior when displaying a single comment.
@@ -268,12 +278,12 @@ class WikilogCommentsPage
 		$wgOut->addHtml( Xml::openElement( 'div', array( 'class' => 'wl-comments' ) ) );
 
 		# Switch pager
-		$type = WikilogCommentPagerSwitcher::getType();
-		$msg = wfMsg( $type != WikilogCommentPagerSwitcher::PT_THREAD ?
+		$type = $this->mCommentPagerType;
+		$msg = wfMsg( $type != 'thread' ?
 			'wikilog-ptswitcher-thread' : 'wikilog-ptswitcher-list'
 		);
 		$url = $wgRequest->appendQueryValue( 'comment_pager_type',
-			$type != WikilogCommentPagerSwitcher::PT_THREAD ? WikilogCommentPagerSwitcher::PT_THREAD : WikilogCommentPagerSwitcher::PT_LIST
+			$type != 'thread' ? 'thread' : 'list'
 		);
 		$link = Xml::tags( 'a', array( 'href' => $url ),  $msg );
 		$pagerType = Xml::tags( 'span', array( 'style' => 'float:right;font-size:12px;' ),

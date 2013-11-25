@@ -781,6 +781,9 @@ class WikilogCommentFormatter
 	protected $mThreadStack = array();
 	protected $mThreadRoot = array();
 
+	/// Whether to include link to parent in comment info
+	var $mWithParent = false;
+
 	/**
 	 * Constructor.
 	 *
@@ -979,21 +982,21 @@ class WikilogCommentFormatter
 				);
 			}
 		}
-		if ( WikilogCommentPagerSwitcher::getType() == WikilogCommentPagerSwitcher::PT_LIST &&
+		if ( $this->mWithParent &&
 				$comment->mParent && $comment->isVisible() &&
 				$comment->getParentObj()->mCommentTitle->exists()
 			) {
 			$link = $this->mSkin->link( $comment->getParentObj()->mCommentTitle,
-				wfMsg( 'wikilog-ptswitsher-comment-lable' ),
+				wfMsg( 'wikilog-ptswitsher-comment-label' ),
 				array( 'title' => wfMsg( 'wikilog-ptswitsher-to-comment' ) ),
 				array( 'section' => false ),
 				'known'
 			);
 			list( $updDate, $updTime, $updTz ) = WikilogUtils::getLocalDateTime( $comment->mUpdated );
-			$extra[] = wfMsg('wikilog-ptswitsher-to-parent', array(
+			$extra[] = wfMsg( 'wikilog-ptswitsher-to-parent', array(
 				$link, $authorFmt,
 				$updDate, $updTime, $updTz
-			));
+			) );
 		}
 
 		if ( $extra ) {
