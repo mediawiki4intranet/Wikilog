@@ -986,16 +986,17 @@ class WikilogCommentFormatter
 				$comment->mParent && $comment->isVisible() &&
 				$comment->getParentObj()->mCommentTitle->exists()
 			) {
-			$link = $this->mSkin->link( $comment->getParentObj()->mCommentTitle,
+			$parent = $comment->getParentObj();
+			$link = $this->mSkin->link( $parent->mCommentTitle,
 				wfMsg( 'wikilog-ptswitsher-comment-label' ),
 				array( 'title' => wfMsg( 'wikilog-ptswitsher-to-comment' ) ),
 				array( 'section' => false ),
 				'known'
 			);
-			list( $updDate, $updTime, $updTz ) = WikilogUtils::getLocalDateTime( $comment->mUpdated );
+			list( $pd, $pt, $ptz ) = WikilogUtils::getLocalDateTime( $parent->mUpdated );
 			$extra[] = wfMsg( 'wikilog-ptswitsher-to-parent', array(
-				$link, $authorFmt,
-				$updDate, $updTime, $updTz
+				$link, WikilogUtils::authorSig( $parent->mUserText, true ),
+				$pd, $pt, $ptz
 			) );
 		}
 
