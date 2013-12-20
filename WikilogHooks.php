@@ -42,7 +42,6 @@ class WikilogHooks
 		$title = $article->getTitle();
 		$wi = Wikilog::getWikilogInfo( $title );
 
-		$title = $article->getTitle();
 		if ( $title->isTalkPage() ) {
 			if ( Wikilog::nsHasComments( $title ) &&
 				!isset( WikilogComment::$saveInProgress[$title->getPrefixedText()] ) ) {
