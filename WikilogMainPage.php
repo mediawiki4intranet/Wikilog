@@ -254,9 +254,10 @@ class WikilogMainPage
 
 	/**
 	 * Returns a form for new item creation.
+     * @param Title $title
 	 */
 	static function formNewItem( $title ) {
-		global $wgScript, $wgWikilogStylePath;
+		global $wgScript, $wgWikilogStylePath, $wgMaxTitleBytes;
 
 		$fields = array();
 		if ( $title )
@@ -292,7 +293,18 @@ class WikilogMainPage
 		$fields[] = Xml::submitButton( wfMsg( 'wikilog-new-item-go' ) );
 
 		$form = Xml::tags( 'form',
-			array( 'action' => $wgScript, 'onsubmit' => 'return checkNewItem(this, \''.wfMsg('wikilog-new-item-subpage').'\');' ),
+			array(
+                'action' => $wgScript,
+                'onsubmit' => 'return checkNewItem(this, '
+                . json_encode( array( 
+                    'subpage' => wfMsg('wikilog-new-item-subpage'),
+                    'title' => array(
+                        'lng' => $wgMaxTitleBytes - strlen('/c000000'),
+                        'msg' => wfMsg('wikilog-new-item-too-long')
+                    )
+                ) )
+                . ');'
+            ),
 			implode( "\n", $fields )
 		);
 
