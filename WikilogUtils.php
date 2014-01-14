@@ -158,7 +158,7 @@ class WikilogUtils {
 
 		static $parser = null;
 
-		$article = new Article( $title );
+		$article = new WikiPage( $title );
 
 		# First try the parser cache.
 		$useParserCache = $wgEnableParserCache &&
@@ -208,7 +208,7 @@ class WikilogUtils {
 		$parser->startExternalParse( $title, $parserOpt, Parser::OT_HTML );
 
 		# Parse article.
-		$arttext = $article->fetchContent();
+		$arttext = $article->getText();
 		$parserOutput = $parser->parse( $arttext, $title, $parserOpt );
 
 		# Save in parser cache.
