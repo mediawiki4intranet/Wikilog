@@ -254,16 +254,19 @@ class WikilogMainPage
 
 	/**
 	 * Returns a form for new item creation.
-     * @param Title $title
+	 * @param Title $title
 	 */
 	static function formNewItem( $title ) {
 		global $wgScript, $wgWikilogStylePath, $wgMaxTitleBytes;
 
 		$fields = array();
-		if ( $title )
-			$fields[] = Xml::element( 'input', array( 'type' => 'hidden', 'value' => $title->getPrefixedText(), 'id' => 'wl-newitem-wikilog' ) );
-		else
-		{
+		if ( $title ) {
+			$fields[] = Xml::element( 'input', array(
+				'type' => 'hidden',
+				'value' => $title->getPrefixedText(),
+				'id' => 'wl-newitem-wikilog'
+			) );
+		} else {
 			global $wgWikilogNamespaces;
 			$dbr = wfGetDB( DB_SLAVE );
 			$r = $dbr->select( 'page', 'page_id', array(
@@ -271,17 +274,19 @@ class WikilogMainPage
 				'page_title NOT LIKE \'%/%\'',
 			), __METHOD__ );
 			$opts = array();
-			foreach ( $r as $obj )
-			{
+			foreach ( $r as $obj ) {
 				$t = Title::newFromID( $obj->page_id );
-				if ( $t->userCan( 'edit' ) )
+				if ( $t->userCan( 'edit' ) ) {
 					$opts[] = $t;
+				}
 			}
-			if ( !$opts )
+			if ( !$opts ) {
 				return '';
+			}
 			$wikilog_select = new XmlSelect( false, 'wl-newitem-wikilog' );
-			foreach ( $opts as $o )
+			foreach ( $opts as $o ) {
 				$wikilog_select->addOption( $o->getText(), $o->getPrefixedText() );
+			}
 			$fields[] = Xml::label( wfMsg( 'wikilog-form-wikilog' ), 'wl-newitem-wikilog' )
 				. '&nbsp;' . $wikilog_select->getHTML();
 		}
@@ -289,22 +294,22 @@ class WikilogMainPage
 		$fields[] = Html::hidden( 'preload', '' );
 		$fields[] = Html::hidden( 'title', '' );
 		$fields[] = Xml::inputLabel( wfMsg( 'wikilog-item-name' ),
-			false, 'wl-item-name', 70, date('Y-m-d ') );
+			false, 'wl-item-name', 70, date( 'Y-m-d ' ) );
 		$fields[] = Xml::submitButton( wfMsg( 'wikilog-new-item-go' ) );
 
 		$form = Xml::tags( 'form',
 			array(
-                'action' => $wgScript,
-                'onsubmit' => 'return checkNewItem(this, '
-                . json_encode( array( 
-                    'subpage' => wfMsg('wikilog-new-item-subpage'),
-                    'title' => array(
-                        'lng' => $wgMaxTitleBytes - strlen('/c' . WikilogComment::padID(0)),
-                        'msg' => wfMsg('wikilog-new-item-too-long')
-                    )
-                ) )
-                . ');'
-            ),
+				'action' => $wgScript,
+				'onsubmit' => 'return checkNewItem(this, '
+					. json_encode( array(
+						'subpage' => wfMsg( 'wikilog-new-item-subpage' ),
+						'title' => array(
+							'lng' => $wgMaxTitleBytes - strlen( '/c' . WikilogComment::padID( 0 ) ),
+							'msg' => wfMsg( 'wikilog-new-item-too-long' )
+						)
+					) )
+					. ');'
+			),
 			implode( "\n", $fields )
 		);
 
