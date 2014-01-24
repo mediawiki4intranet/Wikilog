@@ -12,7 +12,7 @@ function checkNewItem(f, msgs)
     }
     if (msgs.title)
     {
-        if (msgs.title.lng > (w.value + '/' + i.value).length)
+        if (msgs.title.lng < (w.value + '/' + i.value).length)
         {
             alert(msgs.title.msg);
             return false;
