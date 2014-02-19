@@ -304,7 +304,7 @@ class WikilogMainPage
 					. json_encode( array(
 						'subpage' => wfMsg( 'wikilog-new-item-subpage' ),
 						'title' => array(
-							'lng' => $wgMaxTitleBytes - strlen( '/c' . WikilogComment::padID( 0 ) ),
+							'lng' => ( isset( $wgMaxTitleBytes ) ? $wgMaxTitleBytes : 255 ) - strlen( '/c' . WikilogComment::padID( 0 ) ),
 							'msg' => wfMsg( 'wikilog-new-item-too-long' )
 						)
 					) )
