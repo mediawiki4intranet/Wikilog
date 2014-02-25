@@ -72,7 +72,7 @@ class SpecialWikilogSubscriptions
             'LIMIT' => $opts['comments_limit'],
             'OFFSET' => $opts['comments_offset']
         );
-        $res = $dbr->select( array( $tbl, 'page' ), 'page.*', $where, __METHOD__, $qo );
+        $res = $dbr->select( array( $tbl, 'p' => 'page' ), 'p.*', $where, __METHOD__, $qo );
         foreach ( $res as $row ) {
             $opts['comments'][] = Title::newFromRow( $row );
         }
