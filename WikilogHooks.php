@@ -121,7 +121,8 @@ class WikilogHooks
 
 				if ( !$wasPublished && $item->mPublish ) {
 					// Send email notifications about the new post
-					SpecialWikilogSubscriptions::sendEmails( $article, $editInfo->pstContent->getNativeData() );
+					SpecialWikilogSubscriptions::sendEmails( $article,
+						!empty( $editInfo->pstContent ) ? $editInfo->pstContent->getNativeData() : $article->getText() );
 				}
 			} else {
 				# Remove entry from tables. Entries in wikilog_authors and
