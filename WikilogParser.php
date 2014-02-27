@@ -140,21 +140,25 @@ class WikilogParser
 				$moreRegex = "/(?<=^|\\n)--+ *(?:$words) *--+\s*/$flags";
 			}
 
-			# Find and replace the --more-- marker. Extract summary.
-			# We do it anyway even if the summary is already set, in order
-			# to replace the marker with an invisible anchor.
+			/**
+			 * Find and replace the --more-- marker. Extract summary.
+			 * We do it anyway even if the summary is already set, in order
+			 * to replace the marker with an invisible anchor.
+			 */
 			$p = preg_split( $moreRegex, $text, 2 );
 			if ( count( $p ) > 1 ) {
 				self::trySetSummary( $parser, trim( $p[0] ) );
 				$anchor = $parser->insertStripItem( self::MORE_ANCHOR );
 				$text = $p[0] . $anchor . $p[1];
 			} elseif ( !$parser->mExtWikilog->mSummary ) {
-				# Otherwise, make a summary from the intro section.
-				# Why we don't use $parser->getSection()? Because it has the
-				# side-effect of clearing the parser state, which is bad here
-				# since this hook happens during parsing. Instead, we
-				# anticipate the $parser->doHeadings() call and extract the
-				# text before the first heading.
+				/*
+				 * Otherwise, make a summary from the intro section.
+				 * Why we don't use $parser->getSection()? Because it has the
+				 * side-effect of clearing the parser state, which is bad here
+				 * since this hook happens during parsing. Instead, we
+				 * anticipate the $parser->doHeadings() call and extract the
+				 * text before the first heading.
+				 */
 				$text = $parser->doHeadings( $text );
 				$p = preg_split( '/<(h[1-6])\\b.*?>.*?<\\/\\1\\s*>/i', $text, 2 );
 				if ( count( $p ) > 1 ) {
@@ -263,24 +267,24 @@ class WikilogParser
 		$parser->mExtWikilog->mPublish = true;
 		$args = array_slice( func_get_args(), 2 );
 
-		# First argument is the publish date
+		// First argument is the publish date
 		if ( !is_null( $pubdate ) ) {
 			wfSuppressWarnings(); // Shut up E_STRICT warnings about timezone.
 			$ts = strtotime( $pubdate );
 			wfRestoreWarnings();
 			if ( $ts > 0 ) {
 				$parser->mExtWikilog->mPubDate = wfTimestamp( TS_MW, $ts );
-			}
-			else {
+			} else {
 				$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-invalid-date', $pubdate ) );
 				$parser->mOutput->addWarning( $warning );
 			}
 		}
 
-		# Remaining arguments are author names
+		// Remaining arguments are author names
 		foreach ( $args as $name ) {
-			if ( !self::tryAddAuthor( $parser, $name ) )
+			if ( !self::tryAddAuthor( $parser, $name ) ) {
 				break;
+			}
 		}
 
 		return '<!-- -->';

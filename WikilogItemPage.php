@@ -160,14 +160,6 @@ class WikilogItemPage
 			parent::view();
 		}
 	}
-
-	/**
-	 * Compatibility with MediaWiki 1.17.
-	 * @todo Remove this in Wl1.3.
-	 */
-	public function preSaveTransform( $text ) {
-		return $this->newPage( $this->getTitle() )->preSaveTransform( $text );
-	}
 }
 
 /**
@@ -183,41 +175,5 @@ class WikilogWikiItemPage
 	public static function newFromID( $id, $from = 'fromdb' ) {
 		$t = Title::newFromID( $id );
 		return $t == null ? null : new self( $t );
-	}
-
-	/**
-	 * Override for preSaveTransform. Enables quick post publish by signing
-	 * the article using the standard --~~~~ marker. This causes the signature
-	 * marker to be replaced by a {{wl-publish:...}} parser function call,
-	 * that is then saved to the database and causes the post to be published.
-	 */
-	public function preSaveTransform( $text, User $user = null, ParserOptions $popts = null ) {
-		global $wgParser, $wgUser;
-		$user = is_null( $user ) ? $wgUser : $user;
-
-		if ( $popts === null ) {
-			$popts = ParserOptions::newFromUser( $user );
-		}
-
-		$t = WikilogUtils::getPublishParameters();
-		$date_txt = $t['date'];
-		$user_txt = $t['user'];
-
-		$sigs = array(
-			'/\n?(--)?~~~~~\n?/m' => "\n{{wl-publish: {$date_txt} }}\n",
-			'/\n?(--)?~~~~\n?/m' => "\n{{wl-publish: {$date_txt} | {$user_txt} }}\n",
-			'/\n?(--)?~~~\n?/m' => "\n{{wl-author: {$user_txt} }}\n"
-		);
-
-		if ( !StubObject::isRealObject( $wgParser ) ) {
-			$wgParser->_unstub();
-		}
-		$wgParser->startExternalParse( $this->mTitle, $popts, Parser::OT_WIKI );
-
-		$text = $wgParser->replaceVariables( $text );
-		$text = preg_replace( array_keys( $sigs ), array_values( $sigs ), $text );
-		$text = $wgParser->mStripState->unstripBoth( $text );
-
-		return parent::preSaveTransform( $text, $user, $popts );
 	}
 }

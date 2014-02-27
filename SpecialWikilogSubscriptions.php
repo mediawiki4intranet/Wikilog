@@ -293,78 +293,77 @@ END_STRING;
         );
     }
 
-    public static function sendEmails( &$article, &$user, $text, $summary,
-        $minoredit, $watchthis, $sectionanchor, &$flags, $revision, &$status, $baseRevId )
+    public static function sendEmails( &$article, $text )
     {
-        if ( isset( $article->mExtWikilog ) && $article->mExtWikilog['signpub'] ) {
-            global $wgUser, $wgParser, $wgPasswordSender, $wgServer;
+        global $wgUser, $wgParser, $wgPasswordSender, $wgServer;
 
-            $dbr = wfGetDB( DB_SLAVE );
+        $dbr = wfGetDB( DB_SLAVE );
 
-            $title = $article->getTitle();
-            $wi = Wikilog::getWikilogInfo( $title );
-            $args = array(
-                $title->getSubpageText(),
-                $wgUser->getName(),
-                $title->getFullURL(),
-                $wi->mWikilogTitle->getText(),
-                $text,
-                $wi->mItemTalkTitle->getFullURL(),
-                $wi->mItemTalkTitle->getPrefixedText(),
-            );
+        $title = $article->getTitle();
+        $wi = Wikilog::getWikilogInfo( $title );
+        $args = array(
+            $title->getSubpageText(),
+            $wgUser->getName(),
+            $title->getFullURL(),
+            $wi->mWikilogTitle->getText(),
+            $text,
+            $wi->mItemTalkTitle->getFullURL(),
+            $wi->mItemTalkTitle->getPrefixedText(),
+        );
 
-            // Generate body
-            $saveExpUrls = WikilogParser::expandLocalUrls();
-            $popt = new ParserOptions( User::newFromId( $wgUser->getId() ) );
-            $subject = $wgParser->parse( wfMsgNoTrans( 'wikilog-subscription-email-subject', $args ),
-                $title, $popt, false, false );
-            $subject = strip_tags( $subject->getText() );
-            $body = $wgParser->parse( wfMsgNoTrans( 'wikilog-subscription-email-body', $args),
-                $title, $popt, true, false );
-            $body = $body->getText();
-            $body .= self::generateSubscriptionLink( $wi->mWikilogTitle, true, true ) .
-                '<br />' . self::subcriptionsRuleLink();
-            WikilogParser::expandLocalUrls( $saveExpUrls );
+        // Generate body
+        $saveExpUrls = WikilogParser::expandLocalUrls();
+        $popt = new ParserOptions( User::newFromId( $wgUser->getId() ) );
+        $subject = $wgParser->parse( wfMsgNoTrans( 'wikilog-subscription-email-subject', $args ),
+            $title, $popt, false, false );
+        $subject = strip_tags( $subject->getText() );
+        $body = $wgParser->parse( wfMsgNoTrans( 'wikilog-subscription-email-body', $args),
+            $title, $popt, true, false );
+        $body = $body->getText();
+        $body .= self::generateSubscriptionLink( $wi->mWikilogTitle, true, true ) .
+            '<br />' . self::subcriptionsRuleLink();
+        WikilogParser::expandLocalUrls( $saveExpUrls );
 
-            // Select subscribers
-            $blogID = $wi->mWikilogTitle->getArticleID();
-            $res = $dbr->select( 'watchlist', 'wl_user',
-                'wl_namespace = ' . NS_BLOG . ' AND wl_title = ' . $dbr->addQuotes( $wi->mWikilogTitle->getText() ), __METHOD__ );
-            $emails = array();
-            foreach ( $res as $row ) {
-                $user = User::newFromId( $row->wl_user );
-                $user->mGroups = NULL;
-                if ( !$user || $title->getUserPermissionsErrors( 'read', $user ) ) {
-                    continue;
-                }
-                $emails[$row->wl_user] = new MailAddress( $user->getEmail() );
+        // Select subscribers
+        $blogID = $wi->mWikilogTitle->getArticleID();
+        $res = $dbr->select( 'watchlist', 'wl_user',
+            'wl_namespace = ' . NS_BLOG . ' AND wl_title = ' . $dbr->addQuotes( $wi->mWikilogTitle->getText() ), __METHOD__ );
+        $emails = array();
+        foreach ( $res as $row ) {
+            $user = User::newFromId( $row->wl_user );
+            $user->mGroups = NULL;
+            if ( !$user || $title->getUserPermissionsErrors( 'read', $user ) ) {
+                continue;
             }
-            // Select users who watch ALL blogs
-            $res = $dbr->select( 'user_properties', 'up_user',
-                "up_property='wl-subscribetoallblogs' AND up_value='1'", __METHOD__ );
-            foreach ( $res as $row ) {
-                if( isset( $emails[$row->up_user] ) ) {
-                    continue;
-                }
-                $user = User::newFromId( $row->up_user );
-                $user->mGroups = NULL;
-                if ( !$user || $title->getUserPermissionsErrors( 'read', $user ) ) {
-                    continue;
-                }
-                $emails[$row->up_user] = new MailAddress( $user->getEmail() );
-            }
-
-            // Send the message
-            if ( $emails ) {
-                $emails = array_values( $emails );
-                $serverName = substr( $wgServer, strpos( $wgServer, '//' ) + 2 );
-                $headers = array(
-                    'Message-ID' => '<wikilog-' . $article->getId() . '@' . $serverName . '>',
-                );
-                $from = new MailAddress( $wgPasswordSender, 'Wikilog' );
-                UserMailer::send( $emails, $from, $subject, $body, null, null, $headers );
-            }
+            $emails[$row->wl_user] = new MailAddress( $user->getEmail() );
         }
+
+        // Select users who watch ALL blogs
+        $res = $dbr->select( 'user_properties', 'up_user',
+            "up_property='wl-subscribetoallblogs' AND up_value='1'", __METHOD__ );
+        foreach ( $res as $row ) {
+            if( isset( $emails[$row->up_user] ) ) {
+                continue;
+            }
+            $user = User::newFromId( $row->up_user );
+            $user->mGroups = NULL;
+            if ( !$user || $title->getUserPermissionsErrors( 'read', $user ) ) {
+                continue;
+            }
+            $emails[$row->up_user] = new MailAddress( $user->getEmail() );
+        }
+
+        // Send the message
+        if ( $emails ) {
+            $emails = array_values( $emails );
+            $serverName = substr( $wgServer, strpos( $wgServer, '//' ) + 2 );
+            $headers = array(
+                'Message-ID' => '<wikilog-' . $article->getId() . '@' . $serverName . '>',
+            );
+            $from = new MailAddress( $wgPasswordSender, 'Wikilog' );
+            UserMailer::send( $emails, $from, $subject, $body, null, null, $headers );
+        }
+
         return true;
     }
 }
