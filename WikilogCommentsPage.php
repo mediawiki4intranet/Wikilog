@@ -129,11 +129,13 @@ class WikilogCommentsPage
 		if ( $wgRequest->getVal( 'comment_pager_type' ) !== null ) {
 			WikilogCommentPagerSwitcher::setType( $this->mSubject, $wgRequest->getVal( 'comment_pager_type' ) );
 		}
-		// Refresh cache after switching
-		WikilogCommentPagerSwitcher::checkType( $this->mSubject );
-		$this->mCommentPagerType = WikilogCommentPagerSwitcher::getType( $this->mSubject );
-		if ( $this->mCommentPagerType === 'list' ) {
-			$this->mFormatter->mWithParent = true;
+		if ( $this->mSubject ) {
+			// Refresh cache after switching
+			WikilogCommentPagerSwitcher::checkType( $this->mSubject );
+			$this->mCommentPagerType = WikilogCommentPagerSwitcher::getType( $this->mSubject );
+			if ( $this->mCommentPagerType === 'list' ) {
+				$this->mFormatter->mWithParent = true;
+			}
 		}
 
 		// Set single comment subject AFTER selecting comment pager type!
