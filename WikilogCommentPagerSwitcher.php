@@ -4,12 +4,12 @@ if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
 class WikilogCommentPagerSwitcher {
-	public static function getType( Title $subject ) {
+	public static function getType( $subject ) {
 		$info = static::getInfo( $subject );
 		return $info ? $info['type'] : 'thread';
 	}
 
-	public static function checkType( Title $subject ) {
+	public static function checkType( $subject ) {
 		if ( !empty( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
 			$info = static::getInfo( $subject );
 			$msince = strtotime( $_SERVER['HTTP_IF_MODIFIED_SINCE'] );
@@ -19,7 +19,7 @@ class WikilogCommentPagerSwitcher {
 		}
 	}
 
-	public static function setType( Title $subject, $type ) {
+	public static function setType( $subject, $type ) {
 		global $wgRequest;
 		$id = $subject ? $subject->getArticleId() : 0;
 		$types = $wgRequest->getSessionData( 'wikilog-comments-pager-type' );
@@ -34,7 +34,7 @@ class WikilogCommentPagerSwitcher {
 		unset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] );
 	}
 
-	protected static function getInfo( Title $subject ) {
+	protected static function getInfo( $subject ) {
 		global $wgRequest;
 		$id = $subject ? $subject->getArticleId() : 0;
 		$types = $wgRequest->getSessionData( 'wikilog-comments-pager-type' );
