@@ -988,13 +988,13 @@ class WikilogCommentFormatter
 			) {
 			$parent = $comment->getParentObj();
 			$link = $this->mSkin->link( $parent->mCommentTitle,
-				wfMsg( 'wikilog-ptswitsher-comment-label' ),
-				array( 'title' => wfMsg( 'wikilog-ptswitsher-to-comment' ) ),
+				wfMsg( 'wikilog-ptswitcher-comment-label' ),
+				array( 'title' => wfMsg( 'wikilog-ptswitcher-to-comment' ) ),
 				array( 'section' => false ),
 				'known'
 			);
 			list( $pd, $pt, $ptz ) = WikilogUtils::getLocalDateTime( $parent->mUpdated );
-			$extra[] = wfMsg( 'wikilog-ptswitsher-to-parent', array(
+			$extra[] = wfMsg( 'wikilog-ptswitcher-to-parent', array(
 				$link, WikilogUtils::authorSig( $parent->mUserText, true ),
 				$pd, $pt, $ptz
 			) );
