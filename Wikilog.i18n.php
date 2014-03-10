@@ -188,7 +188,7 @@ Available actions:
 * <html><a href="$3"></html>Read the post {{SUBPAGENAME}}<html></a></html>.
 * [[$1|Reply to this comment]] and/or read discussion thread.',
 	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Unsubscribe</a> from comments to $1.</p>',
-	'wikilog-ptswitcher-to-parent' => 'answer to $1 from $2 $3 at $4',
+	'wikilog-ptswitcher-to-parent' => 'reply to $1 from $2 $3 at $4',
 	'wikilog-ptswitcher-to-comment' => 'To comment page',
 	'wikilog-ptswitcher-comment-label' => 'comment',
 	'wikilog-ptswitcher-thread' => 'Thread view',

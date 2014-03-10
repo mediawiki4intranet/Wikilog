@@ -994,10 +994,12 @@ class WikilogCommentFormatter
 				'known'
 			);
 			list( $pd, $pt, $ptz ) = WikilogUtils::getLocalDateTime( $parent->mUpdated );
-			$extra[] = wfMsg( 'wikilog-ptswitcher-to-parent', array(
-				$link, WikilogUtils::authorSig( $parent->mUserText, true ),
-				$pd, $pt, $ptz
-			) );
+			if ( $parent->mUserID ) {
+				$parentSig = WikilogUtils::authorSig( $parent->mUserText, true );
+			} else {
+				$parentSig = wfMsgForContent( 'wikilog-comment-anonsig', '', '', htmlspecialchars( $parent->mAnonName ) );
+			}
+			$extra[] = wfMsg( 'wikilog-ptswitcher-to-parent', array( $link, $parentSig, $pd, $pt, $ptz ) );
 		}
 
 		if ( $extra ) {
