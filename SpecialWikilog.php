@@ -331,6 +331,8 @@ class SpecialWikilog
 				if ( ( $date = self::parseDateParam( $m[1] ) ) ) {
 					list( $opts['year'], $opts['month'], $opts['day'] ) = $date;
 				}
+			} elseif ( preg_match( '/^notcategory=(.*)$/', $par, $m ) ) {
+				$opts['notcategory'] = $m[1];
 			} else {
 				if ( ( $t = Title::newFromText( $par ) ) !== null ) {
 					$ns = $t->getNamespace();
