@@ -480,7 +480,7 @@ class WikilogCommentsPage
 	 *   the given comment.
 	 */
 	public function getPostCommentForm( $parent = null ) {
-		global $wgUser, $wgTitle, $wgScript, $wgRequest;
+		global $wgUser, $wgTitle, $wgRequest;
 		global $wgWikilogModerateAnonymous;
 
 		if ( $this->includeSubpageComments() && !$parent || !$this->mSubject ) {
@@ -503,8 +503,8 @@ class WikilogCommentsPage
 			$preview = "<b>{$header}</b>{$preview}<hr/>";
 		}
 
+		$targetTitle = $parent ? $parent->mCommentTitle : $this->getTitle();
 		$form =
-			Html::hidden( 'title', ( $parent ? $parent->mCommentTitle : $this->getTitle()->getPrefixedText() ) ) .
 			Html::hidden( 'action', 'wikilog' ) .
 			Html::hidden( 'wpEditToken', $wgUser->editToken() ) .
 			( $parent ? Html::hidden( 'wlParent', $parent->mID ) : '' );
@@ -570,7 +570,7 @@ class WikilogCommentsPage
 		}
 
 		$form = Xml::tags( 'form', array(
-			'action' => "{$wgScript}#wl-comment-form",
+			'action' => $targetTitle->getLocalUrl()."#wl-comment-form",
 			'method' => 'post'
 		), $form );
 
