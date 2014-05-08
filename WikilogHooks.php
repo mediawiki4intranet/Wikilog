@@ -73,6 +73,12 @@ class WikilogHooks
 				$item = new WikilogItem();
 			}
 
+			if ( !$wi->getTitle()->getArticleID() ) {
+				// If the parent (blog) page is not created yet - create it automatically
+				$page = new WikiPage( $wi->getTitle() );
+				$page->doEdit( wfMsg( 'wikilog-newtalk-text' ), wfMsg( 'wikilog-newtalk-summary' ), EDIT_FORCE_BOT );
+			}
+
 			$item->mName = $wi->getItemName();
 			$item->mTitle = $wi->getItemTitle();
 			$item->mParentName = $wi->getName();
