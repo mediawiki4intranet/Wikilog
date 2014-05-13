@@ -327,7 +327,7 @@ END_STRING;
         // Select subscribers
         $blogID = $wi->mWikilogTitle->getArticleID();
         $res = $dbr->select( 'watchlist', 'wl_user',
-            'wl_namespace = ' . NS_BLOG . ' AND wl_title = ' . $dbr->addQuotes( $wi->mWikilogTitle->getText() ), __METHOD__ );
+            'wl_namespace = ' . NS_BLOG . ' AND wl_title = ' . $dbr->addQuotes( $wi->mWikilogTitle->getDBkey() ), __METHOD__ );
         $emails = array();
         foreach ( $res as $row ) {
             $user = User::newFromId( $row->wl_user );
