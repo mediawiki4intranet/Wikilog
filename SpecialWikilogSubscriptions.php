@@ -255,8 +255,8 @@ END_STRING;
      * @param boolean $subscribed Flag that current user is subscribed to article $title. If not null do not check
      * @return string
      */
-    public static function generateSubscriptionLink( $title, $subscribed = null, $forEmail = false ) {
-        global $wgUser;
+    public static function generateSubscriptionLink( $title, $subscribed = null, $forEmail = false, $lang = NULL ) {
+        global $wgUser, $wgLang;
         if ( $wgUser->isAnon() ) {
             return '';
         }
@@ -276,7 +276,8 @@ END_STRING;
         $msg = ( $forEmail
             ? ( $subscribed ? 'wikilog-subscription-unsubscribe-email' : 'wikilog-subscription-subscribe-email' )
             : ( $subscribed ? 'wikilog-subscription-unsubscribe' : 'wikilog-subscription-subscribe' ) );
-        return $prefix . wfMsgNoTrans( $msg, $title->getText(), $link );
+        return $prefix . wfMessage( $msg, $title->getText(), $link )
+            ->inLanguage( $lang ? $lang : $wgLang )->plain();
     }
 
     /**
@@ -285,17 +286,17 @@ END_STRING;
      * @global User $wgUser
      * @return string
      */
-    public static function subcriptionsRuleLink() {
-        global $wgUser;
+    public static function subcriptionsRuleLink( $lang = NULL ) {
+        global $wgUser, $wgLang;
         return $wgUser->getSkin()->link(
             SpecialPage::getTitleFor( 'wikilogsubscriptions' ),
-            wfMsgNoTrans( 'wikilog-subscription-return-link' )
+            wfMessage( 'wikilog-subscription-return-link' )
+                ->inLanguage( $lang ? $lang : $wgLang )->plain()
         );
     }
 
-    public static function sendEmails( &$article, $text )
-    {
-        global $wgUser, $wgParser, $wgPasswordSender, $wgServer;
+    public static function sendEmails( &$article, $text ) {
+        global $wgUser, $wgPasswordSender, $wgServer, $wgContLang;
 
         $dbr = wfGetDB( DB_SLAVE );
 
@@ -311,50 +312,55 @@ END_STRING;
             $wi->mItemTalkTitle->getPrefixedText(),
         );
 
-        // Generate body
-        $saveExpUrls = WikilogParser::expandLocalUrls();
-        $popt = new ParserOptions( User::newFromId( $wgUser->getId() ) );
-        $subject = $wgParser->parse( wfMsgNoTrans( 'wikilog-subscription-email-subject', $args ),
-            $title, $popt, false, false );
-        $subject = strip_tags( $subject->getText() );
-        $body = $wgParser->parse( wfMsgNoTrans( 'wikilog-subscription-email-body', $args),
-            $title, $popt, true, false );
-        $body = $body->getText();
-        $body .= self::generateSubscriptionLink( $wi->mWikilogTitle, true, true ) .
-            '<br />' . self::subcriptionsRuleLink();
-        WikilogParser::expandLocalUrls( $saveExpUrls );
-
         $blogID = $wi->mWikilogTitle->getArticleID();
         $w = $dbr->tableName( 'watchlist' );
         $u = $dbr->tableName( 'user' );
         $up = $dbr->tableName( 'user_properties' );
         $res = $dbr->query(
             // Select subscribers
-            "SELECT $u.* FROM $w, $u WHERE user_id=wl_user AND wl_namespace=" . NS_BLOG .
+            "SELECT $u.*, up_value user_language FROM $w".
+            " INNER JOIN $u ON user_id=wl_user".
+            " LEFT JOIN $up ON up_user=user_id AND up_property='language'".
+            " WHERE wl_namespace=" . NS_BLOG .
             " AND wl_title=" . $dbr->addQuotes( $wi->mWikilogTitle->getDBkey() ) .
             // Select users who watch ALL blogs
-            " UNION SELECT $u.* FROM $up, $u WHERE user_id=up_user" .
-            " AND up_property='wl-subscribetoallblogs' AND up_value='1'"
+            " UNION SELECT $u.*, l.up_value user_language FROM $up s".
+            " INNER JOIN $u ON user_id=s.up_user" .
+            " LEFT JOIN $up l ON l.up_user=user_id AND l.up_property='language'".
+            " WHERE s.up_property='wl-subscribetoallblogs' AND s.up_value='1'"
         );
         $emails = array();
         foreach ( $res as $row ) {
+            if ( !$row->user_language ) {
+                $row->user_language = $wgContLang->getCode();
+            }
             $user = User::newFromRow( $row );
             if ( $user && $user->getEmail() && $user->getEmailAuthenticationTimestamp() &&
                 !$title->getUserPermissionsErrors( 'read', $user ) ) {
-                $emails[$row->wl_user] = new MailAddress( $user->getEmail() );
+                $emails[$row->user_language][$row->user_id] = new MailAddress( $user->getEmail() );
             }
         }
-
-        // Send the message
-        if ( $emails ) {
-            $emails = array_values( $emails );
-            $serverName = substr( $wgServer, strpos( $wgServer, '//' ) + 2 );
-            $headers = array(
-                'Message-ID' => '<wikilog-' . $article->getId() . '@' . $serverName . '>',
-            );
-            $from = new MailAddress( $wgPasswordSender, 'Wikilog' );
-            UserMailer::send( $emails, $from, $subject, $body, null, null, $headers );
+        if ( !$emails ) {
+            return true;
         }
+
+        // Generate body and subject in all selected languages and send it
+        $saveExpUrls = WikilogParser::expandLocalUrls();
+        $from = new MailAddress( $wgPasswordSender, 'Wikilog' );
+        $serverName = substr( $wgServer, strpos( $wgServer, '//' ) + 2 );
+        $headers = array(
+            'Message-ID' => '<wikilog-' . $article->getId() . '@' . $serverName . '>',
+        );
+        foreach ( $emails as $lang => &$send ) {
+            $subject = strip_tags( wfMessage( 'wikilog-subscription-email-subject', $args )
+                ->inLanguage( $lang )->parse() );
+            $body = wfMessage( 'wikilog-subscription-email-body', $args )
+                ->inLanguage( $lang )->parse() .
+                self::generateSubscriptionLink( $wi->mWikilogTitle, true, true, $lang ) .
+                '<br />' . self::subcriptionsRuleLink( $lang );
+            UserMailer::send( array_values( $send ), $from, $subject, $body, null, null, $headers );
+        }
+        WikilogParser::expandLocalUrls( $saveExpUrls );
 
         return true;
     }
