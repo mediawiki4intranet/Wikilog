@@ -326,10 +326,8 @@ class Wikilog
 	 */
 	static function ArticleFromTitle( &$title, &$article ) {
 		if ( $title->isTalkPage() ) {
-			if ( self::nsHasComments( $title ) ) {
-				$article = new WikilogCommentsPage( $title );
-				return false;	// stop processing
-			}
+			$article = WikilogCommentsPage::createInstance( $title );
+			return !$article; // continue hook processing if createInstance returned false
 		} elseif ( ( $wi = self::getWikilogInfo( $title ) ) ) {
 			if ( $wi->isItem() ) {
 				$item = WikilogItem::newFromInfo( $wi );
@@ -452,16 +450,16 @@ class Wikilog
 	 * SkinBuildSidebar hook handler function.
 	 * Adds support for "* wikilogcalendar" on MediaWiki:Sidebar
 	 */
-	static function SkinBuildSidebar($skin, &$bar)
+	static function SkinBuildSidebar( $skin, &$bar )
 	{
 		global $wgTitle, $wgRequest, $wgWikilogNumArticles;
-		if (array_key_exists('wikilogcalendar', $bar))
-		{
+		if ( array_key_exists( 'wikilogcalendar', $bar ) ) {
 			global $wlCalPager;
-			if (!$wlCalPager)
-				unset($bar['wikilogcalendar']);
-			else
+			if ( !$wlCalPager ) {
+				unset( $bar['wikilogcalendar'] );
+			} else {
 				$bar['wikilogcalendar'] = WikilogCalendar::sidebarCalendar($wlCalPager);
+			}
 		}
 		return true;
 	}
@@ -481,8 +479,9 @@ class Wikilog
 	static function getWikilogInfo( $title ) {
 		global $wgWikilogNamespaces;
 
-		if ( !$title )
+		if ( !$title ) {
 			return null;
+		}
 
 		$ns = MWNamespace::getSubject( $title->getNamespace() );
 		if ( in_array( $ns, $wgWikilogNamespaces ) ) {

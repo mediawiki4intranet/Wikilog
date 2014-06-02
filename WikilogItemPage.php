@@ -100,8 +100,9 @@ class WikilogItemPage
 			parent::view();
 
 			# Update last visit
-			if ( $this->mItem )
+			if ( $this->mItem ) {
 				WikilogUtils::updateLastVisit( $this->mItem->getID() );
+			}
 
 			# Item page footer.
 			$footerTxt = wfMsgExt( 'wikilog-entry-footer',
@@ -131,8 +132,7 @@ class WikilogItemPage
 
 			if ( $wgWikilogCommentsOnItemPage ) {
 				$talk = $this->getTitle()->getTalkPage();
-				$wi = Wikilog::getWikilogInfo( $talk );
-				$comments = new WikilogCommentsPage( $talk, $wi );
+				$comments = WikilogCommentsPage::createInstance( $talk );
 				$comments->outputComments();
 			}
 

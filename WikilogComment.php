@@ -321,6 +321,7 @@ class WikilogComment
 		$parent = Title::makeTitle( $this->mSubject->getNamespace(), $this->mSubject->getBaseText() );
 		$wlid = $parent->getArticleId();
 		$s = $dbr->tableName( 'wikilog_subscriptions' );
+		$u = $dbr->tableName( 'user' );
 		$up = $dbr->tableName( 'user_properties' );
 		$w = $dbr->tableName( 'watchlist' );
 		$result = $dbr->query(
@@ -348,12 +349,17 @@ class WikilogComment
 				: ''
 			).
 			// Always notify post author(s), and they cannot unsubscribe (0 means that)
-			" SELECT wla_author, 0 FROM ".$dbr->tableName( 'wikilog_authors' )." WHERE wla_page=$id",
+			" SELECT wla_author, 0 FROM ".$dbr->tableName( 'wikilog_authors' )." WHERE wla_page=$id".
+			// Always notify users about comments to their talk page
+			( $this->mSubject->getNamespace() != NS_USER
+				? "" : " UNION ALL SELECT user_id, 0 FROM $u".
+				" WHERE user_name=".$dbr->addQuotes( $this->mSubject->getText() ) ),
 			__METHOD__
 		);
 		while ( $u = $dbr->fetchRow( $result ) ) {
-			if ( !array_key_exists( $u[0], $to_ids ) ) {
-				$to_ids[ $u[0] ] = $u[1];
+			// "Cannot unsubscribe" overrides "can unsubscribe"
+			if ( !isset( $to_ids[$u[0]] ) || !$u[1] ) {
+				$to_ids[$u[0]] = $u[1];
 			}
 		}
 		$dbr->freeResult( $result );

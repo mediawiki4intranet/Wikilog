@@ -164,6 +164,7 @@ From now, you will be notified about all comments by default. You won\'t receive
 
 From now, you will be notified only if subscribed explicitly or if you\'re the author of post or the comment being replied.',
 	'wikilog-subscribed-as-author' => '<p>You will receive all comments to this entry by e-mail, because you are the author.</p><hr />',
+	'wikilog-subscribed-usertalk' => '<p>You will receive all comments to this page by e-mail, because it is your user talk page.</p><hr />',
 
 	/* These messages are parsed inside the context of item page, so {{SUBPAGENAME}} refers to the item,
 	   and <a href=""> is a crunch to output links instead of just bold text. */
@@ -6700,6 +6701,7 @@ $messages['ru'] = array(
 
 С текущего момента вы будете получать уведомления, только если явно подписывались на запись, или вы автор этой записи, или вы автор комментария, на который оставлен ответ.',
 	'wikilog-subscribed-as-author' => '<p>Вы будете получать все комментарии к этой записи по e-mail, потому что вы её автор.</p><hr />',
+	'wikilog-subscribed-usertalk' => '<p>Вы будете получать все комментарии к этой странице по e-mail, потому что это обсуждение вашей страницы участника.</p><hr />',
 
 	'wikilog-feed-description' => 'Читать последние сообщения на этом канале.',
 	'wikilog-comment-feed-title1' => 'Комментарии от $2 (#$1)',

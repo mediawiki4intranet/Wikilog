@@ -186,7 +186,7 @@ abstract class WikilogQuery
 		if ( !$fields ) {
 			$fields = $info['fields'];
 		}
-		return $dbr->selectSQLText($tables, $fields, $conds, $function, $options, $join_conds);
+		return $dbr->selectSQLText( $tables, $fields, $conds, $function, $options, $join_conds );
 	}
 }
 

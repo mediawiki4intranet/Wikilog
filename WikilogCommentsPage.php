@@ -42,7 +42,7 @@ class SpecialWikilogComments
 
 	function execute( $par ) {
 		global $wgTitle;
-		$page = new WikilogCommentsPage( $wgTitle );
+		$page = WikilogCommentsPage::createInstance( $wgTitle );
 		$page->view();
 	}
 
@@ -79,7 +79,7 @@ class WikilogCommentsPage
 
 	public    $mSingleComment;		///< Used when viewing a single comment.
 
-	var $mWikilogInfo, $mSubject;
+	var $mWikilogInfo, $mSubject, $mSubjectUser;
 	var $mCommentPagerType;
 
 	/**
@@ -87,60 +87,81 @@ class WikilogCommentsPage
 	 *
 	 * @param $title Title of the page.
 	 */
-	function __construct( Title $title ) {
+	static function createInstance( Title $title ) {
 		global $wgUser, $wgRequest;
 
-		parent::__construct( $title );
-		if ( class_exists( 'Wikilog' ) ) {
-			$this->mWikilogInfo = Wikilog::getWikilogInfo( $title );
+		$subject = $subjectUser = $singleComment = $switchSubject = NULL;
+		if ( $title->getNamespace() != NS_SPECIAL ) {
+			if ( !Wikilog::nsHasComments( $title ) ) {
+				return false;
+			}
+			// We do not print anything from subject page, but its ID is required to correctly post comments
+			// So disable permission check for the time
+			if ( defined( 'HACL_HALOACL_VERSION' ) ) {
+				$hacl = haclfDisableTitlePatch();
+			}
+			$subject = $title->getSubjectPage();
+			if ( defined( 'HACL_HALOACL_VERSION' ) ) {
+				haclfRestoreTitlePatch( $hacl );
+			}
+			$singleComment = WikilogComment::newFromPageID( $title->getArticleId() );
+			if ( $singleComment ) {
+				$switchSubject = $subject;
+				$subject = $singleComment->mSubject;
+			}
+			// Our DB structure does not allow to post comments for non-existing subject pages,
+			// so we either disallow such comments or auto-create the subject page.
+			// We only auto-create non-existing User:* pages for registered users,
+			// and add them to the corresponding user's watchlist.
+			if ( $subject->getNamespace() == NS_USER ) {
+				$subjectUser = User::newFromName( $subject->getText() );
+				if ( !$subjectUser || !$subjectUser->getId() ) {
+					return false;
+				}
+			} elseif ( !$subject->exists() ) {
+				return false;
+			}
 		}
 
-		# Check if user can post.
-		$this->mUserCanPost = !$wgUser->isBlocked() && ( $wgUser->isAllowed( 'wl-postcomment' ) ||
+		$self = new WikilogCommentsPage( $title );
+		if ( class_exists( 'Wikilog' ) ) {
+			$self->mWikilogInfo = Wikilog::getWikilogInfo( $title );
+		}
+
+		// Check if user can post.
+		$self->mUserCanPost = !$wgUser->isBlocked() && ( $wgUser->isAllowed( 'wl-postcomment' ) ||
 			( $wgUser->isAllowed( 'edit' ) && $wgUser->isAllowed( 'createtalk' ) ) );
-		$this->mUserCanModerate = $wgUser->isAllowed( 'wl-moderation' );
+		$self->mUserCanModerate = $wgUser->isAllowed( 'wl-moderation' );
 
-		# Prepare the skin and the comment formatter.
-		$this->mSkin = $wgUser->getSkin();
-		$this->mFormatter = new WikilogCommentFormatter( $this->mSkin, $this->mUserCanPost );
+		// Prepare the skin and the comment formatter.
+		$self->mSkin = $wgUser->getSkin();
+		$self->mFormatter = new WikilogCommentFormatter( $self->mSkin, $self->mUserCanPost );
 
-		# Form options.
-		$this->mFormOptions = new FormOptions();
-		$this->mFormOptions->add( 'wlAnonName', '' );
-		$this->mFormOptions->add( 'wlComment', '' );
-		$this->mFormOptions->fetchValuesFromRequest( $wgRequest,
+		// Form options.
+		$self->mFormOptions = new FormOptions();
+		$self->mFormOptions->add( 'wlAnonName', '' );
+		$self->mFormOptions->add( 'wlComment', '' );
+		$self->mFormOptions->fetchValuesFromRequest( $wgRequest,
 			array( 'wlAnonName', 'wlComment' ) );
 
-		# This flags if we are viewing a single comment (subpage).
-		$this->mSingleComment =
-			WikilogComment::newFromPageID( $this->getID() );
-
-		# We do not print any data from subject page, but its ID is required to correctly post comments
-		# So disable permission check for the time
-		if ( defined( 'HACL_HALOACL_VERSION' ) ) {
-			$hacl = haclfDisableTitlePatch();
-		}
-		$this->mSubject = $title->getNamespace() != NS_SPECIAL ? $title->getSubjectPage() : NULL;
-		if ( defined( 'HACL_HALOACL_VERSION' ) ) {
-			haclfRestoreTitlePatch( $hacl );
-		}
+		// This flags if we are viewing a single comment (subpage).
+		$self->mSingleComment = $singleComment;
+		$self->mSubject = $subject;
+		$self->mSubjectUser = $subjectUser;
 
 		// Set WikilogCommentPager type
 		if ( $wgRequest->getVal( 'comment_pager_type' ) !== null ) {
-			WikilogCommentPagerSwitcher::setType( $this->mSubject, $wgRequest->getVal( 'comment_pager_type' ) );
+			WikilogCommentPagerSwitcher::setType( $switchSubject, $wgRequest->getVal( 'comment_pager_type' ) );
 		}
 
 		// Refresh cache after switching
-		WikilogCommentPagerSwitcher::checkType( $this->mSubject );
-		$this->mCommentPagerType = WikilogCommentPagerSwitcher::getType( $this->mSubject );
-		if ( $this->mCommentPagerType === 'list' ) {
-			$this->mFormatter->mWithParent = true;
+		WikilogCommentPagerSwitcher::checkType( $switchSubject );
+		$self->mCommentPagerType = WikilogCommentPagerSwitcher::getType( $switchSubject );
+		if ( $self->mCommentPagerType === 'list' ) {
+			$self->mFormatter->mWithParent = true;
 		}
 
-		// Set single comment subject AFTER selecting comment pager type!
-		if ( $this->mSingleComment ) {
-			$this->mSubject = $this->mSingleComment->mSubject;
-		}
+		return $self;
 	}
 
 	/**
@@ -415,6 +436,11 @@ class WikilogCommentsPage
 			$msg = $one ? 'wikilog-do-unsubscribe-all' : 'wikilog-do-subscribe-all';
 		} elseif ( !$this->mSingleComment ) {
 			$dbr = wfGetDB( DB_SLAVE );
+			// Is it the user talk page? If yes, he can't unsubscribe.
+			if ( $this->mSubject->getNamespace() == NS_USER &&
+				$this->mSubject->getText() == $wgUser->getName() ) {
+				return wfMsgNoTrans( 'wikilog-subscribed-usertalk' );
+			}
 			// Is the user author? If yes, he can't unsubscribe.
 			$isa = $dbr->selectField( 'wikilog_authors', '1', array(
 				'wla_page' => $subjId,
@@ -669,14 +695,30 @@ class WikilogCommentsPage
 			$comment->mStatus = WikilogComment::S_PENDING;
 		}
 
-		if ( !$this->exists() ) {
-			# Initialize a blank talk page.
+		if ( !$this->mSubject->getArticleID() || !$this->exists() ) {
 			$user = User::newFromName( wfMsgForContent( 'wikilog-auto' ), false );
-			$this->doEdit(
-				wfMsgForContent( 'wikilog-newtalk-text' ),
-				wfMsgForContent( 'wikilog-newtalk-summary' ),
-				EDIT_NEW | EDIT_SUPPRESS_RC, false, $user
-			);
+			if ( !$this->exists() ) {
+				// Initialize a blank talk page.
+				$this->doEdit(
+					wfMsgForContent( 'wikilog-newtalk-text' ),
+					wfMsgForContent( 'wikilog-newtalk-summary' ),
+					EDIT_NEW | EDIT_SUPPRESS_RC, false, $user
+				);
+			}
+			if ( !$this->mSubject->getArticleID() ) {
+				// Initialize a blank subject page.
+				$page = new WikiPage( $this->mSubject );
+				$page->doEdit(
+					wfMsgForContent( 'wikilog-newtalk-text' ),
+					wfMsgForContent( 'wikilog-newtalk-summary' ),
+					EDIT_NEW | EDIT_SUPPRESS_RC, false, $user
+				);
+				if ( $this->mSubjectUser ) {
+					// Add newly created user talk page to user's watchlist
+					$w = WatchedItem::fromUserTitle( $this->mSubjectUser, $this->mSubject );
+					$w->addWatch();
+				}
+			}
 		}
 
 		$comment->saveComment();
