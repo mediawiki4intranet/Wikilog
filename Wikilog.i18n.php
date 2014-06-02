@@ -287,7 +287,7 @@ The comment will only appear after it is reviewed by a moderator.',
 	'wikilog-subscription-comment-unsubscribed-article' => 'Your subscription to the comments to article <strong>$1</strong> is canceled.',
 	'wikilog-subscription-comment-subscription' => 'You can subscribe to comments at discussion page: <a href="$1">$2</a>.',
 	'wikilog-subscription-return-link' => 'Subscription management page',
-	'wikilog-subscription-email-subject' => '[Wikilog] $2 - New article in blog $4',
+	'wikilog-subscription-email-subject' => '[Wikilog] $2 - New article in blog $4: $1',
 	'wikilog-subscription-email-body' =>
 'User [[{{ns:User}}:$2|$2]] published the article [$3 $1] in blog [[{{ns:Blog}}:$4]]:
 <hr/>
@@ -6814,7 +6814,7 @@ $messages['ru'] = array(
 	'wikilog-subscription-comment-unsubscribed-article' => 'Вы отменили e-mail подписку на комментарии к статье <strong>$1</strong>.',
 	'wikilog-subscription-comment-subscription' => 'Подписаться на комментарии можно на странице обсуждения: <a href="$1">$2</a>.',
 	'wikilog-subscription-return-link' => 'Управление e-mail подписками на блоги и комментарии',
-	'wikilog-subscription-email-subject' => '[Wikilog] $2 - Новая статья в блоге $4',
+	'wikilog-subscription-email-subject' => '[Wikilog] $2 - Новая статья в блоге $4: $1',
 	'wikilog-subscription-email-body' =>
 'Пользователь [[{{ns:User}}:$2|$2]] опубликовал статью [$3 $1] в блоге [[{{ns:Blog}}:$4]]:
 <hr/>
