@@ -324,33 +324,25 @@ END_STRING;
             '<br />' . self::subcriptionsRuleLink();
         WikilogParser::expandLocalUrls( $saveExpUrls );
 
-        // Select subscribers
         $blogID = $wi->mWikilogTitle->getArticleID();
-        $res = $dbr->select( 'watchlist', 'wl_user',
-            'wl_namespace = ' . NS_BLOG . ' AND wl_title = ' . $dbr->addQuotes( $wi->mWikilogTitle->getDBkey() ), __METHOD__ );
+        $w = $dbr->tableName( 'watchlist' );
+        $u = $dbr->tableName( 'user' );
+        $up = $dbr->tableName( 'user_properties' );
+        $res = $dbr->query(
+            // Select subscribers
+            "SELECT $u.* FROM $w, $u WHERE user_id=wl_user AND wl_namespace=" . NS_BLOG .
+            " AND wl_title=" . $dbr->addQuotes( $wi->mWikilogTitle->getDBkey() ) .
+            // Select users who watch ALL blogs
+            " UNION SELECT $u.* FROM $up, $u WHERE user_id=up_user" .
+            " AND up_property='wl-subscribetoallblogs' AND up_value='1'"
+        );
         $emails = array();
         foreach ( $res as $row ) {
-            $user = User::newFromId( $row->wl_user );
-            $user->mGroups = NULL;
-            if ( !$user || $title->getUserPermissionsErrors( 'read', $user ) ) {
-                continue;
+            $user = User::newFromRow( $row );
+            if ( $user && $user->getEmail() && $user->getEmailAuthenticationTimestamp() &&
+                !$title->getUserPermissionsErrors( 'read', $user ) ) {
+                $emails[$row->wl_user] = new MailAddress( $user->getEmail() );
             }
-            $emails[$row->wl_user] = new MailAddress( $user->getEmail() );
-        }
-
-        // Select users who watch ALL blogs
-        $res = $dbr->select( 'user_properties', 'up_user',
-            "up_property='wl-subscribetoallblogs' AND up_value='1'", __METHOD__ );
-        foreach ( $res as $row ) {
-            if( isset( $emails[$row->up_user] ) ) {
-                continue;
-            }
-            $user = User::newFromId( $row->up_user );
-            $user->mGroups = NULL;
-            if ( !$user || $title->getUserPermissionsErrors( 'read', $user ) ) {
-                continue;
-            }
-            $emails[$row->up_user] = new MailAddress( $user->getEmail() );
         }
 
         // Send the message
