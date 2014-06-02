@@ -307,11 +307,7 @@ class WikilogComment
 			'',
 			'',
 		);
-		// $to_ids = array( userid => TRUE|FALSE (can unsubscribe | cannot) )
-		$to_ids = array();
 		if ( $this->mParentObj ) {
-			// Always notify parent comment author
-			$to_ids[ $this->mParentObj->mUserID ] = false;
 			$args[4] = $this->mParentObj->mCommentTitle->getPrefixedText();
 			$args[5] = $this->mParentObj->mUserText;
 		}
@@ -324,42 +320,58 @@ class WikilogComment
 		$u = $dbr->tableName( 'user' );
 		$up = $dbr->tableName( 'user_properties' );
 		$w = $dbr->tableName( 'watchlist' );
+		// $to_ids = array( <userid> => array( 'email' => <string>, 'can_unsubscribe' => <boolean> ), ... )
+		$to_ids = array();
+		$email_auth = "AND user_email!='' AND user_email_authenticated IS NOT NULL";
 		$result = $dbr->query(
 			// Notify users subscribed to this post
-			"SELECT ws_user, 1 FROM $s WHERE ws_page=$id AND ws_yes=1".
-			" UNION ALL".
+			"SELECT ws_user user_id, user_email, 1 can_unsubscribe FROM $s".
+			" INNER JOIN $u ON user_id=ws_user $email_auth".
+			" WHERE ws_page=$id AND ws_yes=1".
 			// Notify users subscribed to the blog and not unsubscribed from this post
-			" SELECT s1.ws_user, 1 FROM $s s1 LEFT JOIN $s s2 ON s2.ws_user=s1.ws_user".
-			" AND s2.ws_page=$id AND s2.ws_yes=0 WHERE s1.ws_page=$wlid AND s1.ws_yes=1 AND s2.ws_user IS NULL".
 			" UNION ALL".
+			" SELECT s1.ws_user user_id, user_email, 1 can_unsubscribe FROM $s s1".
+			" INNER JOIN $u ON user_id=s1.ws_user $email_auth".
+			" LEFT JOIN $s s2 ON s2.ws_user=s1.ws_user AND s2.ws_page=$id AND s2.ws_yes=0".
+			" WHERE s1.ws_page=$wlid AND s1.ws_yes=1 AND s2.ws_user IS NULL".
 			// Notify users subscribed to talk via watchlist and not unsubscribed from the post
-			" SELECT wl_user, 1 FROM $w LEFT JOIN $s s2 ON s2.ws_user=wl_user".
-			" AND s2.ws_page=$id AND s2.ws_yes=0 WHERE wl_namespace=".MWNamespace::getTalk( $this->mSubject->getNamespace() ).
-			" AND wl_title=".$dbr->addQuotes( $this->mSubject->getDBkey() )." AND s2.ws_user IS NULL".
 			" UNION ALL".
+			" SELECT wl_user user_id, user_email, 1 can_unsubscribe FROM $w".
+			" INNER JOIN $u ON user_id=wl_user $email_auth".
+			" LEFT JOIN $s s2 ON s2.ws_user=wl_user AND s2.ws_page=$id AND s2.ws_yes=0".
+			" WHERE wl_namespace=".MWNamespace::getTalk( $this->mSubject->getNamespace() ).
+			" AND wl_title=".$dbr->addQuotes( $this->mSubject->getDBkey() )." AND s2.ws_user IS NULL".
 			// Notify users subscribed to all blogs via user preference
 			// and not unsubscribed from this post and not unsubscribed from this blog,
 			// but only for comments to Wikilog posts (not to the ordinary pages)
 			// FIXME: untie from Wikilog
 			( !empty( $wgWikilogNamespaces ) && in_array( $this->mSubject->getNamespace(), $wgWikilogNamespaces )
-				? " SELECT up_user, 1 FROM $up".
+				? " UNION ALL".
+				" SELECT up_user user_id, user_email, 1 can_unsubscribe FROM $up".
+				" INNER JOIN $u ON user_id=up_user $email_auth".
 				" LEFT JOIN $s ON ws_user=up_user AND ws_page IN ($id, $wlid) AND ws_yes=0".
-				" WHERE up_property='wl-subscribetoall' AND up_value='1' AND ws_user IS NULL".
-				" UNION ALL"
+				" WHERE up_property='wl-subscribetoall' AND up_value='1' AND ws_user IS NULL"
 				: ''
 			).
 			// Always notify post author(s), and they cannot unsubscribe (0 means that)
-			" SELECT wla_author, 0 FROM ".$dbr->tableName( 'wikilog_authors' )." WHERE wla_page=$id".
+			" UNION ALL".
+			" SELECT wla_author user_id, user_email, 0 can_unsubscribe FROM ".$dbr->tableName( 'wikilog_authors' ).
+			" INNER JOIN $u ON user_id=wla_author $email_auth".
+			" WHERE wla_page=$id".
+			// Always notify parent comment author
+			( !$this->mParentObj ? "" :
+				" UNION ALL SELECT user_id, user_email, 0 can_unsubscribe FROM $u".
+				" WHERE user_id=".$this->mParentObj->mUserID." $email_auth" ).
 			// Always notify users about comments to their talk page
-			( $this->mSubject->getNamespace() != NS_USER
-				? "" : " UNION ALL SELECT user_id, 0 FROM $u".
-				" WHERE user_name=".$dbr->addQuotes( $this->mSubject->getText() ) ),
+			( $this->mSubject->getNamespace() != NS_USER ? "" :
+				" UNION ALL SELECT user_id, user_email, 0 can_unsubscribe FROM $u".
+				" WHERE user_name=".$dbr->addQuotes( $this->mSubject->getText() )." $email_auth" ),
 			__METHOD__
 		);
-		while ( $u = $dbr->fetchRow( $result ) ) {
+		foreach ( $result as $u ) {
 			// "Cannot unsubscribe" overrides "can unsubscribe"
-			if ( !isset( $to_ids[$u[0]] ) || !$u[1] ) {
-				$to_ids[$u[0]] = $u[1];
+			if ( !isset( $to_ids[$u->user_id] ) || !$u->can_unsubscribe ) {
+				$to_ids[$u->user_id] = $u;
 			}
 		}
 		$dbr->freeResult( $result );
@@ -386,19 +398,17 @@ class WikilogComment
 			) )
 		);
 		// Build e-mail lists (with unsubscribe link, without unsubscribe link)
+		// TODO: Send e-mail to user in his own language?
 		$to_with = array();
 		$to_without = array();
-		foreach ( $to_ids as $id => $can_unsubcribe ) {
+		foreach ( $to_ids as $id => $to ) {
 			// Do not send user his own comments
 			if ( $id != $this->mUserID ) {
-				$email = User::newFromId( $id )->getEmail();
-				if ( $email ) {
-					$email = new MailAddress( $email );
-					if ( $can_unsubcribe ) {
-						$to_with[] = $email;
-					} else {
-						$to_without[] = $email;
-					}
+				$email = new MailAddress( $to->user_email );
+				if ( $to->can_unsubscribe ) {
+					$to_with[] = $email;
+				} else {
+					$to_without[] = $email;
 				}
 			}
 		}
