@@ -34,7 +34,7 @@ Information about previous versions can be found on:
 == Updating ==
 
 Always run php maintenance/update.php when you're updating Wikilog. Some of the updates
-may not need it, bun an extra run will never harm :)
+may not need it, but an extra run will never harm :)
 
 If you are upgrading from one of previous versions of Wikilog, you should also run
 
