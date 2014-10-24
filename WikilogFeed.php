@@ -593,7 +593,7 @@ class WikilogItemFeed
 		} else {
 			$id = 'site';
 		}
-		$ft = 'show:' . $this->mQuery->getPubStatus() .
+		$ft = 'q:' . md5( serialize( $this->mQuery ) ) .
 			':limit:' . $this->mLimit;
 		return array(
 			wfMemcKey( 'wikilog', $this->mFormat, $id, 'timestamp' ),
