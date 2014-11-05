@@ -133,7 +133,9 @@ class WikilogItemPage
 			if ( $wgWikilogCommentsOnItemPage ) {
 				$talk = $this->getTitle()->getTalkPage();
 				$comments = WikilogCommentsPage::createInstance( $talk );
-				$comments->outputComments();
+				if ( $comments ) {
+					$comments->outputComments();
+				}
 			}
 
 			# Override page title.
