@@ -1077,7 +1077,8 @@ class WikilogCommentFormatter
 				$tools['reply'] = Xml::tags( 'a',
 					array(
 						'title' => wfMsg( 'wikilog-reply-to-comment' ),
-						'href' => $wgRequest->appendQueryValue( 'wlParent', $comment->mID )
+						'href' => $wgRequest->appendQueryValue( 'wlParent', $comment->mID ),
+						'onclick' => 'return wlReplyTo('.$comment->mID.')',
 					),
 					wfMsg( 'wikilog-reply-lc' )
 				);

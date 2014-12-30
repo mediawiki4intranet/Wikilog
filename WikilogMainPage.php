@@ -300,7 +300,7 @@ class WikilogMainPage
 		$form = Xml::tags( 'form',
 			array(
 				'action' => $wgScript,
-				'onsubmit' => 'return checkNewItem(this, '
+				'onsubmit' => 'return wlCheckNewItem(this, '
 					. json_encode( array(
 						'subpage' => wfMsg( 'wikilog-new-item-subpage' ),
 						'title' => array(
@@ -314,7 +314,6 @@ class WikilogMainPage
 		);
 
 		$form = Xml::fieldset( wfMsg( 'wikilog-new-item' ), $form, array( 'id' => 'wl-new-item' ) ) . "\n";
-		$form .= '<script type="text/javascript" src="'.$wgWikilogStylePath.'/wikilog.js"></script>';
 		return $form;
 	}
 

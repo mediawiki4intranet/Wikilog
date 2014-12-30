@@ -505,7 +505,7 @@ class WikilogCommentsPage
 	 * @param $parent If provided, generates a "post reply" form to reply to
 	 *   the given comment.
 	 */
-	public function getPostCommentForm( $parent = null ) {
+	public function getPostCommentForm( $parent = null, $inline_reply = false ) {
 		global $wgUser, $wgTitle, $wgRequest;
 		global $wgWikilogModerateAnonymous;
 
@@ -597,12 +597,12 @@ class WikilogCommentsPage
 
 		$form = Xml::tags( 'form', array(
 			'action' => $targetTitle->getLocalUrl()."#wl-comment-form",
-			'method' => 'post'
+			'method' => 'post',
 		), $form );
 
 		$msgid = ( $parent ? 'wikilog-post-reply' : 'wikilog-post-comment' );
 		return Xml::fieldset( wfMsg( $msgid ), $preview . $form,
-			array( 'id' => 'wl-comment-form' ) ) . "\n";
+			array( 'id' => ( $inline_reply ? 'wl-comment-form-reply' : 'wl-comment-form' ) ) ) . "\n";
 	}
 
 	protected function setCommentApproval( $comment, $approval ) {

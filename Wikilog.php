@@ -131,6 +131,13 @@ $wgSpecialPages['WikilogSubscriptions'] = 'SpecialWikilogSubscriptions';
 $wgSpecialPageGroups['Wikilog'] = 'changes';
 $wgSpecialPageGroups['WikilogComments'] = 'changes';
 
+$wgResourceModules['ext.wikilog'] = array(
+	'localBasePath' => __DIR__.'/style',
+	'remoteExtPath' => 'Wikilog/style',
+	'scripts' => array('wikilog.js'),
+	'styles' => array('wikilog.css'),
+);
+
 /**
  * Hooks.
  */
@@ -354,13 +361,13 @@ class Wikilog
 		}
 		return true;
 	}
+
 	/**
 	 * BeforePageDisplay hook handler function.
-	 * Adds wikilog CSS to pages displayed.
+	 * Adds wikilog CSS and JS to pages displayed.
 	 */
 	static function BeforePageDisplay( &$output, &$skin ) {
-		global $wgWikilogStylePath, $wgWikilogStyleVersion;
-		$output->addExtensionStyle( "{$wgWikilogStylePath}/wikilog.css?{$wgWikilogStyleVersion}" );
+		$output->addModules( 'ext.wikilog' );
 		return true;
 	}
 
