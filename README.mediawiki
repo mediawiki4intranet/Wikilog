@@ -18,7 +18,7 @@ Information about previous versions can be found on:
 
 = Requirements =
 
-* MediaWiki 1.19-1.21 or higher, or Mediawiki4Intranet 1.18.
+* MediaWiki 1.19-1.25 or higher, or Mediawiki4Intranet 1.18.
 * A MySQL database backend.
 
 = Installation =

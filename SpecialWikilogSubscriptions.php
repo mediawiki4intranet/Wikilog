@@ -87,12 +87,12 @@ class SpecialWikilogSubscriptions
 
         $this->webOutputPartial(
             $opts, 'blogs', 'boffset', 'blimit',
-            http_build_query( array( 'coffset' => $opts['comments_offset'], 'climit' => $opts['comments_limit'] ) )
+            array( 'coffset' => $opts['comments_offset'], 'climit' => $opts['comments_limit'] )
         );
         $wgOut->addHtml( '<p></p>' );
         $this->webOutputPartial(
             $opts, 'comments', 'coffset', 'climit',
-            http_build_query( array( 'boffset' => $opts['blogs_offset'], 'blimit' => $opts['blogs_limit'] ) )
+            array( 'boffset' => $opts['blogs_offset'], 'blimit' => $opts['blogs_limit'] )
         );
 
         return $wgOut;
@@ -104,7 +104,7 @@ class SpecialWikilogSubscriptions
     }
 
     protected function webOutputPartial( $opts, $key, $offsetReplacement, $limitReplacement, $query ) {
-        global $wgOut;
+        global $wgOut, $wgLang;
 
         $html = '<div>';
         $html .= '<h2>' . wfMsgNoTrans( 'wikilog-subscription-' . $key ) . '</h2>';
@@ -121,11 +121,10 @@ class SpecialWikilogSubscriptions
         }
         $html .= '</div>';
         $wgOut->addHtml( $html );
-
-        $link = wfViewPrevNext(
+        $link = $wgLang->viewPrevNext(
+            $this->mTitle,
             $opts[$key . '_offset'],
             $opts[$key . '_limit'],
-            $this->mTitle,
             $query,
             $opts[$key . '_offset'] + $opts[$key . '_limit'] >= $opts[$key . '_count']
         );
