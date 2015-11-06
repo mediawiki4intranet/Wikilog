@@ -53,6 +53,10 @@ class SpecialWikilog
 		parent::__construct( 'Wikilog' );
 	}
 
+	protected function getGroupName() {
+		return 'changes';
+	}
+
 	/**
 	 * Execute the special page.
 	 * Called from MediaWiki.

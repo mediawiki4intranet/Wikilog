@@ -15,6 +15,10 @@ class SpecialWikilogSubscriptions
         $this->mTitle = SpecialPage::getTitleFor( 'wikilogsubscriptions' );
     }
 
+    protected function getGroupName() {
+        return 'changes';
+    }
+
     public function execute( $parameters ) {
         global $wgUser, $wgRequest;
 

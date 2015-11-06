@@ -40,6 +40,10 @@ class SpecialWikilogComments
 		parent::__construct( 'WikilogComments' );
 	}
 
+	protected function getGroupName() {
+		return 'changes';
+	}
+
 	function execute( $par ) {
 		global $wgTitle;
 		$page = WikilogCommentsPage::createInstance( $wgTitle );
