@@ -259,7 +259,7 @@ class Wikilog
 	 */
 	static function setupBlogNamespace( $ns ) {
 		global $wgExtensionMessagesFiles, $wgExtraNamespaces, $wgWikilogNamespaces,
-			$wgWikilogCommentNamespaces, $wgContentNamespaces;
+			$wgNamespaceAliases, $wgWikilogCommentNamespaces, $wgContentNamespaces, $wgLanguageCode;
 		if ( $ns < 100 ) {
 			echo "Wikilog setup: custom namespaces should start " .
 				 "at 100 to avoid conflict with standard namespaces.\n";
@@ -271,11 +271,11 @@ class Wikilog
 		if ( $wgWikilogCommentNamespaces !== true ) {
 			$wgWikilogCommentNamespaces[NS_BLOG_TALK] = true;
 		}
-		$wgExtraNamespaces[NS_BLOG] = 'Blog';
-		$wgExtraNamespaces[NS_BLOG_TALK] = 'Blog_talk';
 		$wgWikilogNamespaces[] = $ns;
 		$wgContentNamespaces[] = $ns;
-		$wgExtensionMessagesFiles[ 'WikilogNamespace' ] = dirname( __FILE__ ).'/Wikilog.i18n.ns.php';
+		require dirname( __FILE__ ).'/Wikilog.i18n.ns.php';
+		$wgExtraNamespaces += $namespaceNames[$wgLanguageCode];
+		$wgNamespaceAliases += array_flip($namespaceNames['en']);
 	}
 
 	# ##
