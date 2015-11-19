@@ -421,6 +421,9 @@ class WikilogHooks
 				$updater->addExtensionUpdate( array( 'addIndex', "wikilog_comments",
 					"wlc_timestamp", "{$dir}archives/patch-comments-indexes.sql", true ) );
 				$updater->addExtensionUpdate( array( 'WikilogHooks::createForeignKeys' ) );
+			} elseif ( $updater->getDB()->getType() == 'postgres' ) {
+				$updater->addExtensionUpdate( array( 'addTable', "wikilog_wikilogs",
+					"{$dir}wikilog-tables.pg.sql", true ) );
 			} else {
 				// TODO: PostgreSQL, SQLite, etc...
 				print "\n" .
@@ -528,7 +531,7 @@ class WikilogRegenThreads {
 	function __destruct() {
 		$dbw = wfGetDB( DB_MASTER );
 		if ( !$dbw->selectField( 'wikilog_comments', 'wlc_id',
-			array( 'wlc_thread=LPAD(wlc_id, 6, \'0\')' ), __METHOD__ ) ) {
+			array( 'wlc_thread=LPAD(CONCAT(wlc_id, \'\'), 6, \'0\')' ), __METHOD__ ) ) {
 			return;
 		}
 		print "Regenerating wlc_thread for Wikilog comments\n";

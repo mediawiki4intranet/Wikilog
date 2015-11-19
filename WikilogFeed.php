@@ -365,7 +365,7 @@ class WikilogItemFeed
 
 		$updated = $this->mDb->selectField( 'wikilog_wikilogs',
 			'MAX(wlw_updated)', false, __METHOD__ );
-		if ( !$updated ) $updated = wfTimestampNow();
+		$updated = $updated ? wfTimestamp( TS_MW, $updated ) : wfTimestampNow();
 
 		$feed = new $wgWikilogFeedClasses[$this->mFormat](
 			$this->mTitle->getFullUrl(),
@@ -406,7 +406,7 @@ class WikilogItemFeed
 			),
 			__METHOD__
 		);
-		if ( !$updated ) $updated = wfTimestampNow();
+		$updated = $updated ? wfTimestamp( TS_MW, $updated ) : wfTimestampNow();
 
 		$feed = new $wgWikilogFeedClasses[$this->mFormat](
 			$this->mTitle->getFullUrl(),
@@ -682,9 +682,7 @@ class WikilogCommentFeed
 		$res = $this->mQuery->select( $this->mDb, array(), 'MAX(wlc_updated) u' );
 		$updated = $res->fetchObject();
 		$updated = $updated->u;
-		if ( !$updated ) {
-			$updated = wfTimestampNow();
-		}
+		$updated = $updated ? wfTimestamp( TS_MW, $updated ) : wfTimestampNow();
 
 		$url = $this->mTitle->getFullUrl();
 		$feed = new $wgWikilogFeedClasses[$this->mFormat](

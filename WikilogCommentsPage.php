@@ -658,7 +658,7 @@ class WikilogCommentsPage
 				'ws_page' => $page_id,
 				'ws_user' => $wgUser->getID(),
 				'ws_yes'  => $subscribe,
-				'ws_date' => wfTimestamp( TS_MW ),
+				'ws_date' => $dbw->timestamp(),
 			), __METHOD__ );
 			return $subscribe;
 		}

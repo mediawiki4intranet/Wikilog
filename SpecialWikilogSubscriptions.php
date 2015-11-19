@@ -174,7 +174,7 @@ class SpecialWikilogSubscriptions
                     'ws_page' => $title->getArticleID(),
                     'ws_user' => $wgUser->getID(),
                     'ws_yes'  => $subscribe,
-                    'ws_date' => wfTimestamp( TS_MW ),
+                    'ws_date' => $dbw->timestamp(),
                 ),
                 __METHOD__
             );

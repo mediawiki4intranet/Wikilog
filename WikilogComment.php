@@ -211,7 +211,7 @@ class WikilogComment
 			$dbw->update( 'wikilog_comments', $data,
 				array( 'wlc_id' => $this->mID ), __METHOD__ );
 		} else {
-			$cid = $dbw->nextSequenceValue( 'wikilog_comments_wlc_id' );
+			$cid = $dbw->nextSequenceValue( 'wikilog_comments_wlc_id_seq' );
 			$data = array( 'wlc_id' => $cid ) + $data;
 			$dbw->insert( 'wikilog_comments', $data, __METHOD__ );
 			$this->mID = $dbw->insertId();

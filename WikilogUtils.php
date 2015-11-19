@@ -42,13 +42,16 @@ class PageLastVisitUpdater {
 		$this->visit[] = array(
 			'pv_page' => $pageid,
 			'pv_user' => $userid,
-			'pv_date' => wfTimestamp( TS_MW, $timestamp ),
+			'pv_date' => $timestamp,
 		);
 	}
 
 	function doUpdate() {
 		if ( $this->visit ) {
 			$dbw = wfGetDB( DB_MASTER );
+			foreach ( $this->visit as &$v ) {
+				$v['pv_date'] = $dbw->timestamp( $v['pv_date'] );
+			}
 			$dbw->replace( 'page_last_visit', array( array( 'pv_page', 'pv_user' ) ), $this->visit, __METHOD__ );
 			$this->visit = array();
 		}
@@ -120,7 +123,7 @@ class WikilogUtils {
 		$dbw->replace( 'wikilog_talkinfo', array( 'wti_page' ), array( array(
 				'wti_page' => $pageID,
 				'wti_num_comments' => $count,
-				'wti_talk_updated' => $talkUpdated
+				'wti_talk_updated' => $dbw->timestamp( $talkUpdated )
 			) ), __METHOD__ );
 
 		return array( $count, $talkUpdated );
