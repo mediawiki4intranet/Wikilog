@@ -19,3 +19,9 @@ $namespaceNames['ru'] = array(
 	NS_BLOG => 'Блог',
 	NS_BLOG_TALK => 'Обсуждение блога',
 );
+
+/** German (Deutsch) */
+$namespaceNames['de'] = array(
+	NS_BLOG => 'Blog',
+	NS_BLOG_TALK => 'Blog Diskussion',
+);

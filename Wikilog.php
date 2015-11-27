@@ -274,7 +274,7 @@ class Wikilog
 		$wgWikilogNamespaces[] = $ns;
 		$wgContentNamespaces[] = $ns;
 		require dirname( __FILE__ ).'/Wikilog.i18n.ns.php';
-		$wgExtraNamespaces += $namespaceNames[$wgLanguageCode];
+		$wgExtraNamespaces += $namespaceNames[isset($namespaceNames[$wgLanguageCode]) ? $wgLanguageCode : 'en'];
 		$wgNamespaceAliases += array_flip($namespaceNames['en']);
 	}
 
