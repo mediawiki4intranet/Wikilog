@@ -97,7 +97,7 @@ class WikilogCommentsPage
 		$subject = $subjectUser = $singleComment = $switchSubject = NULL;
 		if ( $title->getNamespace() != NS_SPECIAL ) {
 			if ( !Wikilog::nsHasComments( $title ) ) {
-				return false;
+				return NULL;
 			}
 			// We do not print anything from subject page, but its ID is required to correctly post comments
 			// So disable permission check for the time
@@ -120,10 +120,10 @@ class WikilogCommentsPage
 			if ( $subject->getNamespace() == NS_USER ) {
 				$subjectUser = User::newFromName( $subject->getText() );
 				if ( !$subjectUser || !$subjectUser->getId() ) {
-					return false;
+					return NULL;
 				}
 			} elseif ( !$subject->exists() ) {
-				return false;
+				return NULL;
 			}
 		}
 

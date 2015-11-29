@@ -333,8 +333,12 @@ class Wikilog
 	 */
 	static function ArticleFromTitle( &$title, &$article ) {
 		if ( $title->isTalkPage() ) {
-			$article = WikilogCommentsPage::createInstance( $title );
-			return !$article; // continue hook processing if createInstance returned false
+			$page = WikilogCommentsPage::createInstance( $title );
+			if ( $page ) {
+				$article = $page;
+				return false;
+			}
+			return true; // continue hook processing if createInstance returned NULL
 		} elseif ( ( $wi = self::getWikilogInfo( $title ) ) ) {
 			if ( $wi->isItem() ) {
 				$item = WikilogItem::newFromInfo( $wi );
