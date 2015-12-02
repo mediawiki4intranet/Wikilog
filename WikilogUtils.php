@@ -541,7 +541,7 @@ class WikilogUtils {
 		return array( $date, $time, $tz );
 	}
 
-	static function getOldestRevision( $articleId ) {
+	public static function getOldestRevision( $articleId ) {
 		$row = NULL;
 		$db = wfGetDB( DB_SLAVE );
 		$revSelectFields = Revision::selectFields();
@@ -558,12 +558,30 @@ class WikilogUtils {
 		return $row ? Revision::newFromRow( $row ) : null;
 	}
 
+	public static function sendHtmlMail($to, $from, $subject, $body, $headers)
+	{
+		global $wgVersion;
+		if (version_compare($wgVersion, '1.25', '>='))
+		{
+			// MediaWiki 1.25+
+			UserMailer::send($to, $from, $subject, $body, array(
+				'headers' => $headers,
+				'contentType' => 'text/html; charset=UTF-8',
+			));
+		}
+		else
+		{
+			// MediaWiki 1.19+ or MediaWiki4Intranet 1.18
+			UserMailer::send($to, $from, $subject, $body, NULL, 'text/html; charset=UTF-8', $headers);
+		}
+	}
+
 	// 7bit 0bbbbbbb
 	// 14bit 10bbbbbb bbbbbbbb
 	// 21bit 110bbbbb bbbbbbbb bbbbbbbb
 	// 28bit 1110bbbb bbbbbbbb bbbbbbbb bbbbbbbb
 	// 35bit 11110bbb bbbbbbbb bbbbbbbb bbbbbbbb bbbbbbbb
-	static function encodeVarint( $int ) {
+	public static function encodeVarint( $int ) {
 		if ( $int < 0x80 ) {
 			return chr( $int );
 		} elseif ( $int < 0x4000 ) {
@@ -577,7 +595,7 @@ class WikilogUtils {
 		}
 	}
 
-	static function encodeVarintArray( $a ) {
+	public static function encodeVarintArray( $a ) {
 		$s = '';
 		foreach ( $a as $int ) {
 			$s .= self::encodeVarint( $int );
@@ -585,7 +603,7 @@ class WikilogUtils {
 		return $s;
 	}
 
-	static function decodeVarintArray( $s ) {
+	public static function decodeVarintArray( $s ) {
 		$l = strlen( $s );
 		$array = array();
 		for ( $i = 0; $i < $l; ) {
