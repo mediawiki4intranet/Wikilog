@@ -29,13 +29,12 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
-class PageLastVisitUpdater {
+class PageLastVisitUpdater implements DeferrableUpdate {
 
 	var $visit = array();
 
 	function __construct() {
-		global $wgDeferredUpdateList;
-		$wgDeferredUpdateList[] = $this;
+		DeferredUpdates::addUpdate( $this );
 	}
 
 	function add( $pageid, $userid, $timestamp ) {
