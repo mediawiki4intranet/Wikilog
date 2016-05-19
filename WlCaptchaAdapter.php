@@ -101,6 +101,10 @@ class WlCaptchaAdapter
 
 	private function doConfirmEdit( $title, $newText, $oldText = null ) {
 		if ( $this->shouldCheck( $title, $newText, $oldText ) ) {
+			if ( method_exists( $this->mCaptcha, 'passCaptchaFromRequest' ) ) {
+				global $wgRequest, $wgUser;
+				return $this->mCaptcha->passCaptchaFromRequest( $wgRequest, $wgUser );
+			}
 			return $this->mCaptcha->passCaptcha();
 		} else {
 			wfDebug( "WlCaptchaAdapter: no need to show captcha.\n" );
