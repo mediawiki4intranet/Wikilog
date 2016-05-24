@@ -1,5 +1,11 @@
 = Wikilog release notes =
 
+== Mediawiki4Intranet's Wikilog 2.0 ==
+
+* Support for PostgreSQL
+* Support for MediaWiki up to 1.26
+* Several bug fixes
+
 == Mediawiki4Intranet's Wikilog as of 2015-01-21 ==
 
 Our Wikilog version is heavily improved; there is a lot of new big features:

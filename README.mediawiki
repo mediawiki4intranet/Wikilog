@@ -16,9 +16,21 @@ Information about previous versions can be found on:
   http://www.mediawiki.org/wiki/Extension:Wikilog
   http://groups.google.com/group/mediawiki-wikilog
 
+= Important: Original version notice =
+
+Original version of Wikilog was abandoned in 2012 by Juliano F. Ravasi.
+
+However, there is still a version of Wikilog (named 1.3.0) available in official
+Wikimedia repositories (https://phabricator.wikimedia.org/r/branch/mediawiki/extensions/Wikilog,
+https://github.com/wikimedia/mediawiki-extensions-Wikilog).
+
+We DO NOT recommend using it, because nobody develops it or adds new features,
+there are only Wikimedia developers who are replacing deprecated API calls with
+their newer versions.
+
 = Requirements =
 
-* MediaWiki 1.19-1.25 or higher, or Mediawiki4Intranet 1.18.
+* MediaWiki 1.19-1.26 or higher, or Mediawiki4Intranet 1.18.
 * A MySQL or PostgreSQL database backend.
 
 = Installation =
@@ -33,10 +45,13 @@ Information about previous versions can be found on:
 
 == Updating ==
 
-Always run php maintenance/update.php when you're updating Wikilog. Some of the updates
-may not need it, but an extra run will never harm :)
+* Update code in `extensions/Wikilog`
+* Run `php maintenance/update.php` to upgrade DB structure. Some updates
+  may not need it, but an extra run will never harm :)
 
-If you are upgrading from one of previous versions of Wikilog, you should also run
+If you are upgrading to MediaWiki4Intranet Wikilog from the original version of Wikilog
+taken from the official repositories (see "Original version notice" above), or from
+MediaWiki4Intranet Wikilog older than 9 Oct 2013, AND you have you should also run:
 
   php maintenance/patchSql.php extensions/Wikilog/archives/fill-wikilog-comment-meta.sql
 
