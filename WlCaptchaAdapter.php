@@ -210,9 +210,15 @@ class WlCaptchaAdapter
 
 	public function getCaptchaForm() {
 		global $wgOut;
+
+		$formInformation = $this->mCaptcha->getFormInformation();
+		$formMetainfo = $formInformation;
+		unset( $formMetainfo['html'] );
+		$this->mCaptcha->addFormInformationToOutput( $wgOut, $formMetainfo );
+
 		return '<div class="captcha">' .
 			$wgOut->parse( $this->mCaptcha->getMessage( $this->mCaptcha->action ) ) .
-			$this->mCaptcha->getForm() .
+			$formInformation['html'] .
 			'</div>';
 	}
 }
