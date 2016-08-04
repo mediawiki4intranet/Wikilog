@@ -250,7 +250,7 @@ class WikilogParser
 				$output = $parser->parse( $value, $parser->getTitle(), $popt, true, false );
 				$parser->mExtWikilog->mSummary = $output->getText();
 			} else {
-				$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-invalid-param', htmlspecialchars( $key ) ) );
+				$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-invalid-param', htmlspecialchars( $key ) )->text() )->text();
 				$parser->mOutput->addWarning( $warning );
 			}
 		}
@@ -275,7 +275,7 @@ class WikilogParser
 			if ( $ts > 0 ) {
 				$parser->mExtWikilog->mPubDate = wfTimestamp( TS_MW, $ts );
 			} else {
-				$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-invalid-date', $pubdate ) );
+				$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-invalid-date', $pubdate )->text() )->text();
 				$parser->mOutput->addWarning( $warning );
 			}
 		}
@@ -486,7 +486,7 @@ class WikilogParser
 		global $wgWikilogMaxAuthors;
 
 		if ( count( $parser->mExtWikilog->mAuthors ) >= $wgWikilogMaxAuthors ) {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-too-many-authors' ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-too-many-authors' )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 			return false;
 		}
@@ -496,7 +496,7 @@ class WikilogParser
 			$parser->mExtWikilog->mAuthors[$user->getName()] = $user->getID();
 		}
 		else {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-invalid-author', $name ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-invalid-author', $name )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 		}
 		return true;
@@ -513,7 +513,7 @@ class WikilogParser
 		if ( !$tcre ) { $tcre = '/[^' . Title::legalChars() . ']/'; }
 
 		if ( count( $parser->mExtWikilog->mTags ) >= $wgWikilogMaxTags ) {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-too-many-tags' ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-too-many-tags' )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 			return false;
 		}
@@ -522,7 +522,7 @@ class WikilogParser
 			$parser->mExtWikilog->mTags[$tag] = 1;
 		}
 		else {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-invalid-tag', $tag ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-invalid-tag', $tag )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 		}
 		return true;
@@ -539,7 +539,7 @@ class WikilogParser
 		if ( !$tested ) {
 			$title = $parser->getTitle();
 			if ( !in_array( $title->getNamespace(), $wgWikilogNamespaces ) ) {
-				$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-out-of-context' ) );
+				$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-out-of-context' )->text() )->text();
 				$parser->mOutput->addWarning( $warning );
 			}
 			$tested = true;
@@ -557,21 +557,21 @@ class WikilogParser
 	private static function parseImageLink( &$parser, $text ) {
 		$obj = self::parseMediaLink( $parser, $text );
 		if ( !$obj ) {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-invalid-file', htmlspecialchars( $text ) ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-invalid-file', htmlspecialchars( $text ) )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 			return null;
 		}
 
 		list( $t1, $t2, $file ) = $obj;
 		if ( !$file ) {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-file-not-found', htmlspecialchars( $t1 ) ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-file-not-found', htmlspecialchars( $t1 ) )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 			return null;
 		}
 
 		$type = $file->getMediaType();
 		if ( $type != MEDIATYPE_BITMAP && $type != MEDIATYPE_DRAWING ) {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-not-an-image', $file->getName() ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-not-an-image', $file->getName() )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 			return null;
 		}

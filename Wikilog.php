@@ -35,7 +35,7 @@ if ( !defined( 'MEDIAWIKI' ) )
 $wgExtensionCredits['specialpage'][] = array(
 	'path'           => __FILE__,
 	'name'           => 'Wikilog',
-	'version'        => '2.0',
+	'version'        => '2.0.1',
 	'author'         => 'Juliano F. Ravasi, Vitaliy Filippov',
 	'descriptionmsg' => 'wikilog-desc',
 	'url'            => 'https://www.mediawiki.org/wiki/Extension:Wikilog',
@@ -446,7 +446,7 @@ class Wikilog
 		if ( $wi->isMain() && $skin->getTitle()->quickUserCan( 'edit' ) ) {
 			$views['wikilog'] = array(
 				'class' => ( $action == 'wikilog' ) ? 'selected' : false,
-				'text' => wfMsg( 'wikilog-tab' ),
+				'text' => wfMessage( 'wikilog-tab' )->text(),
 				'href' => $skin->getTitle()->getLocalUrl( 'action=wikilog' )
 			);
 		}

@@ -360,8 +360,8 @@ class WikilogItemFeed
 	 */
 	protected function getSiteFeedObject() {
 		global $wgContLanguageCode, $wgWikilogFeedClasses, $wgFavicon, $wgLogo;
-		$title = wfMsgForContent( 'wikilog-specialwikilog-title' );
-		$subtitle = wfMsgExt( 'wikilog-feed-description', array( 'parse', 'content' ) );
+		$title = wfMessage( 'wikilog-specialwikilog-title' )->inContentLanguage()->text();
+		$subtitle = wfMessage( 'wikilog-feed-description' )->inContentLanguage()->parse();
 
 		$updated = $this->mDb->selectField( 'wikilog_wikilogs',
 			'MAX(wlw_updated)', false, __METHOD__ );
@@ -369,7 +369,7 @@ class WikilogItemFeed
 
 		$feed = new $wgWikilogFeedClasses[$this->mFormat](
 			$this->mTitle->getFullUrl(),
-			wfMsgForContent( 'wikilog-feed-title', $title, $wgContLanguageCode ),
+			wfMessage( 'wikilog-feed-title', $title, $wgContLanguageCode )->inContentLanguage()->text(),
 			$updated,
 			$this->mTitle->getFullUrl()
 		);
@@ -394,8 +394,8 @@ class WikilogItemFeed
 		global $wgWikilogFeedClasses, $wgFavicon, $wgLogo;
 		global $wgContLang, $wgContLanguageCode;
 
-		$title = wfMsgForContent( 'wikilog-feed-ns-title', $wgContLang->getFormattedNsText( $ns ) );
-		$subtitle = wfMsgExt( 'wikilog-feed-description', array( 'parse', 'content' ) );
+		$title = wfMessage( 'wikilog-feed-ns-title', $wgContLang->getFormattedNsText( $ns ) )->inContentLanguage()->text();
+		$subtitle = wfMessage( 'wikilog-feed-description' )->inContentLanguage()->parse();
 
 		$updated = $this->mDb->selectField(
 			array( 'wikilog_wikilogs', 'page' ),
@@ -410,7 +410,7 @@ class WikilogItemFeed
 
 		$feed = new $wgWikilogFeedClasses[$this->mFormat](
 			$this->mTitle->getFullUrl(),
-			wfMsgForContent( 'wikilog-feed-title', $title, $wgContLanguageCode ),
+			wfMessage( 'wikilog-feed-title', $title, $wgContLanguageCode )->inContentLanguage()->text(),
 			$updated,
 			$this->mTitle->getFullUrl()
 		);
@@ -454,7 +454,7 @@ class WikilogItemFeed
 					 : null;
 				$feed = new $wgWikilogFeedClasses[$this->mFormat](
 					$wikilogTitle->getFullUrl(),
-					wfMsgForContent( 'wikilog-feed-title', $title, $wgContLanguageCode ),
+					wfMessage( 'wikilog-feed-title', $title, $wgContLanguageCode )->inContentLanguage()->text(),
 					$row->wlw_updated, $wikilogTitle->getFullUrl(), $self
 				);
 				if ( $row->wlw_subtitle ) {
@@ -670,14 +670,14 @@ class WikilogCommentFeed
 	public function getFeedObject() {
 		global $wgContLanguageCode, $wgWikilogFeedClasses, $wgFavicon, $wgLogo;
 
-		$feedtitle = wfMsgForContent( 'wikilog-feed-title',
-			wfMsgForContent(
+		$feedtitle = wfMessage( 'wikilog-feed-title',
+			wfMessage(
 				$this->mSubject ? 'wikilog-title-comments' : 'wikilog-title-comments-all',
 				$this->mSubject ? $this->mSubject->getSubpageText() : ''
-			),
+			)->inContentLanguage()->text(),
 			$wgContLanguageCode
-		);
-		$subtitle = wfMsgExt( 'wikilog-comment-feed-description', array( 'parse', 'content' ) );
+		)->inContentLanguage()->text();
+		$subtitle = wfMessage( 'wikilog-comment-feed-description' )->inContentLanguage()->parse();
 
 		$res = $this->mQuery->select( $this->mDb, array(), 'MAX(wlc_updated) u' );
 		$updated = $res->fetchObject();
@@ -714,13 +714,13 @@ class WikilogCommentFeed
 		if ( $comment->mUserID ) {
 			$usertext = $comment->mUserText;
 		} else {
-			$usertext = wfMsgForContent( 'wikilog-comment-anonsig',
+			$usertext = wfMessage( 'wikilog-comment-anonsig',
 				$comment->mUserText, ''/*talk*/, $comment->mAnonName
-			);
+			)->inContentLanguage()->text();
 		}
-		$title = wfMsgForContent( 'wikilog-comment-feed-title'.( $this->mSingleItem ? '1' : '2' ),
+		$title = wfMessage( 'wikilog-comment-feed-title'.( $this->mSingleItem ? '1' : '2' ),
 			$comment->mID, $usertext, $comment->mSubject->getSubpageText()
-		);
+		)->inContentLanguage()->text();
 
 		# Create new syndication entry.
 		$entry = new WlSyndicationEntry(

@@ -30,8 +30,9 @@ their newer versions.
 
 = Requirements =
 
-* MediaWiki 1.19-1.26 or higher, or Mediawiki4Intranet 1.18.
+* MediaWiki 1.19-1.27, or Mediawiki4Intranet 1.18.
 * A MySQL or PostgreSQL database backend.
+* ParserFunctions extension.
 
 = Installation =
 

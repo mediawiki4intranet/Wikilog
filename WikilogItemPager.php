@@ -153,7 +153,7 @@ class WikilogSummaryPager
 	}
 
 	function getEmptyBody() {
-		return '<div class="wl-empty">' . wfMsgExt( 'wikilog-pager-empty', array( 'parsemag' ) ) . "</div>";
+		return '<div class="wl-empty">' . wfMessage( 'wikilog-pager-empty' )->text() . "</div>";
 	}
 
 	function getNavigationBar() {
@@ -188,7 +188,7 @@ class WikilogSummaryPager
 		# edit link (if user can edit the article).
 		$titleText = Sanitizer::escapeHtmlAllowEntities( $item->mName );
 		if ( !$item->getIsPublished() )
-			$titleText .= wfMsgForContent( 'wikilog-draft-title-mark' );
+			$titleText .= wfMessage( 'wikilog-draft-title-mark' )->inContentLanguage()->text();
 		$heading = $skin->link( $item->mTitle, $titleText, array(), array(),
 			array( 'known', 'noclasses' )
 		);
@@ -201,14 +201,14 @@ class WikilogSummaryPager
 		$key = $this->mQuery->isSingleWikilog()
 			? 'wikilog-summary-header-single'
 			: 'wikilog-summary-header';
-		$msg = wfMsgExt( $key, array( 'content', 'parsemag' ), $params );
+		$msg = wfMessage( $key, $params )->inContentLanguage()->text();
 		if ( !empty( $msg ) ) {
 			$header = WikilogUtils::wrapDiv( 'wl-summary-header', $this->parse( $msg ) );
 		}
 
 		# Summary entry text.
 		if ( $summary ) {
-			$more = $this->parse( wfMsgForContentNoTrans( 'wikilog-summary-more', $params ) );
+			$more = $this->parse( wfMessage( 'wikilog-summary-more', $params )->inContentLanguage()->plain() );
 			$summary = WikilogUtils::wrapDiv( 'wl-summary', $summary . $more );
 		} else {
 			$summary = WikilogUtils::wrapDiv( 'wl-summary', $content );
@@ -221,7 +221,7 @@ class WikilogSummaryPager
 		$key = $this->mQuery->isSingleWikilog()
 			? 'wikilog-summary-footer-single'
 			: 'wikilog-summary-footer';
-		$msg = wfMsgExt( $key, array( 'content', 'parsemag' ), $params );
+		$msg = wfMessage( $key, $params )->inContentLanguage()->text();
 		if ( !empty( $msg ) ) {
 			$footer = WikilogUtils::wrapDiv( 'wl-summary-footer', $this->parse( $msg ) );
 		}
@@ -269,15 +269,15 @@ class WikilogSummaryPager
 		$skin = $this->getSkin();
 		$attribs = array();
 		if ( !is_null( $tooltip ) ) {
-			$attribs['title'] = wfMsg( 'wikilog-edit-hint', $tooltip );
+			$attribs['title'] = wfMessage( 'wikilog-edit-hint', $tooltip )->text();
 		}
-		$link = $skin->link( $title, wfMsg( 'wikilog-edit-lc' ),
+		$link = $skin->link( $title, wfMessage( 'wikilog-edit-lc' )->text(),
 			$attribs,
 			array( 'action' => 'edit' ),
 			array( 'noclasses', 'known' )
 		);
 
-		$result = wfMsgHtml ( 'editsection-brackets', $link );
+		$result = wfMessage( 'editsection-brackets', $link )->escaped();
 		$result = "<span class=\"editsection\">$result</span>";
 
 		wfRunHooks( 'DoEditSectionLink', array( $skin, $title, "", $tooltip, &$result ) );
@@ -365,7 +365,7 @@ class WikilogTemplatePager
 
 		# Some general data.
 		$authors = WikilogUtils::authorList( array_keys( $item->mAuthors ) );
-		$tags = implode( wfMsgForContent( 'comma-separator' ), array_keys( $item->mTags ) );
+		$tags = implode( wfMessage( 'comma-separator' )->inContentLanguage()->text(), array_keys( $item->mTags ) );
 		$comments = WikilogUtils::getCommentsWikiText( $item );
 		$divclass = 'wl-entry' . ( $item->getIsPublished() ? '' : ' wl-draft' );
 
@@ -608,7 +608,7 @@ class WikilogArchivesPager
 				$s = $this->getSkin()->link( $page, $text, array(), array(),
 					array( 'known', 'noclasses' ) );
 				if ( !$this->mCurrentRow->wlp_publish ) {
-					$draft = wfMsg( 'wikilog-draft-title-mark' );
+					$draft = wfMessage( 'wikilog-draft-title-mark' )->text();
 					$s = Xml::wrapClass( "$s $draft", 'wl-draft-inline' );
 				}
 				return $s;
@@ -647,22 +647,22 @@ class WikilogArchivesPager
 
 		$fields = array();
 
-		$fields['wlp_pubdate']			= wfMsgHtml( 'wikilog-published' );
- 		// $fields['wlp_updated']			= wfMsgHtml( 'wikilog-updated' );
-		$fields['wlp_authors']			= wfMsgHtml( 'wikilog-authors' );
+		$fields['wlp_pubdate']			= wfMessage( 'wikilog-published' )->escaped();
+ 		// $fields['wlp_updated']			= wfMessage( 'wikilog-updated' )->escaped();
+		$fields['wlp_authors']			= wfMessage( 'wikilog-authors' )->escaped();
 
 		if ( !$this->mQuery->isSingleWikilog() )
-			$fields['wlw_title']		= wfMsgHtml( 'wikilog-wikilog' );
+			$fields['wlw_title']		= wfMessage( 'wikilog-wikilog' )->escaped();
 
-		$fields['wlp_title']			= wfMsgHtml( 'wikilog-title' );
+		$fields['wlp_title']			= wfMessage( 'wikilog-title' )->escaped();
 
 		if ( $wgWikilogEnableComments )
-			$fields['wti_num_comments']	= wfMsgHtml( 'wikilog-comments' );
+			$fields['wti_num_comments']	= wfMessage( 'wikilog-comments' )->escaped();
 
 		if ( empty( $this->noActions ) )
-			$fields['_wl_actions']			= wfMsgHtml( 'wikilog-actions' );
+			$fields['_wl_actions']			= wfMessage( 'wikilog-actions' )->escaped();
 
-		$fields['wti_talk_updated'] = wfMsgHtml( 'wikilog-talk-updated' );
+		$fields['wti_talk_updated'] = wfMessage( 'wikilog-talk-updated' )->escaped();
 
 		return $fields;
 	}
@@ -712,15 +712,15 @@ class WikilogArchivesPager
 		$skin = $this->getSkin();
 		$attribs = array();
 		if ( !is_null( $tooltip ) ) {
-			$attribs['title'] = wfMsg( 'wikilog-edit-hint', $tooltip );
+			$attribs['title'] = wfMessage( 'wikilog-edit-hint', $tooltip )->text();
 		}
-		$link = $skin->link( $title, wfMsg( 'wikilog-edit-lc' ),
+		$link = $skin->link( $title, wfMessage( 'wikilog-edit-lc' )->text(),
 			$attribs,
 			array( 'action' => 'edit' ),
 			array( 'noclasses', 'known' )
 		);
 
-		$result = wfMsgHtml ( 'editsection-brackets', $link );
+		$result = wfMessage( 'editsection-brackets', $link )->escaped();
 		return $result;
 	}
 }

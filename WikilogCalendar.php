@@ -71,9 +71,9 @@ class WikilogCalendar
             $prev = array('dir' => 'next', 'offset' => ($prevmonth = $months[count($months)-1]).'01000000', 'limit' => $urlLimit );
         $html = '<p class="wl-calendar-nav">';
         if ($prev)
-            $html .= $pager->makeLink(wfMsg('wikilog-calendar-prev', self::monthName(self::prevMonth($prevmonth))), $prev, 'prev');
+            $html .= $pager->makeLink(wfMessage('wikilog-calendar-prev', self::monthName(self::prevMonth($prevmonth)))->text(), $prev, 'prev');
         if ($next)
-            $html .= $pager->makeLink(wfMsg('wikilog-calendar-next', self::monthName($nextmonth)), $next, 'next');
+            $html .= $pager->makeLink(wfMessage('wikilog-calendar-next', self::monthName($nextmonth))->text(), $next, 'next');
         $html .= '</p>';
         return $html;
     }
@@ -185,10 +185,10 @@ class WikilogCalendar
                         'month' => substr($date, 4, 2),
                         'day'   => substr($date, 6, 2),
                     )),
-                    'title' => wfMsgExt('wikilog-calendar-archive-link-title', 'parseinline',
+                    'title' => wfMessage('wikilog-calendar-archive-link-title',
                         $sp->getPrefixedText(),
                         date('Y-m-d', wfTimestamp(TS_UNIX, $row->wlp_pubdate))
-                    ),
+                    )->parse(),
                 );
             }
         }

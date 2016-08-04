@@ -76,7 +76,7 @@ class WikilogHooks
 			if ( !$wi->getTitle()->getArticleID() ) {
 				// If the parent (blog) page is not created yet - create it automatically
 				$page = new WikiPage( $wi->getTitle() );
-				$page->doEdit( wfMsg( 'wikilog-newtalk-text' ), wfMsg( 'wikilog-newtalk-summary' ), EDIT_FORCE_BOT );
+				$page->doEdit( wfMessage( 'wikilog-newtalk-text' )->text(), wfMessage( 'wikilog-newtalk-summary' )->text(), EDIT_FORCE_BOT );
 			}
 
 			$item->mName = $wi->getItemName();
@@ -331,8 +331,8 @@ class WikilogHooks
 				} else {
 					$checked = !$item && $wgWikilogSignAndPublishDefault;
 				}
-				$label = wfMsgExt( 'wikilog-edit-signpub', array( 'parseinline' ) );
-				$tooltip = wfMsgExt( 'wikilog-edit-signpub-tooltip', array( 'parseinline' ) );
+				$label = wfMessage( 'wikilog-edit-signpub' )->parse();
+				$tooltip = wfMessage( 'wikilog-edit-signpub-tooltip' )->parse();
 				$fields['wlSignpub'] =
 					Xml::check( 'wlSignpub', $checked, array(
 						'id' => 'wl-signpub',
@@ -346,7 +346,7 @@ class WikilogHooks
 
 			$fields = implode( $fields, "\n" );
 			$html = Xml::fieldset(
-				wfMsgExt( 'wikilog-edit-fieldset-legend', array( 'parseinline' ) ),
+				wfMessage( 'wikilog-edit-fieldset-legend' )->parse(),
 				$fields
 			);
 			$editpage->editFormTextAfterWarn .= $html;

@@ -77,7 +77,7 @@ class WikilogItemPage
 		global $wgOut, $wgUser, $wgContLang, $wgFeed, $wgWikilogFeedClasses, $wgWikilogCommentsOnItemPage;
 
 		# Get skin
-		$skin = $wgUser->getSkin();
+		$skin = $this->getContext()->getSkin();
 
 		if ( $this->mItem ) {
 			$params = $this->mItem->getMsgParams( true );
@@ -88,10 +88,7 @@ class WikilogItemPage
 			}
 
 			# Item page header.
-			$headerTxt = wfMsgExt( 'wikilog-entry-header',
-				array( 'parse', 'content' ),
-				$params
-			);
+			$headerTxt = wfMessage( 'wikilog-entry-header', $params )->inContentLanguage()->parse();
 			if ( !empty( $headerTxt ) ) {
 				$wgOut->addHtml( WikilogUtils::wrapDiv( 'wl-entry-header', $headerTxt ) );
 			}
@@ -105,10 +102,7 @@ class WikilogItemPage
 			}
 
 			# Item page footer.
-			$footerTxt = wfMsgExt( 'wikilog-entry-footer',
-				array( 'parse', 'content' ),
-				$params
-			);
+			$footerTxt = wfMessage( 'wikilog-entry-footer', $params )->inContentLanguage()->parse();
 			if ( !empty( $footerTxt ) ) {
 				$wgOut->addHtml( WikilogUtils::wrapDiv( 'wl-entry-footer', $footerTxt ) );
 			}
@@ -120,11 +114,10 @@ class WikilogItemPage
 					$wgOut->addLink( array(
 						'rel' => 'alternate',
 						'type' => "application/{$format}+xml",
-						'title' => wfMsgExt(
+						'title' => wfMessage(
 							"page-{$format}-feed",
-							array( 'content', 'parsemag' ),
 							$this->mItem->mParentTitle->getPrefixedText()
-						),
+						)->inContentLanguage()->text(),
 						'href' => $this->mItem->mParentTitle->getLocalUrl( "feed={$format}" )
 					) );
 				}
@@ -140,18 +133,15 @@ class WikilogItemPage
 
 			# Override page title.
 			# NOTE (MW1.16+): Must come after parent::view().
-			$fullPageTitle = wfMsg( 'wikilog-title-item-full',
-					$this->mItem->mName,
-					$this->mItem->mParentTitle->getPrefixedText()
-			);
+			$fullPageTitle = wfMessage( 'wikilog-title-item-full',
+				$this->mItem->mName,
+				$this->mItem->mParentTitle->getPrefixedText()
+			)->text();
 			$wgOut->setPageTitle( Sanitizer::escapeHtmlAllowEntities( $this->mItem->mName ) );
-			$wgOut->setHTMLTitle( wfMsg( 'pagetitle', $fullPageTitle ) );
+			$wgOut->setHTMLTitle( wfMessage( 'pagetitle', $fullPageTitle )->text() );
 
 			# Set page subtitle
-			$subtitleTxt = wfMsgExt( 'wikilog-entry-sub',
-				array( 'parsemag', 'content' ),
-				$params
-			);
+			$subtitleTxt = wfMessage( 'wikilog-entry-sub', $params )->inContentLanguage()->text();
 			if ( !empty( $subtitleTxt ) ) {
 				$wgOut->setSubtitle( $wgOut->parse( $subtitleTxt ) );
 			} else {

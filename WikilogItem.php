@@ -170,15 +170,12 @@ class WikilogItem
 			if ( $pout !== null ) {
 				$categories = $pout->getCategoryLinks();
 				if ( count( $categories ) > 0 ) {
-					$categoriesFmt = wfMsgExt( 'wikilog-summary-categories',
-						array( 'content', 'parsemag' ),
+					$categoriesFmt = wfMessage( 'wikilog-summary-categories',
 						count( $categories ),
 						WikilogUtils::categoryList( $categories )
-					);
+					)->inContentLanguage()->text();
 				} else {
-					$categoriesFmt = wfMsgExt( 'wikilog-summary-uncategorized',
-						array( 'content', 'parsemag' )
-					);
+					$categoriesFmt = wfMessage( 'wikilog-summary-uncategorized' )->inContentLanguage()->text();
 				}
 			}
 			if ( $wgWikilogEnableTags ) {

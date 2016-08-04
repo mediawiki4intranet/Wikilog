@@ -132,17 +132,17 @@ class SpecialWikilogSubscriptions
         global $wgOut, $wgLang;
 
         $html = '<div>';
-        $html .= '<h2>' . wfMsgNoTrans( 'wikilog-subscription-' . $key ) . '</h2>';
+        $html .= '<h2>' . wfMessage( 'wikilog-subscription-'.$key )->plain() . '</h2>';
         if ( count( $opts[$key] ) > 0 ) {
             $html .= '<table class="wikitable">';
-            $html .= '<tr><th>' . wfMsgNoTrans( 'wikilog-subscription-header-action');
-            $html .= '</th><th>' . wfMsgNoTrans( 'wikilog-subscription-header-' . $key ) . '</th>';
+            $html .= '<tr><th>' . wfMessage( 'wikilog-subscription-header-action' )->plain();
+            $html .= '</th><th>' . wfMessage( 'wikilog-subscription-header-'.$key )->plain() . '</th>';
             foreach ( $opts[$key] as $title ) {
                 $html .= $this->itemHTML( $title, $key == 'comments' );
             }
             $html .= '</table>';
         } else {
-            $html .= wfMsgNoTrans( 'wikilog-subscription-' . $key . '-empty' );
+            $html .= wfMessage( 'wikilog-subscription-'.$key.'-empty' )->plain();
         }
         $html .= '</div>';
         $wgOut->addHtml( $html );
@@ -213,19 +213,19 @@ class SpecialWikilogSubscriptions
 
         if ( $subscribe ) {
             $wgOut->addHtml(
-                '<p>' . wfMsgNoTrans( 'wikilog-subscription-blog-subscribed', $wgUser->getSkin()->link( $title, $title->getPrefixedText() ) ) .
+                '<p>' . wfMessage( 'wikilog-subscription-blog-subscribed', $this->getContext()->getSkin()->link( $title, $title->getPrefixedText() ) )->plain() .
                 '</p><p>' . self::generateSubscriptionLink( $title, true, true ) . '</p>'
             );
         } elseif ( $isComments ) {
             $wi = Wikilog::getWikilogInfo( $title );
             $key = ( $wi->isMain() ? 'wikilog-subscription-comment-unsubscribed-blog' : 'wikilog-subscription-comment-unsubscribed-article' );
             $wgOut->addHtml(
-                '<p>' . wfMsgNoTrans( $key, $title->getPrefixedText() ) .
+                '<p>' . wfMessage( $key, $title->getPrefixedText() )->plain() .
                 '</p><p>' . $this->getCommentSubscription( $title->getTalkPage() ) . '</p>'
             );
         } else {
             $wgOut->addHtml(
-                '<p>' . wfMsgNoTrans( 'wikilog-subscription-blog-unsubscribed', $wgUser->getSkin()->link( $title, $title->getPrefixedText() ) ) .
+                '<p>' . wfMessage( 'wikilog-subscription-blog-unsubscribed', $this->getContext()->getSkin()->link( $title, $title->getPrefixedText() ) )->plain() .
                 '</p><p>' . self::generateSubscriptionLink( $title, false, true ) . '</p>'
             );
         }
@@ -251,8 +251,8 @@ class SpecialWikilogSubscriptions
         if ( $comments ) {
             $query ['comment'] = 1;
         }
-        $unsubscribeLink = $wgUser->getSkin()->link( $this->mTitle, wfMsgNoTrans( 'wikilog-subscription-item-unsubscribe' ), $params, $query );
-        $titleLink = $wgUser->getSkin()->link( $title, $title->getPrefixedText() );
+        $unsubscribeLink = $this->getContext()->getSkin()->link( $this->mTitle, wfMessage( 'wikilog-subscription-item-unsubscribe' )->plain(), $params, $query );
+        $titleLink = $this->getContext()->getSkin()->link( $title, $title->getPrefixedText() );
         $html = <<<END_STRING
 <tr>
     <td>{$unsubscribeLink}</td>
@@ -268,7 +268,7 @@ END_STRING;
      * @return string
      */
     protected function getCommentSubscription( $title ) {
-        return wfMsgNoTrans( 'wikilog-subscription-comment-subscription', $title->getLinkUrl(), $title->getPrefixedText() );
+        return wfMessage( 'wikilog-subscription-comment-subscription', $title->getLinkUrl(), $title->getPrefixedText() )->plain();
     }
 
     /**
@@ -311,8 +311,8 @@ END_STRING;
      * @return string
      */
     public static function subcriptionsRuleLink( $lang = NULL ) {
-        global $wgUser, $wgLang;
-        return $wgUser->getSkin()->link(
+        global $wgLang;
+        return RequestContext::getMain()->getSkin()->link(
             SpecialPage::getTitleFor( 'wikilogsubscriptions' ),
             wfMessage( 'wikilog-subscription-return-link' )
                 ->inLanguage( $lang ? $lang : $wgLang )->plain()

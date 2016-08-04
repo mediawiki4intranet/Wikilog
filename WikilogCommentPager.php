@@ -131,7 +131,7 @@ abstract class WikilogCommentPager
 	}
 
 	function getEmptyBody() {
-		return WikilogUtils::wrapDiv( 'wl-empty', wfMsgExt( 'wikilog-pager-empty', array( 'parsemag' ) ) );
+		return WikilogUtils::wrapDiv( 'wl-empty', wfMessage( 'wikilog-pager-empty' )->text() );
 	}
 
 	function getNavigationBar() {

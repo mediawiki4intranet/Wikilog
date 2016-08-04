@@ -378,16 +378,16 @@ class WikilogComment
 		// Build message subject, body and unsubscribe link
 		$saveExpUrls = WikilogParser::expandLocalUrls();
 		$popt = new ParserOptions( User::newFromId( $this->mUserID ) );
-		$subject = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-subject', $args ),
+		$subject = $wgParser->parse( wfMessage( 'wikilog-comment-email-subject', $args )->plain(),
 			$this->mSubject, $popt, false, false );
 		$subject = 'Re: ' . strip_tags( $subject->getText() );
-		$body = $wgParser->parse( wfMsgNoTrans( 'wikilog-comment-email-body', $args),
+		$body = $wgParser->parse( wfMessage( 'wikilog-comment-email-body', $args )->plain(),
 			$this->mSubject, $popt, true, false );
 		$body = $body->getText();
 		WikilogParser::expandLocalUrls( $saveExpUrls );
 		// Unsubscribe link is appended to e-mails of users that can unsubscribe
 		global $wgServer, $wgScript;
-		$unsubscribe = wfMsgNoTrans(
+		$unsubscribe = wfMessage(
 			'wikilog-comment-email-unsubscribe',
 			$this->mSubject->getSubpageText(),
 			$wgServer.$wgScript.'?'.http_build_query( array(
@@ -396,7 +396,7 @@ class WikilogComment
 				'wlActionSubscribe' => 1,
 				'wl-subscribe' => 0,
 			) )
-		);
+		)->plain();
 		// Build e-mail lists (with unsubscribe link, without unsubscribe link)
 		// TODO: Send e-mail to user in his own language?
 		$to_with = array();
@@ -516,9 +516,9 @@ class WikilogComment
 		global $wgContLang;
 		$user = $this->mUserID ? $this->mUserText : $this->mAnonName;
 		$summ = $wgContLang->truncate( str_replace( "\n", ' ', $this->mText ),
-			max( 0, 200 - strlen( wfMsgForContent( 'wikilog-comment-autosumm' ) ) ),
+			max( 0, 200 - strlen( wfMessage( 'wikilog-comment-autosumm' )->inContentLanguage()->text() ) ),
 			'...' );
-		return wfMsgForContent( 'wikilog-comment-autosumm', $user, $summ );
+		return wfMessage( 'wikilog-comment-autosumm', $user, $summ )->inContentLanguage()->text();
 	}
 
 	/**
@@ -809,7 +809,7 @@ class WikilogCommentFormatter
 	 */
 	public function __construct( $skin = false, $allowReplies = false ) {
 		global $wgUser;
-		$this->mSkin = $skin ? $skin : $wgUser->getSkin();
+		$this->mSkin = $skin ? $skin : RequestContext::getMain()->getSkin();
 		$this->mAllowReplies = $allowReplies;
 		$this->mAllowModeration = $wgUser->isAllowed( 'wl-moderation' );
 	}
@@ -860,7 +860,7 @@ class WikilogCommentFormatter
 
 		if ( !$comment->isVisible() && !$this->mAllowModeration ) {
 			# Placeholder.
-			$status = wfMsg( "wikilog-comment-{$hidden}" );
+			$status = wfMessage( "wikilog-comment-{$hidden}" )->text();
 			$html = WikilogUtils::wrapDiv( 'wl-comment-placeholder', $status );
 		} else {
 			# The comment.
@@ -915,10 +915,10 @@ class WikilogCommentFormatter
 		if ( !$comment->isVisible() ) {
 			# If comment is not visible to non-moderators, make note of it.
 			$hidden = WikilogComment::$statusMap[ $comment->mStatus ];
-			$status = WikilogUtils::wrapDiv( 'wl-comment-status', wfMsg( "wikilog-comment-{$hidden}" ) );
+			$status = WikilogUtils::wrapDiv( 'wl-comment-status', wfMessage( "wikilog-comment-{$hidden}" )->text() );
 		}
 
-		$header = wfMsgExt( 'wikilog-comment-header', array( 'content', 'parsemag', 'replaceafter' ), $params );
+		$header = wfMessage( 'wikilog-comment-header' )->inContentLanguage()->rawParams( $params )->text();
 		if ( $header ) {
 			$header = WikilogUtils::wrapDiv( 'wl-comment-header', $header );
 		}
@@ -936,7 +936,7 @@ class WikilogCommentFormatter
 	 * @return HTML-formatted comment footer.
 	 */
 	public function formatCommentFooter( $comment, $params ) {
-		$footer = wfMsgExt( 'wikilog-comment-footer', array( 'content', 'parsemag', 'replaceafter' ), $params );
+		$footer = wfMessage( 'wikilog-comment-footer' )->inContentLanguage()->rawParams( $params )->text();
 		if ( $footer ) {
 			return WikilogUtils::wrapDiv( 'wl-comment-footer', $footer );
 		} else {
@@ -955,7 +955,7 @@ class WikilogCommentFormatter
 	 * 300+ languages suported by MediaWiki.
 	 *
 	 * Parameters should be HTML-formated. They are substituded using
-	 * 'replaceafter' parameter to wfMsgExt().
+	 * Message::rawParams().
 	 *
 	 * @param $comment Comment.
 	 * @return Array with message parameters.
@@ -968,11 +968,11 @@ class WikilogCommentFormatter
 			$authorFmt = WikilogUtils::authorSig( $comment->mUserText, true );
 		} else {
 			$authorPlain = htmlspecialchars( $comment->mAnonName );
-			$authorFmt = wfMsgForContent( 'wikilog-comment-anonsig',
+			$authorFmt = wfMessage( 'wikilog-comment-anonsig',
 				Xml::wrapClass( $this->mSkin->userLink( $comment->mUserID, $comment->mUserText ), 'wl-comment-author' ),
 				$this->mSkin->userTalkLink( $comment->mUserID, $comment->mUserText ),
 				htmlspecialchars( $comment->mAnonName )
-			);
+			)->inContentLanguage()->text();
 		}
 
 		list( $date, $time, $tz ) = WikilogUtils::getLocalDateTime( $comment->mTimestamp );
@@ -981,9 +981,9 @@ class WikilogCommentFormatter
 		$extra = array();
 		if ( $this->mShowItem ) {
 			# Display item title.
-			$extra[] = wfMsgForContent( 'wikilog-comment-note-item',
+			$extra[] = wfMessage( 'wikilog-comment-note-item',
 				$this->mSkin->link( $comment->mSubject, $comment->mSubject->getSubpageText() )
-			);
+			)->inContentLanguage()->text();
 		}
 		if ( $comment->mID && $comment->mCommentTitle &&
 				$comment->mCommentTitle->exists() )
@@ -992,8 +992,8 @@ class WikilogCommentFormatter
 				# Comment was edited.
 				list( $updDate, $updTime, $updTz ) = WikilogUtils::getLocalDateTime( $comment->mUpdated );
 				$extra[] = $this->mSkin->link( $comment->mCommentTitle,
-					wfMsgForContent( 'wikilog-comment-note-edited', $updDate, $updTime, $updTz ),
-					array( 'title' => wfMsg( 'wikilog-comment-history' ) ),
+					wfMessage( 'wikilog-comment-note-edited', $updDate, $updTime, $updTz )->inContentLanguage()->text(),
+					array( 'title' => wfMessage( 'wikilog-comment-history' )->text() ),
 					array( 'action' => 'history' ), 'known'
 				);
 			}
@@ -1004,8 +1004,8 @@ class WikilogCommentFormatter
 			) {
 			$parent = $comment->getParentObj();
 			$link = $this->mSkin->link( $parent->mCommentTitle,
-				wfMsg( 'wikilog-ptswitcher-comment-label' ),
-				array( 'title' => wfMsg( 'wikilog-ptswitcher-to-comment' ) ),
+				wfMessage( 'wikilog-ptswitcher-comment-label' )->text(),
+				array( 'title' => wfMessage( 'wikilog-ptswitcher-to-comment' )->text() ),
 				array( 'section' => false ),
 				'known'
 			);
@@ -1013,9 +1013,9 @@ class WikilogCommentFormatter
 			if ( $parent->mUserID ) {
 				$parentSig = WikilogUtils::authorSig( $parent->mUserText, true );
 			} else {
-				$parentSig = wfMsgForContent( 'wikilog-comment-anonsig', '', '', htmlspecialchars( $parent->mAnonName ) );
+				$parentSig = wfMessage( 'wikilog-comment-anonsig', '', '', htmlspecialchars( $parent->mAnonName ) )->inContentLanguage()->text();
 			}
-			$extra[] = wfMsg( 'wikilog-ptswitcher-to-parent', array( $link, $parentSig, $pd, $pt, $ptz ) );
+			$extra[] = wfMessage( 'wikilog-ptswitcher-to-parent', array( $link, $parentSig, $pd, $pt, $ptz ) )->text();
 		}
 
 		if ( $extra ) {
@@ -1052,11 +1052,11 @@ class WikilogCommentFormatter
 				$title = $comment->mCommentTitle;
 			}
 			return $this->mSkin->link( $title,
-				wfMsgExt( 'wikilog-comment-permalink', array( 'parseinline' ), $date, $time, $tz, $comment->mVisited ? 1 : NULL ),
-				array( 'title' => wfMsg( 'permalink' ) )
+				wfMessage( 'wikilog-comment-permalink', $date, $time, $tz, $comment->mVisited ? 1 : NULL )->parse(),
+				array( 'title' => wfMessage( 'permalink' )->text() )
 			);
 		} else {
-			return wfMsg( 'wikilog-comment-permalink', $date, $time, $tz );
+			return wfMessage( 'wikilog-comment-permalink', $date, $time, $tz )->text();
 		}
 	}
 
@@ -1076,18 +1076,18 @@ class WikilogCommentFormatter
 			if ( $this->mAllowReplies && $comment->isVisible() ) {
 				$tools['reply'] = Xml::tags( 'a',
 					array(
-						'title' => wfMsg( 'wikilog-reply-to-comment' ),
+						'title' => wfMessage( 'wikilog-reply-to-comment' )->text(),
 						'href' => $wgRequest->appendQueryValue( 'wlParent', $comment->mID ),
 						'onclick' => 'return wlReplyTo('.$comment->mID.')',
 					),
-					wfMsg( 'wikilog-reply-lc' )
+					wfMessage( 'wikilog-reply-lc' )->text()
 				);
 			}
 			if ( $this->mAllowModeration && $comment->mStatus == WikilogComment::S_PENDING ) {
-				$token = $wgUser->editToken();
+				$token = $wgUser->getEditToken();
 				$tools['approve'] = $this->mSkin->link( $comment->mCommentTitle,
-					wfMsg( 'wikilog-approve-lc' ),
-					array( 'title' => wfMsg( 'wikilog-comment-approve' ) ),
+					wfMessage( 'wikilog-approve-lc' )->text(),
+					array( 'title' => wfMessage( 'wikilog-comment-approve' )->text() ),
 					array(
 						'action' => 'wikilog',
 						'wlActionCommentApprove' => 'approve',
@@ -1096,8 +1096,8 @@ class WikilogCommentFormatter
 					'known'
 				);
 				$tools['reject'] = $this->mSkin->link( $comment->mCommentTitle,
-					wfMsg( 'wikilog-reject-lc' ),
-					array( 'title' => wfMsg( 'wikilog-comment-reject' ) ),
+					wfMessage( 'wikilog-reject-lc' )->text(),
+					array( 'title' => wfMessage( 'wikilog-comment-reject' )->text() ),
 					array(
 						'action' => 'wikilog',
 						'wlActionCommentApprove' => 'reject',
@@ -1107,24 +1107,24 @@ class WikilogCommentFormatter
 				);
 			}
 			$tools['page'] = $this->mSkin->link( $comment->mCommentTitle,
-				wfMsg( 'wikilog-page-lc' ),
-				array( 'title' => wfMsg( 'wikilog-comment-page' ) ),
+				wfMessage( 'wikilog-page-lc' )->text(),
+				array( 'title' => wfMessage( 'wikilog-comment-page' )->text() ),
 				array( 'section' => false ),
 				'known'
 			);
 			// TODO: batch checking of page restrictions
 			if ( $comment->mCommentTitle->quickUserCan( 'edit' ) ) {
 				$tools['edit'] = $this->mSkin->link( $comment->mCommentTitle,
-					wfMsg( 'wikilog-edit-lc' ),
-					array( 'title' => wfMsg( 'wikilog-comment-edit' ) ),
+					wfMessage( 'wikilog-edit-lc' )->text(),
+					array( 'title' => wfMessage( 'wikilog-comment-edit' )->text() ),
 					array( 'action' => 'edit', 'section' => false ),
 					'known'
 				);
 			}
 			if ( $comment->mCommentTitle->quickUserCan( 'delete' ) ) {
 				$tools['delete'] = $this->mSkin->link( $comment->mCommentTitle,
-					wfMsg( 'wikilog-delete-lc' ),
-					array( 'title' => wfMsg( 'wikilog-comment-delete' ) ),
+					wfMessage( 'wikilog-delete-lc' )->text(),
+					array( 'title' => wfMessage( 'wikilog-comment-delete' )->text() ),
 					array( 'action' => 'delete' ),
 					'known'
 				);

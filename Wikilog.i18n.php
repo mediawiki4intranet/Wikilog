@@ -127,7 +127,7 @@ Uncheck this box to keep the article as a draft.',
 	# Comments
 	'wikilog-comment-header' => '',
 	'wikilog-comment-footer' => '— $2 • $5 $6',
-	'wikilog-comment-permalink' => '{{#if:$3|$1 at $2 ($3)|<b>$1 at $2 ($3) [unread]</b>}}',
+	'wikilog-comment-permalink' => '{{#if:$4|$1 at $2 ($3)|<b>$1 at $2 ($3) [unread]</b>}}',
 	'wikilog-comment-note-item' => 'posted to $1',
 	'wikilog-comment-note-edited' => 'last edited on $1 at $2',
 	'wikilog-comment-anonsig' => '$3 (anonymous)',

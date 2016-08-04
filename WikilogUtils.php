@@ -307,8 +307,8 @@ class WikilogUtils {
 			if ( !$n )
 				$n = $author;
 			$authorSigCache[$author . ($parse ? '/1' : '/0')] = $parse
-				? wfMsgExt( 'wikilog-author-signature', array( 'parseinline' ), $user->getName(), $n )
-				: wfMsgForContent( 'wikilog-author-signature', $user->getName(), $n );
+				? wfMessage( 'wikilog-author-signature', $user->getName(), $n )->parse()
+				: wfMessage( 'wikilog-author-signature', $user->getName(), $n )->inContentLanguage()->text();
 		}
 		return $authorSigCache[$author . ($parse ? '/1' : '/0')];
 	}
@@ -421,7 +421,7 @@ class WikilogUtils {
 		$commentsNum = $item->getNumComments();
 		$commentsMsg = ( $commentsNum ? 'wikilog-has-comments' : 'wikilog-no-comments' );
 		$commentsUrl = $item->mTitle->getTalkPage()->getPrefixedURL();
-		$commentsTxt = wfMsgExt( $commentsMsg, array( 'parsemag', 'content' ), $commentsNum );
+		$commentsTxt = wfMessage( $commentsMsg, $commentsNum )->inContentLanguage()->text();
 		return "[[{$commentsUrl}|{$commentsTxt}]]";
 	}
 
@@ -534,8 +534,8 @@ class WikilogUtils {
 
 		# Check for translation of timezones.
 		$key = 'timezone-' . strtolower( trim( $tz ) );
-		$value = wfMsgForContent( $key );
-		if ( !wfEmptyMsg( $key, $value ) ) $tz = $value;
+		$value = wfMessage( $key )->inContentLanguage();
+		if ( !$value->isBlank() ) $tz = $value->text();
 
 		return array( $date, $time, $tz );
 	}
@@ -693,17 +693,16 @@ class WikilogNavbar
 		global $wgLang;
 
 		$limit = $wgLang->formatNum( $limit );
-		$opts = array( 'parsemag', 'escapenoentities' );
 		$linkTexts = $disabledTexts = array();
 		foreach ( self::$linkTextMsgs[$this->mType] as $type => $msg ) {
-			$label = wfMsgExt( $msg, $opts, $limit );
+			$label = wfMessage( $msg, $limit )->escaped();
 			$linkTexts[$type] = wfMsgReplaceArgs( self::$pagingLabels[$type], array( $label ) );
 			$disabledTexts[$type] = Xml::wrapClass( $linkTexts[$type], 'disabled' );
 		}
 
 		$pagingLinks = $this->mPager->getPagingLinks( $linkTexts, $disabledTexts );
 // 		$limitLinks = $this->mPager->getLimitLinks(); // XXX: Not used yet.
-		$ellipsis = wfMsg( 'ellipsis' );
+		$ellipsis = wfMessage( 'ellipsis' )->text();
 		$html = "{$pagingLinks['first']} {$pagingLinks['prev']} {$ellipsis} {$pagingLinks['next']} {$pagingLinks['last']}";
 		$html = WikilogUtils::wrapDiv( 'wl-pagination', $html );
 
