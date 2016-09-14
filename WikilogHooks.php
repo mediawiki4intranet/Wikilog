@@ -388,8 +388,7 @@ class WikilogHooks
 	 * @todo Add support for PostgreSQL and SQLite databases.
 	 */
 	static function ExtensionSchemaUpdates( $updater ) {
-		global $wikilogRegenThreads;
-		$wikilogRegenThreads = new WikilogRegenThreads();
+		register_shutdown_function( 'WikilogRegenThreads::execute' );
 
 		$dir = dirname( __FILE__ ) . '/';
 
@@ -528,7 +527,7 @@ class WikilogHooks
 }
 
 class WikilogRegenThreads {
-	function __destruct() {
+	static function execute() {
 		$dbw = wfGetDB( DB_MASTER );
 		if ( !$dbw->selectField( 'wikilog_comments', 'wlc_id',
 			array( 'wlc_thread=LPAD(CONCAT(wlc_id, \'\'), 6, \'0\')' ), __METHOD__ ) ) {
