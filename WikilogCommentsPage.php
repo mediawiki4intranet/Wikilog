@@ -264,7 +264,7 @@ class WikilogCommentsPage
 
 		# Add a backlink to the original article.
 		if ( $name !== '' ) {
-			$link = $this->mSkin->link( $this->mSubject, Sanitizer::escapeHtmlAllowEntities( $name ) );
+			$link = Linker::link( $this->mSubject, Sanitizer::escapeHtmlAllowEntities( $name ) );
 			$wgOut->setSubtitle( wfMessage( 'wikilog-backlink', $link )->text() );
 		}
 
@@ -547,7 +547,7 @@ class WikilogCommentsPage
 			);
 		} else {
 			$loginTitle = SpecialPage::getTitleFor( 'Userlogin' );
-			$loginLink = $this->mSkin->link( $loginTitle,
+			$loginLink = Linker::link( $loginTitle,
 				wfMessage( 'loginreqlink' )->escaped(), array(),
 				array( 'returnto' => $wgTitle->getPrefixedUrl() )
 			);

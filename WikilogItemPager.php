@@ -189,7 +189,7 @@ class WikilogSummaryPager
 		$titleText = Sanitizer::escapeHtmlAllowEntities( $item->mName );
 		if ( !$item->getIsPublished() )
 			$titleText .= wfMessage( 'wikilog-draft-title-mark' )->inContentLanguage()->text();
-		$heading = $skin->link( $item->mTitle, $titleText, array(), array(),
+		$heading = Linker::link( $item->mTitle, $titleText, array(), array(),
 			array( 'known', 'noclasses' )
 		);
 		if ( $this->mShowEditLink && $item->mTitle->quickUserCan( 'edit' ) ) {
@@ -271,7 +271,7 @@ class WikilogSummaryPager
 		if ( !is_null( $tooltip ) ) {
 			$attribs['title'] = wfMessage( 'wikilog-edit-hint', $tooltip )->text();
 		}
-		$link = $skin->link( $title, wfMessage( 'wikilog-edit-lc' )->text(),
+		$link = Linker::link( $title, wfMessage( 'wikilog-edit-lc' )->text(),
 			$attribs,
 			array( 'action' => 'edit' ),
 			array( 'noclasses', 'known' )
@@ -599,13 +599,13 @@ class WikilogArchivesPager
 			case 'wlw_title':
 				$page = $this->mCurrentItem->mParentTitle;
 				$text = Sanitizer::escapeHtmlAllowEntities( $this->mCurrentItem->mParentName );
-				return $this->getSkin()->link( $page, $text, array(), array(),
+				return Linker::link( $page, $text, array(), array(),
 					array( 'known', 'noclasses' ) );
 
 			case 'wlp_title':
 				$page = $this->mCurrentItem->mTitle;
 				$text = Sanitizer::escapeHtmlAllowEntities( $this->mCurrentItem->mName );
-				$s = $this->getSkin()->link( $page, $text, array(), array(),
+				$s = Linker::link( $page, $text, array(), array(),
 					array( 'known', 'noclasses' ) );
 				if ( !$this->mCurrentRow->wlp_publish ) {
 					$draft = wfMessage( 'wikilog-draft-title-mark' )->text();
@@ -619,7 +619,7 @@ class WikilogArchivesPager
 				if ( !empty( $this->mCurrentRow->wlp_unread_comments ) ) {
 					$text .= ' (' . $this->mCurrentRow->wlp_unread_comments . ')';
 				}
-				return $this->getSkin()->link( $page, $text, array(), array(),
+				return Linker::link( $page, $text, array(), array(),
 					array( 'known', 'noclasses' ) );
 
 			case '_wl_actions':
@@ -697,7 +697,7 @@ class WikilogArchivesPager
 		$name = $user->getRealName();
 		if ( !$name )
 			$name = $user->getName();
-		return $skin->link( $user->getUserPage(), $name );
+		return Linker::link( $user->getUserPage(), $name );
 	}
 
 	/**
@@ -714,7 +714,7 @@ class WikilogArchivesPager
 		if ( !is_null( $tooltip ) ) {
 			$attribs['title'] = wfMessage( 'wikilog-edit-hint', $tooltip )->text();
 		}
-		$link = $skin->link( $title, wfMessage( 'wikilog-edit-lc' )->text(),
+		$link = Linker::link( $title, wfMessage( 'wikilog-edit-lc' )->text(),
 			$attribs,
 			array( 'action' => 'edit' ),
 			array( 'noclasses', 'known' )

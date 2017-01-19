@@ -213,7 +213,7 @@ class SpecialWikilogSubscriptions
 
         if ( $subscribe ) {
             $wgOut->addHtml(
-                '<p>' . wfMessage( 'wikilog-subscription-blog-subscribed', $this->getContext()->getSkin()->link( $title, $title->getPrefixedText() ) )->plain() .
+                '<p>' . wfMessage( 'wikilog-subscription-blog-subscribed', Linker::link( $title, $title->getPrefixedText() ) )->plain() .
                 '</p><p>' . self::generateSubscriptionLink( $title, true, true ) . '</p>'
             );
         } elseif ( $isComments ) {
@@ -225,7 +225,7 @@ class SpecialWikilogSubscriptions
             );
         } else {
             $wgOut->addHtml(
-                '<p>' . wfMessage( 'wikilog-subscription-blog-unsubscribed', $this->getContext()->getSkin()->link( $title, $title->getPrefixedText() ) )->plain() .
+                '<p>' . wfMessage( 'wikilog-subscription-blog-unsubscribed', Linker::link( $title, $title->getPrefixedText() ) )->plain() .
                 '</p><p>' . self::generateSubscriptionLink( $title, false, true ) . '</p>'
             );
         }
@@ -251,8 +251,8 @@ class SpecialWikilogSubscriptions
         if ( $comments ) {
             $query ['comment'] = 1;
         }
-        $unsubscribeLink = $this->getContext()->getSkin()->link( $this->mTitle, wfMessage( 'wikilog-subscription-item-unsubscribe' )->plain(), $params, $query );
-        $titleLink = $this->getContext()->getSkin()->link( $title, $title->getPrefixedText() );
+        $unsubscribeLink = Linker::link( $this->mTitle, wfMessage( 'wikilog-subscription-item-unsubscribe' )->plain(), $params, $query );
+        $titleLink = Linker::link( $title, $title->getPrefixedText() );
         $html = <<<END_STRING
 <tr>
     <td>{$unsubscribeLink}</td>
@@ -312,7 +312,7 @@ END_STRING;
      */
     public static function subcriptionsRuleLink( $lang = NULL ) {
         global $wgLang;
-        return RequestContext::getMain()->getSkin()->link(
+        return Linker::link(
             SpecialPage::getTitleFor( 'wikilogsubscriptions' ),
             wfMessage( 'wikilog-subscription-return-link' )
                 ->inLanguage( $lang ? $lang : $wgLang )->plain()

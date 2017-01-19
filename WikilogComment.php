@@ -982,7 +982,7 @@ class WikilogCommentFormatter
 		if ( $this->mShowItem ) {
 			# Display item title.
 			$extra[] = wfMessage( 'wikilog-comment-note-item',
-				$this->mSkin->link( $comment->mSubject, $comment->mSubject->getSubpageText() )
+				Linker::link( $comment->mSubject, $comment->mSubject->getSubpageText() )
 			)->inContentLanguage()->text();
 		}
 		if ( $comment->mID && $comment->mCommentTitle &&
@@ -991,7 +991,7 @@ class WikilogCommentFormatter
 			if ( $comment->mUpdated != $comment->mTimestamp ) {
 				# Comment was edited.
 				list( $updDate, $updTime, $updTz ) = WikilogUtils::getLocalDateTime( $comment->mUpdated );
-				$extra[] = $this->mSkin->link( $comment->mCommentTitle,
+				$extra[] = Linker::link( $comment->mCommentTitle,
 					wfMessage( 'wikilog-comment-note-edited', $updDate, $updTime, $updTz )->inContentLanguage()->text(),
 					array( 'title' => wfMessage( 'wikilog-comment-history' )->text() ),
 					array( 'action' => 'history' ), 'known'
@@ -1003,7 +1003,7 @@ class WikilogCommentFormatter
 				$comment->getParentObj()->mCommentTitle->exists()
 			) {
 			$parent = $comment->getParentObj();
-			$link = $this->mSkin->link( $parent->mCommentTitle,
+			$link = Linker::link( $parent->mCommentTitle,
 				wfMessage( 'wikilog-ptswitcher-comment-label' )->text(),
 				array( 'title' => wfMessage( 'wikilog-ptswitcher-to-comment' )->text() ),
 				array( 'section' => false ),
@@ -1051,7 +1051,7 @@ class WikilogCommentFormatter
 			} else {
 				$title = $comment->mCommentTitle;
 			}
-			return $this->mSkin->link( $title,
+			return Linker::link( $title,
 				wfMessage( 'wikilog-comment-permalink', $date, $time, $tz, $comment->mVisited ? 1 : NULL )->parse(),
 				array( 'title' => wfMessage( 'permalink' )->text() )
 			);
@@ -1085,7 +1085,7 @@ class WikilogCommentFormatter
 			}
 			if ( $this->mAllowModeration && $comment->mStatus == WikilogComment::S_PENDING ) {
 				$token = $wgUser->getEditToken();
-				$tools['approve'] = $this->mSkin->link( $comment->mCommentTitle,
+				$tools['approve'] = Linker::link( $comment->mCommentTitle,
 					wfMessage( 'wikilog-approve-lc' )->text(),
 					array( 'title' => wfMessage( 'wikilog-comment-approve' )->text() ),
 					array(
@@ -1095,7 +1095,7 @@ class WikilogCommentFormatter
 					),
 					'known'
 				);
-				$tools['reject'] = $this->mSkin->link( $comment->mCommentTitle,
+				$tools['reject'] = Linker::link( $comment->mCommentTitle,
 					wfMessage( 'wikilog-reject-lc' )->text(),
 					array( 'title' => wfMessage( 'wikilog-comment-reject' )->text() ),
 					array(
@@ -1106,7 +1106,7 @@ class WikilogCommentFormatter
 					'known'
 				);
 			}
-			$tools['page'] = $this->mSkin->link( $comment->mCommentTitle,
+			$tools['page'] = Linker::link( $comment->mCommentTitle,
 				wfMessage( 'wikilog-page-lc' )->text(),
 				array( 'title' => wfMessage( 'wikilog-comment-page' )->text() ),
 				array( 'section' => false ),
@@ -1114,7 +1114,7 @@ class WikilogCommentFormatter
 			);
 			// TODO: batch checking of page restrictions
 			if ( $comment->mCommentTitle->quickUserCan( 'edit' ) ) {
-				$tools['edit'] = $this->mSkin->link( $comment->mCommentTitle,
+				$tools['edit'] = Linker::link( $comment->mCommentTitle,
 					wfMessage( 'wikilog-edit-lc' )->text(),
 					array( 'title' => wfMessage( 'wikilog-comment-edit' )->text() ),
 					array( 'action' => 'edit', 'section' => false ),
@@ -1122,7 +1122,7 @@ class WikilogCommentFormatter
 				);
 			}
 			if ( $comment->mCommentTitle->quickUserCan( 'delete' ) ) {
-				$tools['delete'] = $this->mSkin->link( $comment->mCommentTitle,
+				$tools['delete'] = Linker::link( $comment->mCommentTitle,
 					wfMessage( 'wikilog-delete-lc' )->text(),
 					array( 'title' => wfMessage( 'wikilog-comment-delete' )->text() ),
 					array( 'action' => 'delete' ),
