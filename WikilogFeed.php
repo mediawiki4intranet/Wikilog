@@ -87,7 +87,7 @@ abstract class WikilogFeed
 		$this->mIndexField = $this->getIndexField();
 
 		# Retrieve copyright notice.
-		$skin = $wgUser->getSkin();
+		$skin = RequestContext::getMain()->getSkin();
 		$saveExpUrls = WikilogParser::expandLocalUrls();
 		$this->mCopyright = $skin->getCopyright( 'normal' );
 		WikilogParser::expandLocalUrls( $saveExpUrls );
