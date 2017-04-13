@@ -141,7 +141,7 @@ class WikilogComment
 		if ( !$this->mParentObj ) {
 			$this->mParentObj = WikilogComment::newFromID( $this->mParent );
 		}
-		if ( !$this->mParentObj || !$this->mParentObj->mThread ) {
+		if ( !$this->mParentObj || $this->mParentObj->mThread === '' ) {
 			throw new MWException( 'Invalid parent history.' );
 		}
 		return $this->mParentObj;
