@@ -186,6 +186,11 @@ div.wl-comment-deleted .wl-comment-text {
 	color: #999999;
 }
 
+.wl-comment-text blockquote {
+	margin-left: 0;
+	background: #f8f8f8;
+}
+
 div.wl-comment-placeholder {
 	background-color: #EEEEEE;
 	border: 1px solid #CCCCCC;
