@@ -210,7 +210,16 @@ class WikilogUtils {
 		$parser->startExternalParse( $title, $parserOpt, Parser::OT_HTML );
 
 		# Parse article.
-		$arttext = $article->getText();
+		$articleContent = $article->getContent();
+		if ( !($articleContent instanceof TextContent) ){
+			# Restore default behavior.
+			if ( $feed ) {
+				WikilogParser::enableFeedParsing( $saveFeedParse );
+				WikilogParser::expandLocalUrls( $saveExpUrls );
+			}
+			return array( $article, '' );
+		}
+		$arttext = $articleContent->getNativeData();
 		$parserOutput = $parser->parse( $arttext, $title, $parserOpt );
 
 		# Save in parser cache.
