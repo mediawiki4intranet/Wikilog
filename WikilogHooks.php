@@ -38,7 +38,7 @@ class WikilogHooks
 	 * ArticleEditUpdates hook handler function.
 	 * Performs post-edit updates if article is a wikilog article or a comment.
 	 */
-	static function ArticleEditUpdates( &$article, &$editInfo, $changed ) {
+	static function ArticleEditUpdates( $article, &$editInfo, $changed ) {
 		$title = $article->getTitle();
 		$wi = Wikilog::getWikilogInfo( $title );
 
@@ -237,7 +237,7 @@ class WikilogHooks
 	 * Add article signature if user selected "sign and publish" option in
 	 * EditPage, or if there is ~~~~ in the text.
 	 */
-	static function ArticleSave( &$article, &$user, &$text, &$summary,
+	static function ArticleSave( $article, $user, &$text, &$summary,
 			$minor, $watch, $sectionanchor, &$flags )
 	{
 		$t = WikilogUtils::getPublishParameters();
@@ -265,7 +265,7 @@ class WikilogHooks
 	 * TitleMoveComplete hook handler function.
 	 * Handles moving articles to and from wikilog namespaces.
 	 */
-	static function TitleMoveComplete( &$oldtitle, &$newtitle, &$user, $pageid, $redirid ) {
+	static function TitleMoveComplete( $oldtitle, $newtitle, $user, $pageid, $redirid ) {
 		global $wgWikilogNamespaces;
 
 		# Check if it was or is now in a wikilog namespace.
@@ -317,7 +317,7 @@ class WikilogHooks
 	 * EditPage::showEditForm:fields hook handler function.
 	 * Adds wikilog article options to edit pages.
 	 */
-	static function EditPageEditFormFields( &$editpage, &$output ) {
+	static function EditPageEditFormFields( $editpage, $output ) {
 		$wi = Wikilog::getWikilogInfo( $editpage->mTitle );
 		if ( $wi && $wi->isItem() && !$wi->isTalk() ) {
 			global $wgUser, $wgWikilogSignAndPublishDefault;

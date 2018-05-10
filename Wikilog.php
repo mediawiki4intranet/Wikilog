@@ -331,7 +331,7 @@ class Wikilog
 	 * returns an instance of WikilogInfo) and returns the proper class
 	 * instance for the article.
 	 */
-	static function ArticleFromTitle( &$title, &$article ) {
+	static function ArticleFromTitle( $title, &$article ) {
 		if ( $title->isTalkPage() ) {
 			$page = WikilogCommentsPage::createInstance( $title );
 			if ( $page ) {
@@ -358,7 +358,7 @@ class Wikilog
 	 * (msg:noarticletext), since it gives wrong instructions to visitors.
 	 * The comment form is self-explaining enough.
 	 */
-	static function ArticleViewHeader( &$article, &$outputDone, &$pcache ) {
+	static function ArticleViewHeader( $article, &$outputDone, $pcache ) {
 		if ( $article instanceof WikilogCommentsPage && $article->getID() == 0 ) {
 			$outputDone = true;
 			return false;
@@ -370,7 +370,7 @@ class Wikilog
 	 * BeforePageDisplay hook handler function.
 	 * Adds wikilog CSS and JS to pages displayed.
 	 */
-	static function BeforePageDisplay( &$output, &$skin ) {
+	static function BeforePageDisplay( $output, $skin ) {
 		$output->addModules( 'ext.wikilog' );
 		return true;
 	}
@@ -380,8 +380,7 @@ class Wikilog
 	 * Links to threaded talk pages should be always "known" and
 	 * always edited normally, without adding the sections.
 	 */
-	static function LinkBegin( $skin, $target, &$text, &$attribs, &$query,
-			&$options, &$ret )
+	static function LinkBegin( $skin, $target, $text, $attribs, $query, &$options, &$ret )
 	{
 		if ( $target->isTalkPage() &&
 			( $i = array_search( 'broken', $options ) ) !== false ) {
@@ -397,8 +396,7 @@ class Wikilog
 	 * SkinTemplateTabAction hook handler function.
 	 * Same as Wikilog::LinkBegin, but for the tab actions.
 	 */
-	static function SkinTemplateTabAction( &$skin, $title, $message, $selected,
-			$checkEdit, &$classes, &$query, &$text, &$result )
+	static function SkinTemplateTabAction( $skin, $title, $message, $selected, $checkEdit, &$classes, &$query, &$text, &$result )
 	{
 		if ( $checkEdit && $title->isTalkPage() && !$title->exists() ) {
 			if ( self::nsHasComments( $title ) ) {
@@ -439,7 +437,7 @@ class Wikilog
 	 * Helper function for SkinTemplateTabs and SkinTemplateNavigation hooks
 	 * to configure views links in wikilog pages.
 	 */
-	private static function skinConfigViewsLinks( WikilogInfo &$wi, $skin, &$views ) {
+	private static function skinConfigViewsLinks( WikilogInfo $wi, $skin, &$views ) {
 		global $wgRequest, $wgWikilogEnableComments;
 
 		$action = $wgRequest->getText( 'action' );
