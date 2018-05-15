@@ -280,7 +280,7 @@ class WikilogCommentsPage
 	 * them in threads.
 	 */
 	protected function viewComments( WikilogCommentQuery $query ) {
-		global $wgOut, $wgRequest, $wgUser, $wgRequest;
+		global $wgOut, $wgRequest, $wgUser, $wgRequest, $wgScript;
 
 		# Prepare query and pager objects.
 		$replyTo = $wgRequest->getInt( 'wlParent' );
@@ -306,9 +306,7 @@ class WikilogCommentsPage
 		# Switch pager
 		$type = $this->mCommentPagerType;
 		$msg = wfMessage( $type != 'thread' ? 'wikilog-ptswitcher-thread' : 'wikilog-ptswitcher-list' )->text();
-		$url = $wgRequest->appendQueryValue( 'comment_pager_type',
-			$type != 'thread' ? 'thread' : 'list'
-		);
+		$url = $wgScript . '?' . http_build_query( [ 'comment_pager_type' => $type != 'thread' ? 'thread' : 'list' ] + $_GET );
 		$link = Xml::tags( 'a', array( 'href' => $url ),  $msg );
 		$pagerType = Xml::tags(
 			'span', array( 'style' => 'float: right; font-size: 70%' ), '[ '. $link . ' ]'
