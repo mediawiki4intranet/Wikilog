@@ -114,7 +114,7 @@ class WikilogItem
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->replace(
 			'wikilog_posts',
-			'wlp_page',
+			array('wlp_page'),
 			array(
 				'wlp_page'    => $this->mID,
 				'wlp_parent'  => $this->mParent,

@@ -203,7 +203,7 @@ class WikilogMainPage
 
 		$row = $dbr->selectRow(
 			array( 'wikilog_posts', 'page' ),
-			'COUNT(*) as total, SUM(wlp_publish) as published',
+			'COUNT(*) as total, COUNT(wlp_publish) as published',
 			array(
 				'wlp_page = page_id',
 				'wlp_parent' => $this->mTitle->getArticleID(),

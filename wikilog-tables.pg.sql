@@ -44,10 +44,10 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_posts (
   wlp_parent INT NOT NULL,
 
   -- Post title derived from page(page_title), in order to simplify indexing.
-  wlp_title TEXT NOT NULL,
+  wlp_title VARCHAR(255) NOT NULL,
 
   -- Either if the post was published or not.
-  wlp_publish BOOLEAN NOT NULL DEFAULT FALSE,
+  wlp_publish SMALLINT NOT NULL DEFAULT 0 CHECK(wlp_publish = 0 or wlp_publish = 1),
 
   -- If wlp_publish = TRUE, this is the date that the post was published,
   -- otherwise, it is the date of the last draft revision (for sorting).
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/page_last_visit (
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_subscriptions (
   ws_user INT NOT NULL,
   ws_page INT NOT NULL,
-  ws_yes  BOOLEAN NOT NULL,
+  ws_yes  SMALLINT NOT NULL,
   ws_date TIMESTAMPTZ NOT NULL,
   PRIMARY KEY (ws_user, ws_page)
 ) /*$wgDBTableOptions*/;
