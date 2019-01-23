@@ -126,9 +126,12 @@ class WikilogHooks
 				$item->saveData();
 
 				if ( !$wasPublished && $item->mPublish ) {
+				    global $wgEnableEmail;
 					// Send email notifications about the new post
-					SpecialWikilogSubscriptions::sendEmails( $article,
-						!empty( $editInfo->pstContent ) ? $editInfo->pstContent->getNativeData() : $article->getText() );
+					if ( $wgEnableEmail ) {
+					    SpecialWikilogSubscriptions::sendEmails( $article,
+						    !empty( $editInfo->pstContent ) ? $editInfo->pstContent->getNativeData() : $article->getText() );
+					}
 				}
 			} else {
 				# Remove entry from tables. Entries in wikilog_authors and
