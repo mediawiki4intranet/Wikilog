@@ -29,26 +29,28 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
-class PageLastVisitUpdater {
+class PageLastVisitUpdater implements DeferrableUpdate {
 
 	var $visit = array();
 
 	function __construct() {
-		global $wgDeferredUpdateList;
-		$wgDeferredUpdateList[] = $this;
+		DeferredUpdates::addUpdate( $this );
 	}
 
 	function add( $pageid, $userid, $timestamp ) {
 		$this->visit[] = array(
 			'pv_page' => $pageid,
 			'pv_user' => $userid,
-			'pv_date' => wfTimestamp( TS_MW, $timestamp ),
+			'pv_date' => $timestamp,
 		);
 	}
 
 	function doUpdate() {
 		if ( $this->visit ) {
 			$dbw = wfGetDB( DB_MASTER );
+			foreach ( $this->visit as &$v ) {
+				$v['pv_date'] = $dbw->timestamp( $v['pv_date'] );
+			}
 			$dbw->replace( 'page_last_visit', array( array( 'pv_page', 'pv_user' ) ), $this->visit, __METHOD__ );
 			$this->visit = array();
 		}
@@ -120,7 +122,7 @@ class WikilogUtils {
 		$dbw->replace( 'wikilog_talkinfo', array( 'wti_page' ), array( array(
 				'wti_page' => $pageID,
 				'wti_num_comments' => $count,
-				'wti_talk_updated' => $talkUpdated
+				'wti_talk_updated' => $dbw->timestamp( $talkUpdated )
 			) ), __METHOD__ );
 
 		return array( $count, $talkUpdated );
@@ -158,7 +160,7 @@ class WikilogUtils {
 
 		static $parser = null;
 
-		$article = new Article( $title );
+		$article = new WikiPage( $title );
 
 		# First try the parser cache.
 		$useParserCache = $wgEnableParserCache &&
@@ -208,7 +210,16 @@ class WikilogUtils {
 		$parser->startExternalParse( $title, $parserOpt, Parser::OT_HTML );
 
 		# Parse article.
-		$arttext = $article->fetchContent();
+		$articleContent = $article->getContent();
+		if ( !($articleContent instanceof TextContent) ){
+			# Restore default behavior.
+			if ( $feed ) {
+				WikilogParser::enableFeedParsing( $saveFeedParse );
+				WikilogParser::expandLocalUrls( $saveExpUrls );
+			}
+			return array( $article, '' );
+		}
+		$arttext = $articleContent->getNativeData();
 		$parserOutput = $parser->parse( $arttext, $title, $parserOpt );
 
 		# Save in parser cache.
@@ -305,8 +316,8 @@ class WikilogUtils {
 			if ( !$n )
 				$n = $author;
 			$authorSigCache[$author . ($parse ? '/1' : '/0')] = $parse
-				? wfMsgExt( 'wikilog-author-signature', array( 'parseinline' ), $user->getName(), $n )
-				: wfMsgForContent( 'wikilog-author-signature', $user->getName(), $n );
+				? wfMessage( 'wikilog-author-signature', $user->getName(), $n )->parse()
+				: wfMessage( 'wikilog-author-signature', $user->getName(), $n )->inContentLanguage()->text();
 		}
 		return $authorSigCache[$author . ($parse ? '/1' : '/0')];
 	}
@@ -419,7 +430,7 @@ class WikilogUtils {
 		$commentsNum = $item->getNumComments();
 		$commentsMsg = ( $commentsNum ? 'wikilog-has-comments' : 'wikilog-no-comments' );
 		$commentsUrl = $item->mTitle->getTalkPage()->getPrefixedURL();
-		$commentsTxt = wfMsgExt( $commentsMsg, array( 'parsemag', 'content' ), $commentsNum );
+		$commentsTxt = wfMessage( $commentsMsg, $commentsNum )->inContentLanguage()->text();
 		return "[[{$commentsUrl}|{$commentsTxt}]]";
 	}
 
@@ -519,8 +530,8 @@ class WikilogUtils {
 		global $wgLang, $wgLocaltimezone;
 
 		$ts = wfTimestamp( TS_UNIX, $timestamp );
-		$ts = gmdate( 'YmdHis', $ts );
 		$tz = gmdate( 'T', $ts );
+		$ts = gmdate( 'YmdHis', $ts );
 		$ts = $wgLang->userAdjust( $ts );
 
 		if ( !$format )
@@ -532,13 +543,13 @@ class WikilogUtils {
 
 		# Check for translation of timezones.
 		$key = 'timezone-' . strtolower( trim( $tz ) );
-		$value = wfMsgForContent( $key );
-		if ( !wfEmptyMsg( $key, $value ) ) $tz = $value;
+		$value = wfMessage( $key )->inContentLanguage();
+		if ( !$value->isBlank() ) $tz = $value->text();
 
 		return array( $date, $time, $tz );
 	}
 
-	static function getOldestRevision( $articleId ) {
+	public static function getOldestRevision( $articleId ) {
 		$row = NULL;
 		$db = wfGetDB( DB_SLAVE );
 		$revSelectFields = Revision::selectFields();
@@ -555,12 +566,30 @@ class WikilogUtils {
 		return $row ? Revision::newFromRow( $row ) : null;
 	}
 
+	public static function sendHtmlMail($to, $from, $subject, $body, $headers)
+	{
+		global $wgVersion;
+		if (version_compare($wgVersion, '1.25', '>='))
+		{
+			// MediaWiki 1.25+
+			UserMailer::send($to, $from, $subject, $body, array(
+				'headers' => $headers,
+				'contentType' => 'text/html; charset=UTF-8',
+			));
+		}
+		else
+		{
+			// MediaWiki 1.19+ or MediaWiki4Intranet 1.18
+			UserMailer::send($to, $from, $subject, $body, NULL, 'text/html; charset=UTF-8', $headers);
+		}
+	}
+
 	// 7bit 0bbbbbbb
 	// 14bit 10bbbbbb bbbbbbbb
 	// 21bit 110bbbbb bbbbbbbb bbbbbbbb
 	// 28bit 1110bbbb bbbbbbbb bbbbbbbb bbbbbbbb
 	// 35bit 11110bbb bbbbbbbb bbbbbbbb bbbbbbbb bbbbbbbb
-	static function encodeVarint( $int ) {
+	public static function encodeVarint( $int ) {
 		if ( $int < 0x80 ) {
 			return chr( $int );
 		} elseif ( $int < 0x4000 ) {
@@ -574,7 +603,7 @@ class WikilogUtils {
 		}
 	}
 
-	static function encodeVarintArray( $a ) {
+	public static function encodeVarintArray( $a ) {
 		$s = '';
 		foreach ( $a as $int ) {
 			$s .= self::encodeVarint( $int );
@@ -582,7 +611,7 @@ class WikilogUtils {
 		return $s;
 	}
 
-	static function decodeVarintArray( $s ) {
+	public static function decodeVarintArray( $s ) {
 		$l = strlen( $s );
 		$array = array();
 		for ( $i = 0; $i < $l; ) {
@@ -673,17 +702,16 @@ class WikilogNavbar
 		global $wgLang;
 
 		$limit = $wgLang->formatNum( $limit );
-		$opts = array( 'parsemag', 'escapenoentities' );
 		$linkTexts = $disabledTexts = array();
 		foreach ( self::$linkTextMsgs[$this->mType] as $type => $msg ) {
-			$label = wfMsgExt( $msg, $opts, $limit );
+			$label = wfMessage( $msg, $limit )->escaped();
 			$linkTexts[$type] = wfMsgReplaceArgs( self::$pagingLabels[$type], array( $label ) );
 			$disabledTexts[$type] = Xml::wrapClass( $linkTexts[$type], 'disabled' );
 		}
 
 		$pagingLinks = $this->mPager->getPagingLinks( $linkTexts, $disabledTexts );
 // 		$limitLinks = $this->mPager->getLimitLinks(); // XXX: Not used yet.
-		$ellipsis = wfMsg( 'ellipsis' );
+		$ellipsis = wfMessage( 'ellipsis' )->text();
 		$html = "{$pagingLinks['first']} {$pagingLinks['prev']} {$ellipsis} {$pagingLinks['next']} {$pagingLinks['last']}";
 		$html = WikilogUtils::wrapDiv( 'wl-pagination', $html );
 

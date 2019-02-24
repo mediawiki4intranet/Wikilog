@@ -53,6 +53,10 @@ class SpecialWikilog
 		parent::__construct( 'Wikilog' );
 	}
 
+	protected function getGroupName() {
+		return 'changes';
+	}
+
 	/**
 	 * Execute the special page.
 	 * Called from MediaWiki.
@@ -240,8 +244,7 @@ class SpecialWikilog
 					'rel' => 'alternate',
 					'href' => $wgTitle->getLocalURL( $altquery ),
 					'type' => $wgMimeType,
-					'title' => wfMsgExt( "wikilog-view-{$alt}",
-						array( 'content', 'parsemag' ) )
+					'title' => wfMessage( "wikilog-view-{$alt}" )->inContentLanguage()->text(),
 				) );
 			}
 		}
@@ -272,7 +275,7 @@ class SpecialWikilog
 		$query = $wgRequest->getValues();
 		$query['markallread'] = wfTimestamp( TS_MW );
 		return Xml::wrapClass(
-			Xml::element( 'a', array( 'href' => $wgTitle->getFullUrl( $query ) ), wfMsg( 'wikilog-mark-all-read' ) ),
+			Xml::element( 'a', array( 'href' => $wgTitle->getFullUrl( $query ) ), wfMessage( 'wikilog-mark-all-read' )->text() ),
 			'markallread', 'p'
 		);
 	}
@@ -295,7 +298,7 @@ class SpecialWikilog
 	 * and also the name that will be listed in Special:Specialpages.
 	 */
 	public function getDescription() {
-		return wfMsg( 'wikilog-specialwikilog-title' );
+		return wfMessage( 'wikilog-specialwikilog-title' )->text();
 	}
 
 	/**
@@ -331,6 +334,8 @@ class SpecialWikilog
 				if ( ( $date = self::parseDateParam( $m[1] ) ) ) {
 					list( $opts['year'], $opts['month'], $opts['day'] ) = $date;
 				}
+			} elseif ( preg_match( '/^notcategory=(.*)$/', $par, $m ) ) {
+				$opts['notcategory'] = $m[1];
 			} else {
 				if ( ( $t = Title::newFromText( $par ) ) !== null ) {
 					$ns = $t->getNamespace();
@@ -366,7 +371,7 @@ class SpecialWikilog
 		}
 
 		$out = Xml::tags( 'form', array( 'action' => $wgScript ), $out );
-		$out = Xml::fieldset( wfMsg( 'wikilog-form-legend' ), $out,
+		$out = Xml::fieldset( wfMessage( 'wikilog-form-legend' )->text(), $out,
 			array( 'class' => 'wl-options' )
 		);
 		$out .= WikilogMainPage::formNewItem( NULL );
@@ -525,11 +530,11 @@ class SpecialWikilog
 				if ( count( $values ) > 0 )
 				{
 					$select = new XmlSelect( $valueid, 'wl-'.$valueid, $formvalues[$valueid] );
-					$select->addOption( wfMsg('wikilog-form-all'), '' );
+					$select->addOption( wfMessage( 'wikilog-form-all' )->text(), '' );
 					foreach( $values as $o )
 						$select->addOption( $o[0], count($o) > 1 ? $o[1] : false );
 					$fields[$valueid] = array(
-						Xml::label( wfMsg( 'wikilog-form-'.$valueid ), 'wl-'.$valueid ),
+						Xml::label( wfMessage( 'wikilog-form-'.$valueid )->text(), 'wl-'.$valueid ),
 						$select->getHTML()
 					);
 				}
@@ -539,7 +544,7 @@ class SpecialWikilog
 			else
 			{
 				$fields[$valueid] = Xml::inputLabelSep(
-					wfMsg( 'wikilog-form-'.$valueid ), $valueid, 'wl-'.$valueid, 40,
+					wfMessage( 'wikilog-form-'.$valueid )->text(), $valueid, 'wl-'.$valueid, 40,
 					$formvalues[$valueid]
 				);
 			}
@@ -547,36 +552,36 @@ class SpecialWikilog
 
 		$month_select = new XmlSelect( 'month', 'wl-month', $opts->consumeValue( 'month' ) );
 		$month_select->setAttribute( 'onchange', "{var wly=document.getElementById('wl-year');if(wly&&!wly.value){wly.value='".date('Y')."';}}" );
-		$month_select->addOption( wfMsg('monthsall'), '' );
+		$month_select->addOption( wfMessage( 'monthsall' )->text(), '' );
 		for ($i = 1; $i <= 12; $i++)
 			$month_select->addOption( $wgLang->getMonthName( $i ), $i );
 		$year_field = Xml::input( 'year', 4, $opts->consumeValue( 'year' ), array( 'maxlength' => 4, 'id' => 'wl-year' ) );
 		$fields['date'] = array(
-			Xml::label( wfMsg( 'wikilog-form-date' ), 'wl-month' ),
+			Xml::label( wfMessage( 'wikilog-form-date' )->text(), 'wl-month' ),
 			$month_select->getHTML() . "&nbsp;" . $year_field
 		);
 		$opts->consumeValue( 'day' );	// ignore day, not really useful
 
 		$viewSelect = new XmlSelect( 'view', 'wl-view', $opts->consumeValue( 'view' ) );
-		$viewSelect->addOption( wfMsg( 'wikilog-view-summary' ), 'summary' );
-		$viewSelect->addOption( wfMsg( 'wikilog-view-archives' ), 'archives' );
+		$viewSelect->addOption( wfMessage( 'wikilog-view-summary' )->text(), 'summary' );
+		$viewSelect->addOption( wfMessage( 'wikilog-view-archives' )->text(), 'archives' );
 		$fields['view'] = array(
-			Xml::label( wfMsg( 'wikilog-form-view' ), 'wl-view' ),
+			Xml::label( wfMessage( 'wikilog-form-view' )->text(), 'wl-view' ),
 			$viewSelect->getHTML()
 		);
 		if( $wgUser && $wgUser->getID() )
 		{
 			$statusSelect = new XmlSelect( 'show', 'wl-status', $opts->consumeValue( 'show' ) );
-			$statusSelect->addOption( wfMsg( 'wikilog-show-all' ), 'all' );
-			$statusSelect->addOption( wfMsg( 'wikilog-show-published' ), 'published' );
-			$statusSelect->addOption( wfMsg( 'wikilog-show-drafts' ), 'drafts' );
+			$statusSelect->addOption( wfMessage( 'wikilog-show-all' )->text(), 'all' );
+			$statusSelect->addOption( wfMessage( 'wikilog-show-published' )->text(), 'published' );
+			$statusSelect->addOption( wfMessage( 'wikilog-show-drafts' )->text(), 'drafts' );
 			$fields['status'] = array(
-				Xml::label( wfMsg( 'wikilog-form-status' ), 'wl-status' ),
+				Xml::label( wfMessage( 'wikilog-form-status' )->text(), 'wl-status' ),
 				$statusSelect->getHTML()
 			);
 		}
 
-		$fields['submit'] = Xml::submitbutton( wfMsg( 'allpagessubmit' ) );
+		$fields['submit'] = Xml::submitbutton( wfMessage( 'allpagessubmit' )->text() );
 		return $fields;
 	}
 

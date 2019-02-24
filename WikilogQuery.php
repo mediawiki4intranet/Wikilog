@@ -186,7 +186,7 @@ abstract class WikilogQuery
 		if ( !$fields ) {
 			$fields = $info['fields'];
 		}
-		return $dbr->selectSQLText($tables, $fields, $conds, $function, $options, $join_conds);
+		return $dbr->selectSQLText( $tables, $fields, $conds, $function, $options, $join_conds );
 	}
 }
 
@@ -750,8 +750,8 @@ class WikilogCommentQuery
 
 		# Filter by date.
 		if ( $this->mDate ) {
-			$q_conds[] = 'wlc_timestamp >= ' . $db->addQuotes( $this->mDate->start );
-			$q_conds[] = 'wlc_timestamp < ' . $db->addQuotes( $this->mDate->end );
+			$q_conds[] = 'wlc_timestamp >= ' . $db->timestamp( $this->mDate->start );
+			$q_conds[] = 'wlc_timestamp < ' . $db->timestamp( $this->mDate->end );
 		}
 
 		# Sort order and limits

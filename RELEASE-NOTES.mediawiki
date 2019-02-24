@@ -1,23 +1,31 @@
 = Wikilog release notes =
 
-== Mediawiki4Intranet's Wikilog as of 2013-10-10 ==
+== Mediawiki4Intranet's Wikilog 2.0 ==
+
+* Support for PostgreSQL
+* Support for MediaWiki up to 1.26
+* Several bug fixes
+
+== Mediawiki4Intranet's Wikilog as of 2015-01-21 ==
 
 Our Wikilog version is heavily improved; there is a lot of new big features:
 
 * «Forum» view — i.e. sorting of entries by the date of last comment in «archives» mode, and unread comment count tracking
-*: Add link to <your_wiki>/Special:Wikilog?view=archives&show=published&sort=wlp_talk_updated&desc=1 in your MediaWiki:Sidebar with «WikiForum» title to get a forum view. 
-* (!) Wikilog-style hierarchical talk support for normal pages, not just for the blogs.
+*: Add link to <your_wiki>/Special:Wikilog?view=archives&show=published&sort=wlp_talk_updated&desc=1 in your MediaWiki:Sidebar with «WikiForum» title to get a forum view
+* (!) Wikilog-style hierarchical talk support for normal pages, not just for the blogs
 * Comment email notifications
-* New blog entry email notifications for main blog page watchers
+* New blog entry email notifications (subscribe by watching main page of the blog)
 * RSS/Atom comment feeds
 * Subscribing/unsubscribing to all comments in a blog, or even in all blogs in a wiki (the last is a user preference)
 * New post creation form on Special:Wikilog (in the «blog agregator»)
+* Exclusion of blogs and posts in specific category from the aggregated view ($wgWikilogDefaultNotCategory)
 * Drop-down lists for wikilog/author/category fields on Special:Wikilog
 * Post calendar for MediaWiki:Sidebar
 *: Add «* wikilogcalendar» to MediaWiki:Sidebar to enable it
 * Automatic folding of non-branching comments to the linear view — this prevents too many nesting levels without any loss of hierarchy
 * Improved binary encoding of materialized paths to comments, allowing to store up to 250 nesting levels, versus 36 in old Wikilog
 * Pagination which never breaks discussion threads
+* Thread/list view switching for comments
 * Experimental support for importing dumps from blogger.com
 * Various bug fixes
 

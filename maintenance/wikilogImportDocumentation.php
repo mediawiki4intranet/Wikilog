@@ -122,10 +122,10 @@ class WikilogImportDocumentation
 		$this->mSource = new ImportStreamSource( $this->mFileHandle );
 		$this->mImporter = new WikiImporter( $this->mSource );
 
-		$this->mUser = User::newFromName( wfMsgForContent( 'wikilog-auto' ), false );
+		$this->mUser = User::newFromName( wfMessage( 'wikilog-auto' )->inContentLanguage()->text(), false );
 		$wgUser = $this->mUser;
 
-		$this->mComment = wfMsgForContent( 'wikilog-doc-import-comment' );
+		$this->mComment = wfMessage( 'wikilog-doc-import-comment' )->inContentLanguage()->text();
 		$this->mTimestamp = wfTimestampNow();
 
 		$this->mImporter->setRevisionCallback( array( &$this, 'handleRevision' ) );

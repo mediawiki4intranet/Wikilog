@@ -77,7 +77,7 @@ class WikilogItemPage
 		global $wgOut, $wgUser, $wgContLang, $wgFeed, $wgWikilogFeedClasses, $wgWikilogCommentsOnItemPage;
 
 		# Get skin
-		$skin = $wgUser->getSkin();
+		$skin = $this->getContext()->getSkin();
 
 		if ( $this->mItem ) {
 			$params = $this->mItem->getMsgParams( true );
@@ -88,10 +88,7 @@ class WikilogItemPage
 			}
 
 			# Item page header.
-			$headerTxt = wfMsgExt( 'wikilog-entry-header',
-				array( 'parse', 'content' ),
-				$params
-			);
+			$headerTxt = wfMessage( 'wikilog-entry-header', $params )->inContentLanguage()->parse();
 			if ( !empty( $headerTxt ) ) {
 				$wgOut->addHtml( WikilogUtils::wrapDiv( 'wl-entry-header', $headerTxt ) );
 			}
@@ -100,14 +97,12 @@ class WikilogItemPage
 			parent::view();
 
 			# Update last visit
-			if ( $this->mItem )
+			if ( $this->mItem ) {
 				WikilogUtils::updateLastVisit( $this->mItem->getID() );
+			}
 
 			# Item page footer.
-			$footerTxt = wfMsgExt( 'wikilog-entry-footer',
-				array( 'parse', 'content' ),
-				$params
-			);
+			$footerTxt = wfMessage( 'wikilog-entry-footer', $params )->inContentLanguage()->parse();
 			if ( !empty( $footerTxt ) ) {
 				$wgOut->addHtml( WikilogUtils::wrapDiv( 'wl-entry-footer', $footerTxt ) );
 			}
@@ -119,11 +114,10 @@ class WikilogItemPage
 					$wgOut->addLink( array(
 						'rel' => 'alternate',
 						'type' => "application/{$format}+xml",
-						'title' => wfMsgExt(
+						'title' => wfMessage(
 							"page-{$format}-feed",
-							array( 'content', 'parsemag' ),
 							$this->mItem->mParentTitle->getPrefixedText()
-						),
+						)->inContentLanguage()->text(),
 						'href' => $this->mItem->mParentTitle->getLocalUrl( "feed={$format}" )
 					) );
 				}
@@ -131,25 +125,23 @@ class WikilogItemPage
 
 			if ( $wgWikilogCommentsOnItemPage ) {
 				$talk = $this->getTitle()->getTalkPage();
-				$wi = Wikilog::getWikilogInfo( $talk );
-				$comments = new WikilogCommentsPage( $talk, $wi );
-				$comments->outputComments();
+				$comments = WikilogCommentsPage::createInstance( $talk );
+				if ( $comments ) {
+					$comments->outputComments();
+				}
 			}
 
 			# Override page title.
 			# NOTE (MW1.16+): Must come after parent::view().
-			$fullPageTitle = wfMsg( 'wikilog-title-item-full',
-					$this->mItem->mName,
-					$this->mItem->mParentTitle->getPrefixedText()
-			);
+			$fullPageTitle = wfMessage( 'wikilog-title-item-full',
+				$this->mItem->mName,
+				$this->mItem->mParentTitle->getPrefixedText()
+			)->text();
 			$wgOut->setPageTitle( Sanitizer::escapeHtmlAllowEntities( $this->mItem->mName ) );
-			$wgOut->setHTMLTitle( wfMsg( 'pagetitle', $fullPageTitle ) );
+			$wgOut->setHTMLTitle( wfMessage( 'pagetitle', $fullPageTitle )->text() );
 
 			# Set page subtitle
-			$subtitleTxt = wfMsgExt( 'wikilog-entry-sub',
-				array( 'parsemag', 'content' ),
-				$params
-			);
+			$subtitleTxt = wfMessage( 'wikilog-entry-sub', $params )->inContentLanguage()->text();
 			if ( !empty( $subtitleTxt ) ) {
 				$wgOut->setSubtitle( $wgOut->parse( $subtitleTxt ) );
 			} else {
@@ -159,14 +151,6 @@ class WikilogItemPage
 			# Display article.
 			parent::view();
 		}
-	}
-
-	/**
-	 * Compatibility with MediaWiki 1.17.
-	 * @todo Remove this in Wl1.3.
-	 */
-	public function preSaveTransform( $text ) {
-		return $this->newPage( $this->getTitle() )->preSaveTransform( $text );
 	}
 }
 
@@ -183,41 +167,5 @@ class WikilogWikiItemPage
 	public static function newFromID( $id, $from = 'fromdb' ) {
 		$t = Title::newFromID( $id );
 		return $t == null ? null : new self( $t );
-	}
-
-	/**
-	 * Override for preSaveTransform. Enables quick post publish by signing
-	 * the article using the standard --~~~~ marker. This causes the signature
-	 * marker to be replaced by a {{wl-publish:...}} parser function call,
-	 * that is then saved to the database and causes the post to be published.
-	 */
-	public function preSaveTransform( $text, User $user = null, ParserOptions $popts = null ) {
-		global $wgParser, $wgUser;
-		$user = is_null( $user ) ? $wgUser : $user;
-
-		if ( $popts === null ) {
-			$popts = ParserOptions::newFromUser( $user );
-		}
-
-		$t = WikilogUtils::getPublishParameters();
-		$date_txt = $t['date'];
-		$user_txt = $t['user'];
-
-		$sigs = array(
-			'/\n?(--)?~~~~~\n?/m' => "\n{{wl-publish: {$date_txt} }}\n",
-			'/\n?(--)?~~~~\n?/m' => "\n{{wl-publish: {$date_txt} | {$user_txt} }}\n",
-			'/\n?(--)?~~~\n?/m' => "\n{{wl-author: {$user_txt} }}\n"
-		);
-
-		if ( !StubObject::isRealObject( $wgParser ) ) {
-			$wgParser->_unstub();
-		}
-		$wgParser->startExternalParse( $this->mTitle, $popts, Parser::OT_WIKI );
-
-		$text = $wgParser->replaceVariables( $text );
-		$text = preg_replace( array_keys( $sigs ), array_values( $sigs ), $text );
-		$text = $wgParser->mStripState->unstripBoth( $text );
-
-		return parent::preSaveTransform( $text, $user, $popts );
 	}
 }

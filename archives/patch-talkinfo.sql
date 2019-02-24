@@ -12,4 +12,7 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/wikilog_talkinfo (
 ) /*$wgDBTableOptions*/;
 
 INSERT INTO /*$wgDBprefix*/wikilog_talkinfo ( wti_page, wti_talk_updated, wti_num_comments )
-  SELECT wlp_page, wlp_talk_updated, wlp_num_comments FROM /*$wgDBprefix*/wikilog_posts;
+  SELECT wlp_page, CASE WHEN MAX( wlc_updated ) > wlp_updated THEN MAX( wlc_updated ) ELSE wlp_updated END, COUNT(1)
+  FROM /*$wgDBprefix*/wikilog_posts
+  LEFT JOIN /*$wgDBprefix*/wikilog_comments ON wlc_post = wlp_page
+  GROUP BY wlp_page;

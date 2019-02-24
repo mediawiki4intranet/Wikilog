@@ -34,15 +34,13 @@ class WikilogLinksUpdate
 	private $mId;
 	private $mTitle;
 	private $mDb;
-	private $mOptions;
 	private $mAuthors;
 	private $mTags;
 
 	function __construct( &$lupd, $parserOutput ) {
 		$this->mId = $lupd->mId;
 		$this->mTitle = $lupd->mTitle;
-		$this->mDb = $lupd->mDb;
-		$this->mOptions = $lupd->mOptions;
+		$this->mDb = wfGetDB( DB_MASTER );
 		$this->mAuthors = $parserOutput->getAuthors();
 		$this->mTags = $parserOutput->getTags();
 	}
@@ -135,7 +133,7 @@ class WikilogLinksUpdate
 
 	private function getExistingAuthors() {
 		$res = $this->mDb->select( 'wikilog_authors', array( 'wla_page', 'wla_author' ),
-			array( 'wla_page' => $this->mId ), __METHOD__, $this->mOptions );
+			array( 'wla_page' => $this->mId ), __METHOD__ );
 		$arr = array();
 		while ( $row = $this->mDb->fetchObject( $res ) ) {
 			$arr[$row->wla_author] = 1;
@@ -146,7 +144,7 @@ class WikilogLinksUpdate
 
 	private function getExistingTags() {
 		$res = $this->mDb->select( 'wikilog_tags', array( 'wlt_page', 'wlt_tag' ),
-			array( 'wlt_page' => $this->mId ), __METHOD__, $this->mOptions );
+			array( 'wlt_page' => $this->mId ), __METHOD__ );
 		$arr = array();
 		while ( $row = $this->mDb->fetchObject( $res ) ) {
 			$arr[$row->wlt_tag] = 1;

@@ -30,18 +30,6 @@ if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
 /**
- * General extension information.
- */
-$wgExtensionCredits['other'][] = array(
-	'path'           => __FILE__,
-	'name'           => 'WlFeed',
-	'version'        => '1.2.0',
-	'author'         => 'Juliano F. Ravasi',
-	'descriptionmsg' => 'wlfeed-desc',
-	'url'            => 'https://www.mediawiki.org/wiki/Extension:Wikilog',
-);
-
-/**
  * Module autoload information.
  */
 

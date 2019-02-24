@@ -88,8 +88,8 @@ class WikilogBloggerImport
                         'wlc_post'          => $params['ns_blog'].':'.$refs[$ref]['title'],
                         'wlc_user_text'     => $user,
                         'wlc_status'        => 'OK',
-                        'wlc_timestamp'     => gmdate("YmdHis", $ts),
-                        'wlc_updated'       => gmdate("YmdHis", $ts),
+                        'wlc_timestamp'     => $dbw->timestamp($ts),
+                        'wlc_updated'       => $dbw->timestamp($ts),
                         'wlc_comment_page'  => "$ns:$title",
                     );
                     $comment_ai++;
@@ -99,7 +99,7 @@ class WikilogBloggerImport
                 /* Add page row */
                 $out['page'][] = array(
                     'title' => "$ns:$title",
-                    'timestamp' => gmdate("YmdHis", $ts),
+                    'timestamp' => $dbw->timestamp($ts),
                     'author' => $user,
                     'text' => $content,
                 );

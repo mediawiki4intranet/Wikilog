@@ -422,7 +422,7 @@ abstract class WlSyndicationFeed
 	 * declaration and stylesheet.
 	 */
 	function outXmlHeader() {
-		global $wgStylePath, $wgStyleVersion;
+		global $wgStylePath;
 
 		$this->httpHeaders();
 		echo '<?xml version="1.0" encoding="utf-8"?>' . "\n";
@@ -433,7 +433,7 @@ abstract class WlSyndicationFeed
 
 		if ( !in_array( 'style', $this->mQuirks ) ) {
 			echo '<?xml-stylesheet type="text/css" href="' .
-				htmlspecialchars( wfExpandUrl( "$wgStylePath/common/feed.css?$wgStyleVersion" ) ) .
+				htmlspecialchars( wfExpandUrl( "$wgStylePath/common/feed.css" ) ) .
 				'"?' . ">\n";
 		}
 	}

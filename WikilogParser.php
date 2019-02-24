@@ -61,7 +61,7 @@ class WikilogParser
 	/**
 	 * ParserFirstCallInit hook handler function.
 	 */
-	public static function FirstCallInit( &$parser ) {
+	public static function FirstCallInit( $parser ) {
 		$mwSummary =& MagicWord::get( 'wlk-summary' );
 		foreach ( $mwSummary->getSynonyms() as $tagname ) {
 			$parser->setHook( $tagname, array( 'WikilogParser', 'summary' ) );
@@ -79,7 +79,7 @@ class WikilogParser
 	/**
 	 * ParserClearState hook handler function.
 	 */
-	public static function ClearState( &$parser ) {
+	public static function ClearState( $parser ) {
 		# These two parser attributes contain our private information.
 		# They take a piggyback ride on the parser object.
 		$parser->mExtWikilog = new WikilogParserOutput;
@@ -95,7 +95,7 @@ class WikilogParser
 	/**
 	 * ParserBeforeStrip hook handler function.
 	 */
-	public static function BeforeStrip( &$parser, &$text, &$stripState ) {
+	public static function BeforeStrip( $parser, $text, $stripState ) {
 		global $wgUser;
 
 		# Do nothing if a title is not set.
@@ -118,7 +118,7 @@ class WikilogParser
 	/**
 	 * ParserAfterTidy hook handler function.
 	 */
-	public static function AfterTidy( &$parser, &$text ) {
+	public static function AfterTidy( $parser, $text ) {
 		$parser->mOutput->mExtWikilog = $parser->mExtWikilog;
 		return true;
 	}
@@ -130,7 +130,7 @@ class WikilogParser
 	 * article summary before it. If not found, look for the first heading
 	 * and use the text before it (intro section).
 	 */
-	public static function InternalParseBeforeLinks( &$parser, &$text, &$stripState ) {
+	public static function InternalParseBeforeLinks( $parser, &$text, $stripState ) {
 		if ( $parser->mExtWikilogInfo && $parser->mExtWikilogInfo->isItem() ) {
 			static $moreRegex = false;
 			if ( $moreRegex === false ) {
@@ -140,21 +140,25 @@ class WikilogParser
 				$moreRegex = "/(?<=^|\\n)--+ *(?:$words) *--+\s*/$flags";
 			}
 
-			# Find and replace the --more-- marker. Extract summary.
-			# We do it anyway even if the summary is already set, in order
-			# to replace the marker with an invisible anchor.
+			/**
+			 * Find and replace the --more-- marker. Extract summary.
+			 * We do it anyway even if the summary is already set, in order
+			 * to replace the marker with an invisible anchor.
+			 */
 			$p = preg_split( $moreRegex, $text, 2 );
 			if ( count( $p ) > 1 ) {
 				self::trySetSummary( $parser, trim( $p[0] ) );
 				$anchor = $parser->insertStripItem( self::MORE_ANCHOR );
 				$text = $p[0] . $anchor . $p[1];
 			} elseif ( !$parser->mExtWikilog->mSummary ) {
-				# Otherwise, make a summary from the intro section.
-				# Why we don't use $parser->getSection()? Because it has the
-				# side-effect of clearing the parser state, which is bad here
-				# since this hook happens during parsing. Instead, we
-				# anticipate the $parser->doHeadings() call and extract the
-				# text before the first heading.
+				/*
+				 * Otherwise, make a summary from the intro section.
+				 * Why we don't use $parser->getSection()? Because it has the
+				 * side-effect of clearing the parser state, which is bad here
+				 * since this hook happens during parsing. Instead, we
+				 * anticipate the $parser->doHeadings() call and extract the
+				 * text before the first heading.
+				 */
 				$text = $parser->doHeadings( $text );
 				$p = preg_split( '/<(h[1-6])\\b.*?>.*?<\\/\\1\\s*>/i', $text, 2 );
 				if ( count( $p ) > 1 ) {
@@ -169,7 +173,7 @@ class WikilogParser
 	 * GetLocalURL hook handler function.
 	 * Expands local URL @a $url if self::$expandingUrls is true.
 	 */
-	public static function GetLocalURL( &$title, &$url, $query ) {
+	public static function GetLocalURL( $title, &$url, $query ) {
 		if ( self::$expandingUrls ) {
 			$url = wfExpandUrl( $url );
 		}
@@ -184,7 +188,7 @@ class WikilogParser
 	 * from Title::getLocalURL() in situations where action != 'render'.
 	 * @todo Report this bug to MediaWiki bugzilla.
 	 */
-	public static function GetFullURL( &$title, &$url, $query ) {
+	public static function GetFullURL( $title, &$url, $query ) {
 		global $wgServer;
 		if ( self::$expandingUrls ) {
 			$l = strlen( $wgServer );
@@ -216,7 +220,7 @@ class WikilogParser
 	/**
 	 * {{wl-settings:...}} parser function handler.
 	 */
-	public static function settings( &$parser /* ... */ ) {
+	public static function settings( $parser /* ... */ ) {
 		global $wgOut;
 		self::checkNamespace( $parser );
 
@@ -246,7 +250,7 @@ class WikilogParser
 				$output = $parser->parse( $value, $parser->getTitle(), $popt, true, false );
 				$parser->mExtWikilog->mSummary = $output->getText();
 			} else {
-				$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-invalid-param', htmlspecialchars( $key ) ) );
+				$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-invalid-param', htmlspecialchars( $key ) )->text() )->text();
 				$parser->mOutput->addWarning( $warning );
 			}
 		}
@@ -257,30 +261,30 @@ class WikilogParser
 	/**
 	 * {{wl-publish:...}} parser function handler.
 	 */
-	public static function publish( &$parser, $pubdate /*, $author... */ ) {
+	public static function publish( $parser, $pubdate /*, $author... */ ) {
 		self::checkNamespace( $parser );
 
 		$parser->mExtWikilog->mPublish = true;
 		$args = array_slice( func_get_args(), 2 );
 
-		# First argument is the publish date
+		// First argument is the publish date
 		if ( !is_null( $pubdate ) ) {
 			wfSuppressWarnings(); // Shut up E_STRICT warnings about timezone.
 			$ts = strtotime( $pubdate );
 			wfRestoreWarnings();
 			if ( $ts > 0 ) {
 				$parser->mExtWikilog->mPubDate = wfTimestamp( TS_MW, $ts );
-			}
-			else {
-				$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-invalid-date', $pubdate ) );
+			} else {
+				$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-invalid-date', $pubdate )->text() )->text();
 				$parser->mOutput->addWarning( $warning );
 			}
 		}
 
-		# Remaining arguments are author names
+		// Remaining arguments are author names
 		foreach ( $args as $name ) {
-			if ( !self::tryAddAuthor( $parser, $name ) )
+			if ( !self::tryAddAuthor( $parser, $name ) ) {
 				break;
+			}
 		}
 
 		return '<!-- -->';
@@ -300,7 +304,7 @@ class WikilogParser
 	/**
 	 * {{wl-author:...}} parser function handler.
 	 */
-	public static function author( &$parser /*, $author... */ ) {
+	public static function author( $parser /*, $author... */ ) {
 		self::checkNamespace( $parser );
 
 		$args = array_slice( func_get_args(), 1 );
@@ -314,7 +318,7 @@ class WikilogParser
 	/**
 	 * {{wl-tags:...}} parser function handler.
 	 */
-	public static function tags( &$parser /*, $tag... */ ) {
+	public static function tags( $parser /*, $tag... */ ) {
 		self::checkNamespace( $parser );
 
 		$args = array_slice( func_get_args(), 1 );
@@ -329,7 +333,7 @@ class WikilogParser
 	 * {{wl-info:...}} parser function handler.
 	 * Provides general information about the extension.
 	 */
-	public static function info( &$parser, $id /*, $tag... */ ) {
+	public static function info( $parser, $id /*, $tag... */ ) {
 		global $wgWikilogNamespaces, $wgWikilogEnableTags;
 		global $wgWikilogEnableComments;
 		global $wgContLang;
@@ -457,7 +461,7 @@ class WikilogParser
 	 * Set the article summary, ignore if already set.
 	 * @return True if set, false otherwise.
 	 */
-	private static function trySetSummary( &$parser, $text ) {
+	private static function trySetSummary( $parser, $text ) {
 		if ( !$parser->mExtWikilog->mSummary ) {
 			$oldOpt = $parser->getOptions();
 			$popt = clone $oldOpt;
@@ -478,11 +482,11 @@ class WikilogParser
 	 * Adds an author to the current article. If too many authors, warns.
 	 * @return False on overflow, true otherwise.
 	 */
-	private static function tryAddAuthor( &$parser, $name ) {
+	private static function tryAddAuthor( $parser, $name ) {
 		global $wgWikilogMaxAuthors;
 
 		if ( count( $parser->mExtWikilog->mAuthors ) >= $wgWikilogMaxAuthors ) {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-too-many-authors' ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-too-many-authors' )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 			return false;
 		}
@@ -492,7 +496,7 @@ class WikilogParser
 			$parser->mExtWikilog->mAuthors[$user->getName()] = $user->getID();
 		}
 		else {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-invalid-author', $name ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-invalid-author', $name )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 		}
 		return true;
@@ -502,14 +506,14 @@ class WikilogParser
 	 * Adds a tag to the current article. If too many tags, warns.
 	 * @return False on overflow, true otherwise.
 	 */
-	private static function tryAddTag( &$parser, $tag ) {
+	private static function tryAddTag( $parser, $tag ) {
 		global $wgWikilogMaxTags;
 
 		static $tcre = false;
 		if ( !$tcre ) { $tcre = '/[^' . Title::legalChars() . ']/'; }
 
 		if ( count( $parser->mExtWikilog->mTags ) >= $wgWikilogMaxTags ) {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-too-many-tags' ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-too-many-tags' )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 			return false;
 		}
@@ -518,7 +522,7 @@ class WikilogParser
 			$parser->mExtWikilog->mTags[$tag] = 1;
 		}
 		else {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-invalid-tag', $tag ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-invalid-tag', $tag )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 		}
 		return true;
@@ -528,14 +532,14 @@ class WikilogParser
 	 * Check if the calling parser function is being executed in Wikilog
 	 * context. Generates a parser warning if it isn't.
 	 */
-	private static function checkNamespace( &$parser ) {
+	private static function checkNamespace( $parser ) {
 		global $wgWikilogNamespaces;
 		static $tested = false;
 
 		if ( !$tested ) {
 			$title = $parser->getTitle();
 			if ( !in_array( $title->getNamespace(), $wgWikilogNamespaces ) ) {
-				$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-out-of-context' ) );
+				$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-out-of-context' )->text() )->text();
 				$parser->mOutput->addWarning( $warning );
 			}
 			$tested = true;
@@ -550,24 +554,24 @@ class WikilogParser
 	 *
 	 * @return File instance, or NULL.
 	 */
-	private static function parseImageLink( &$parser, $text ) {
+	private static function parseImageLink( $parser, $text ) {
 		$obj = self::parseMediaLink( $parser, $text );
 		if ( !$obj ) {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-invalid-file', htmlspecialchars( $text ) ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-invalid-file', htmlspecialchars( $text ) )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 			return null;
 		}
 
 		list( $t1, $t2, $file ) = $obj;
 		if ( !$file ) {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-file-not-found', htmlspecialchars( $t1 ) ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-file-not-found', htmlspecialchars( $t1 ) )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 			return null;
 		}
 
 		$type = $file->getMediaType();
 		if ( $type != MEDIATYPE_BITMAP && $type != MEDIATYPE_DRAWING ) {
-			$warning = wfMsg( 'wikilog-error-msg', wfMsg( 'wikilog-not-an-image', $file->getName() ) );
+			$warning = wfMessage( 'wikilog-error-msg', wfMessage( 'wikilog-not-an-image', $file->getName() )->text() )->text();
 			$parser->mOutput->addWarning( $warning );
 			return null;
 		}
@@ -584,7 +588,7 @@ class WikilogParser
 	 * @return Three-element array containing the matched parts of the link,
 	 *   and the file object, or NULL.
 	 */
-	private static function parseMediaLink( &$parser, $text ) {
+	private static function parseMediaLink( $parser, $text ) {
 		$tc = Title::legalChars();
 		if ( !preg_match( "/\\[\\[([{$tc}]+)(?:\\|(.+?))?]]/", $text, $m ) )
 			return null;

@@ -62,8 +62,24 @@ class WikilogMainPage
 	public function view() {
 		global $wgRequest, $wgOut, $wgMimeType, $wgUser;
 
-		$query = new WikilogItemQuery( $this->mTitle );
+        $queryTitle;
+        $parts = explode( '/', $this->mTitle->getText() );
+        if (count( $parts ) > 1) {
+            $origns = $this->mTitle->getNamespace();
+            $ns = MWNamespace::getSubject( $origns );
+            $queryTitle = Title::makeTitle( $ns, $parts[0] );
+        } else {
+            $queryTitle = $this->mTitle;
+        }
+
+		$query = new WikilogItemQuery( $queryTitle );
 		$query->setPubStatus( $wgRequest->getVal( 'show' ) );
+
+        if (count( $parts ) > 1) {
+            $query->setCategory('News/'.$parts[1]);
+        } else {
+            $query->setCategory('News');
+        }
 
 		# RSS or Atom feed requested. Ignore all other options.
 		if ( ( $feedFormat = $wgRequest->getVal( 'feed' ) ) ) {
@@ -130,8 +146,7 @@ class WikilogMainPage
 					'rel' => 'alternate',
 					'href' => $this->mTitle->getLocalURL( $altquery ),
 					'type' => $wgMimeType,
-					'title' => wfMsgExt( "wikilog-view-{$alt}",
-						array( 'content', 'parsemag' ) )
+					'title' => wfMessage( "wikilog-view-{$alt}" )->inContentLanguage()->text()
 				) );
 			}
 		}
@@ -143,14 +158,15 @@ class WikilogMainPage
 	public function wikilog() {
 		global $wgUser, $wgOut, $wgRequest;
 
-		if ( $this->mTitle->exists() && $wgRequest->getBool( 'wlActionImport' ) )
+		if ( $this->mTitle->exists() && $wgRequest->getBool( 'wlActionImport' ) ) {
 			return $this->actionImport();
+		}
 
-		$wgOut->setPageTitle( wfMsg( 'wikilog-tab-title' ) );
+		$wgOut->setPageTitle( wfMessage( 'wikilog-tab-title' )->text() );
 		$wgOut->setRobotpolicy( 'noindex,nofollow' );
 
 		if ( $this->mTitle->exists() ) {
-			$skin = $wgUser->getSkin();
+			$skin = $this->getContext()->getSkin();
 			$wgOut->addHTML( $this->formatWikilogDescription( $skin ) );
 			$wgOut->addHTML( $this->formatWikilogInformation( $skin ) );
 			if ( $this->mTitle->quickUserCan( 'edit' ) ) {
@@ -158,7 +174,7 @@ class WikilogMainPage
 				$wgOut->addHTML( $this->formImport() );
 			}
 		} elseif ( $this->mTitle->userCan( 'create' ) ) {
-			$text = wfMsgExt( 'wikilog-missing-wikilog', 'parse' );
+			$text = wfMessage( 'wikilog-missing-wikilog' )->parse();
 			$text = WikilogUtils::wrapDiv( 'noarticletext', $text );
 			$wgOut->addHTML( $text );
 		} else {
@@ -182,7 +198,7 @@ class WikilogMainPage
 			);
 		}
 		$s .= Xml::tags( 'div', array( 'class' => 'wl-title' ),
-			$skin->link( $this->mTitle, null, array(), array(), array( 'known', 'noclasses' ) ) );
+			Linker::link( $this->mTitle, null, array(), array(), array( 'known', 'noclasses' ) ) );
 
 		$st =& $this->mWikilogSubtitle;
 		if ( is_array( $st ) ) {
@@ -221,7 +237,7 @@ class WikilogMainPage
 		$cont .= $this->formatPostCount( $skin, 'li', 'all', $n_total );
 		$cont .= Xml::closeElement( 'ul' );
 
-		return Xml::fieldset( wfMsg( 'wikilog-information' ), $cont ) . "\n";
+		return Xml::fieldset( wfMessage( 'wikilog-information' )->text(), $cont ) . "\n";
 	}
 
 	/**
@@ -231,8 +247,8 @@ class WikilogMainPage
 		global $wgWikilogFeedClasses;
 
 		// Uses messages 'wikilog-post-count-published', 'wikilog-post-count-drafts', 'wikilog-post-count-all'
-		$s = $skin->link( $this->mTitle,
-			wfMsgExt( "wikilog-post-count-{$type}", array( 'parsemag' ), $num ),
+		$s = Linker::link( $this->mTitle,
+			wfMessage( "wikilog-post-count-{$type}", $num )->text(),
 			array(),
 			array( 'view' => "archives", 'show' => $type ),
 			array( 'knwon', 'noclasses' )
@@ -240,8 +256,8 @@ class WikilogMainPage
 		if ( !empty( $wgWikilogFeedClasses ) ) {
 			$f = array();
 			foreach ( $wgWikilogFeedClasses as $format => $class ) {
-				$f[] = $skin->link( $this->mTitle,
-					wfMsg( "feed-{$format}" ),
+				$f[] = Linker::link( $this->mTitle,
+					wfMessage( "feed-{$format}" )->text(),
 					array( 'class' => "feedlink", 'type' => "application/{$format}+xml" ),
 					array( 'view' => "archives", 'show' => $type, 'feed' => $format ),
 					array( 'known', 'noclasses' )
@@ -254,15 +270,19 @@ class WikilogMainPage
 
 	/**
 	 * Returns a form for new item creation.
+	 * @param Title $title
 	 */
 	static function formNewItem( $title ) {
-		global $wgScript, $wgWikilogStylePath;
+		global $wgScript, $wgWikilogStylePath, $wgMaxTitleBytes;
 
 		$fields = array();
-		if ( $title )
-			$fields[] = Xml::element( 'input', array( 'type' => 'hidden', 'value' => $title->getPrefixedText(), 'id' => 'wl-newitem-wikilog' ) );
-		else
-		{
+		if ( $title ) {
+			$fields[] = Xml::element( 'input', array(
+				'type' => 'hidden',
+				'value' => $title->getPrefixedText(),
+				'id' => 'wl-newitem-wikilog'
+			) );
+		} else {
 			global $wgWikilogNamespaces;
 			$dbr = wfGetDB( DB_SLAVE );
 			$r = $dbr->select( 'page', 'page_id', array(
@@ -270,34 +290,46 @@ class WikilogMainPage
 				'page_title NOT LIKE \'%/%\'',
 			), __METHOD__ );
 			$opts = array();
-			foreach ( $r as $obj )
-			{
+			foreach ( $r as $obj ) {
 				$t = Title::newFromID( $obj->page_id );
-				if ( $t->userCan( 'edit' ) )
+				if ( $t->userCan( 'edit' ) ) {
 					$opts[] = $t;
+				}
 			}
-			if ( !$opts )
+			if ( !$opts ) {
 				return '';
+			}
 			$wikilog_select = new XmlSelect( false, 'wl-newitem-wikilog' );
-			foreach ( $opts as $o )
+			foreach ( $opts as $o ) {
 				$wikilog_select->addOption( $o->getText(), $o->getPrefixedText() );
-			$fields[] = Xml::label( wfMsg( 'wikilog-form-wikilog' ), 'wl-newitem-wikilog' )
+			}
+			$fields[] = Xml::label( wfMessage( 'wikilog-form-wikilog' )->text(), 'wl-newitem-wikilog' )
 				. '&nbsp;' . $wikilog_select->getHTML();
 		}
 		$fields[] = Html::hidden( 'action', 'edit' );
 		$fields[] = Html::hidden( 'preload', '' );
 		$fields[] = Html::hidden( 'title', '' );
-		$fields[] = Xml::inputLabel( wfMsg( 'wikilog-item-name' ),
-			false, 'wl-item-name', 70, date('Y-m-d ') );
-		$fields[] = Xml::submitButton( wfMsg( 'wikilog-new-item-go' ) );
+		$fields[] = Xml::inputLabel( wfMessage( 'wikilog-item-name' )->text(),
+			false, 'wl-item-name', 70, date( 'Y-m-d ' ) );
+		$fields[] = Xml::submitButton( wfMessage( 'wikilog-new-item-go' )->text() );
 
 		$form = Xml::tags( 'form',
-			array( 'action' => $wgScript, 'onsubmit' => 'return checkNewItem(this, \''.wfMsg('wikilog-new-item-subpage').'\');' ),
+			array(
+				'action' => $wgScript,
+				'onsubmit' => 'return wlCheckNewItem(this, '
+					. json_encode( array(
+						'subpage' => wfMessage( 'wikilog-new-item-subpage' )->text(),
+						'title' => array(
+							'lng' => ( isset( $wgMaxTitleBytes ) ? $wgMaxTitleBytes : 255 ) - strlen( '/c' . WikilogComment::padID( 0 ) ),
+							'msg' => wfMessage( 'wikilog-new-item-too-long' )->text()
+						)
+					) )
+					. ');'
+			),
 			implode( "\n", $fields )
 		);
 
-		$form = Xml::fieldset( wfMsg( 'wikilog-new-item' ), $form, array( 'id' => 'wl-new-item' ) ) . "\n";
-		$form .= '<script type="text/javascript" src="'.$wgWikilogStylePath.'/wikilog.js"></script>';
+		$form = Xml::fieldset( wfMessage( 'wikilog-new-item' )->text(), $form, array( 'id' => 'wl-new-item' ) ) . "\n";
 		return $form;
 	}
 
@@ -311,10 +343,10 @@ class WikilogMainPage
 		$fields[] = Html::hidden( 'title', $this->mTitle->getPrefixedText() );
 		$fields[] = Html::hidden( 'action', 'wikilog' );
 		$fields[] = Html::hidden( 'wikilog-import', 'blogger' );
-		$fields[] = Xml::inputLabel( wfMsg('wikilog-import-file'), 'wlFile', 'wl-import-file', false, false, array('type' => 'file') );
-		$fields[] = Xml::submitButton( wfMsg( 'wikilog-import-go' ),
+		$fields[] = Xml::inputLabel( wfMessage( 'wikilog-import-file' )->text(), 'wlFile', 'wl-import-file', false, false, array('type' => 'file') );
+		$fields[] = Xml::submitButton( wfMessage( 'wikilog-import-go' )->text(),
 			array( 'name' => 'wlActionImport' ) );
-		$fields[] = '<br />' . Xml::label( wfMsg('wikilog-import-aliases'), 'wl-user-aliases' ) .
+		$fields[] = '<br />' . Xml::label( wfMessage( 'wikilog-import-aliases' )->text(), 'wl-user-aliases' ) .
 			Xml::textarea( 'wlUserAliases', '', 40, 5, array( 'id' => 'wl-user-aliases' ) );
 
 		$form = Xml::tags( 'form',
@@ -322,7 +354,7 @@ class WikilogMainPage
 			implode( "\n", $fields )
 		);
 
-		return Xml::fieldset( wfMsg( 'wikilog-import' ), $form ) . "\n";
+		return Xml::fieldset( wfMessage( 'wikilog-import' )->text(), $form ) . "\n";
 	}
 
 	/**
@@ -330,7 +362,7 @@ class WikilogMainPage
 	 */
 	protected function actionImport() {
 		global $wgOut, $wgRequest;
-		$wgOut->setPageTitle( wfMsg( 'wikilog-import' ) );
+		$wgOut->setPageTitle( wfMessage( 'wikilog-import' )->text() );
 
 		if ( !$this->mTitle->quickUserCan( 'edit' ) ) {
 			$wgOut->loginToUse();

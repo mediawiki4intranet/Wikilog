@@ -40,9 +40,13 @@ class SpecialWikilogComments
 		parent::__construct( 'WikilogComments' );
 	}
 
+	protected function getGroupName() {
+		return 'changes';
+	}
+
 	function execute( $par ) {
 		global $wgTitle;
-		$page = new WikilogCommentsPage( $wgTitle );
+		$page = WikilogCommentsPage::createInstance( $wgTitle );
 		$page->view();
 	}
 
@@ -51,7 +55,7 @@ class SpecialWikilogComments
 	 * and also the name that will be listed in Special:Specialpages.
 	 */
 	public function getDescription() {
-		return wfMsg( 'wikilog-title-comments-all' );
+		return wfMessage( 'wikilog-title-comments-all' )->text();
 	}
 }
 
@@ -79,7 +83,7 @@ class WikilogCommentsPage
 
 	public    $mSingleComment;		///< Used when viewing a single comment.
 
-	var $mWikilogInfo, $mSubject;
+	var $mWikilogInfo, $mSubject, $mSubjectUser;
 	var $mCommentPagerType;
 
 	/**
@@ -87,59 +91,81 @@ class WikilogCommentsPage
 	 *
 	 * @param $title Title of the page.
 	 */
-	function __construct( Title $title ) {
+	static function createInstance( Title $title ) {
 		global $wgUser, $wgRequest;
 
-		parent::__construct( $title );
-		if ( class_exists( 'Wikilog' ) ) {
-			$this->mWikilogInfo = Wikilog::getWikilogInfo( $title );
+		$subject = $subjectUser = $singleComment = $switchSubject = NULL;
+		if ( $title->getNamespace() != NS_SPECIAL ) {
+			if ( !Wikilog::nsHasComments( $title ) ) {
+				return NULL;
+			}
+			// We do not print anything from subject page, but its ID is required to correctly post comments
+			// So disable permission check for the time
+			if ( defined( 'HACL_HALOACL_VERSION' ) ) {
+				$hacl = haclfDisableTitlePatch();
+			}
+			$subject = $title->getSubjectPage();
+			if ( defined( 'HACL_HALOACL_VERSION' ) ) {
+				haclfRestoreTitlePatch( $hacl );
+			}
+			$singleComment = WikilogComment::newFromPageID( $title->getArticleId() );
+			if ( $singleComment ) {
+				$switchSubject = $subject;
+				$subject = $singleComment->mSubject;
+			}
+			// Our DB structure does not allow to post comments for non-existing subject pages,
+			// so we either disallow such comments or auto-create the subject page.
+			// We only auto-create non-existing User:* pages for registered users,
+			// and add them to the corresponding user's watchlist.
+			if ( $subject->getNamespace() == NS_USER ) {
+				$subjectUser = User::newFromName( $subject->getText() );
+				if ( !$subjectUser || !$subjectUser->getId() ) {
+					return NULL;
+				}
+			} elseif ( !$subject->exists() ) {
+				return NULL;
+			}
 		}
 
-		# Check if user can post.
-		$this->mUserCanPost = !$wgUser->isBlocked() && ( $wgUser->isAllowed( 'wl-postcomment' ) ||
+		$self = new WikilogCommentsPage( $title );
+		if ( class_exists( 'Wikilog' ) ) {
+			$self->mWikilogInfo = Wikilog::getWikilogInfo( $title );
+		}
+
+		// Check if user can post.
+		$self->mUserCanPost = !$wgUser->isBlocked() && ( $wgUser->isAllowed( 'wl-postcomment' ) ||
 			( $wgUser->isAllowed( 'edit' ) && $wgUser->isAllowed( 'createtalk' ) ) );
-		$this->mUserCanModerate = $wgUser->isAllowed( 'wl-moderation' );
+		$self->mUserCanModerate = $wgUser->isAllowed( 'wl-moderation' );
 
-		# Prepare the skin and the comment formatter.
-		$this->mSkin = $wgUser->getSkin();
-		$this->mFormatter = new WikilogCommentFormatter( $this->mSkin, $this->mUserCanPost );
+		// Prepare the skin and the comment formatter.
+		$self->mSkin = RequestContext::getMain()->getSkin();
+		$self->mFormatter = new WikilogCommentFormatter( $self->mSkin, $self->mUserCanPost );
 
-		# Form options.
-		$this->mFormOptions = new FormOptions();
-		$this->mFormOptions->add( 'wlAnonName', '' );
-		$this->mFormOptions->add( 'wlComment', '' );
-		$this->mFormOptions->fetchValuesFromRequest( $wgRequest,
+		// Form options.
+		$self->mFormOptions = new FormOptions();
+		$self->mFormOptions->add( 'wlAnonName', '' );
+		$self->mFormOptions->add( 'wlComment', '' );
+		$self->mFormOptions->fetchValuesFromRequest( $wgRequest,
 			array( 'wlAnonName', 'wlComment' ) );
 
-		# This flags if we are viewing a single comment (subpage).
-		$this->mSingleComment =
-			WikilogComment::newFromPageID( $this->getID() );
-
-		# We do not print any data from subject page, but its ID is required to correctly post comments
-		# So disable permission check for the time
-		if ( defined( 'HACL_HALOACL_VERSION' ) ) {
-			$hacl = haclfDisableTitlePatch();
-		}
-		$this->mSubject = $title->getNamespace() != NS_SPECIAL ? $title->getSubjectPage() : NULL;
-		if ( defined( 'HACL_HALOACL_VERSION' ) ) {
-			haclfRestoreTitlePatch( $hacl );
-		}
+		// This flags if we are viewing a single comment (subpage).
+		$self->mSingleComment = $singleComment;
+		$self->mSubject = $subject;
+		$self->mSubjectUser = $subjectUser;
 
 		// Set WikilogCommentPager type
 		if ( $wgRequest->getVal( 'comment_pager_type' ) !== null ) {
-			WikilogCommentPagerSwitcher::setType( $this->mSubject, $wgRequest->getVal( 'comment_pager_type' ) );
-		}
-		// Refresh cache after switching
-		WikilogCommentPagerSwitcher::checkType( $this->mSubject );
-		$this->mCommentPagerType = WikilogCommentPagerSwitcher::getType( $this->mSubject );
-		if ( $this->mCommentPagerType === 'list' ) {
-			$this->mFormatter->mWithParent = true;
+			WikilogCommentPagerSwitcher::setType( $switchSubject, $wgRequest->getVal( 'comment_pager_type' ) );
 		}
 
-		// Set single comment subject AFTER selecting comment pager type!
-		if ( $this->mSingleComment ) {
-			$this->mSubject = $this->mSingleComment->mSubject;
+		// Refresh cache after switching
+		WikilogCommentPagerSwitcher::checkType( $switchSubject );
+		$self->mCommentPagerType = WikilogCommentPagerSwitcher::getType( $switchSubject );
+		if ( $self->mCommentPagerType === 'list' ) {
+			$self->mFormatter->mWithParent = true;
 		}
+
+		return $self;
 	}
 
 	/**
@@ -229,17 +255,17 @@ class WikilogCommentsPage
 
 			if ( $this->mSubject ) {
 				$name = $this->mSubject->getPrefixedText();
-				$wgOut->setPageTitle( wfMsg( 'wikilog-title-comments', $name ) );
+				$wgOut->setPageTitle( wfMessage( 'wikilog-title-comments', $name )->text() );
 			} else {
 				$name = '';
-				$wgOut->setPageTitle( wfMsg( 'wikilog-title-comments-all' ) );
+				$wgOut->setPageTitle( wfMessage( 'wikilog-title-comments-all' )->text() );
 			}
 		}
 
 		# Add a backlink to the original article.
 		if ( $name !== '' ) {
-			$link = $this->mSkin->link( $this->mSubject, Sanitizer::escapeHtmlAllowEntities( $name ) );
-			$wgOut->setSubtitle( wfMsg( 'wikilog-backlink', $link ) );
+			$link = Linker::link( $this->mSubject, Sanitizer::escapeHtmlAllowEntities( $name ) );
+			$wgOut->setSubtitle( wfMessage( 'wikilog-backlink', $link )->text() );
 		}
 
 		# Retrieve comments (or replies) from database and display them.
@@ -254,7 +280,7 @@ class WikilogCommentsPage
 	 * them in threads.
 	 */
 	protected function viewComments( WikilogCommentQuery $query ) {
-		global $wgOut, $wgRequest, $wgUser, $wgRequest;
+		global $wgOut, $wgRequest, $wgUser, $wgRequest, $wgScript;
 
 		# Prepare query and pager objects.
 		$replyTo = $wgRequest->getInt( 'wlParent' );
@@ -279,12 +305,8 @@ class WikilogCommentsPage
 
 		# Switch pager
 		$type = $this->mCommentPagerType;
-		$msg = wfMsg( $type != 'thread' ?
-			'wikilog-ptswitcher-thread' : 'wikilog-ptswitcher-list'
-		);
-		$url = $wgRequest->appendQueryValue( 'comment_pager_type',
-			$type != 'thread' ? 'thread' : 'list'
-		);
+		$msg = wfMessage( $type != 'thread' ? 'wikilog-ptswitcher-thread' : 'wikilog-ptswitcher-list' )->text();
+		$url = $wgScript . '?' . http_build_query( [ 'comment_pager_type' => $type != 'thread' ? 'thread' : 'list' ] + $_GET );
 		$link = Xml::tags( 'a', array( 'href' => $url ),  $msg );
 		$pagerType = Xml::tags(
 			'span', array( 'style' => 'float: right; font-size: 70%' ), '[ '. $link . ' ]'
@@ -292,7 +314,7 @@ class WikilogCommentsPage
 
 		# Comments/Replies header.
 		$header = Xml::tags( 'h2', array( 'id' => 'wl-comments-header' ),
-			$pagerType . wfMsgExt( $headerMsg, array( 'parseinline' ) )
+			$pagerType . wfMessage( $headerMsg )->parse()
 		);
 		$wgOut->addHtml( $header );
 
@@ -326,8 +348,8 @@ class WikilogCommentsPage
 			// Subscribe/unsubscribe to new comments
 			$id = $this->mSubject->getArticleId();
 			$s = $this->subscribe( $id ) ? 'yes' : 'no';
-			$wgOut->setPageTitle( wfMsg( "wikilog-subscribed-title-$s" ) );
-			$wgOut->addWikiText( wfMsgNoTrans( "wikilog-subscribed-text-$s", $this->mSubject->getPrefixedText() ) );
+			$wgOut->setPageTitle( wfMessage( "wikilog-subscribed-title-$s" )->text() );
+			$wgOut->addWikiText( wfMessage( "wikilog-subscribed-text-$s", $this->mSubject->getPrefixedText() )->plain() );
 			return;
 		}
 
@@ -414,13 +436,18 @@ class WikilogCommentsPage
 			$msg = $one ? 'wikilog-do-unsubscribe-all' : 'wikilog-do-subscribe-all';
 		} elseif ( !$this->mSingleComment ) {
 			$dbr = wfGetDB( DB_SLAVE );
+			// Is it the user talk page? If yes, he can't unsubscribe.
+			if ( $this->mSubject->getNamespace() == NS_USER &&
+				$this->mSubject->getText() == $wgUser->getName() ) {
+				return wfMessage( 'wikilog-subscribed-usertalk' )->plain();
+			}
 			// Is the user author? If yes, he can't unsubscribe.
 			$isa = $dbr->selectField( 'wikilog_authors', '1', array(
 				'wla_page' => $subjId,
 				'wla_author' => $wgUser->getId(),
 			), __METHOD__ );
 			if ( $isa ) {
-				return wfMsgNoTrans( 'wikilog-subscribed-as-author' );
+				return wfMessage( 'wikilog-subscribed-as-author' )->plain();
 			}
 			// Is the user subscribed globally to comments to ALL Wikilog posts?
 			// This can be overridden by individual subscription settings (below)
@@ -445,14 +472,15 @@ class WikilogCommentsPage
 		} else {
 			return '';
 		}
-		return wfMsgNoTrans( $msg,
+		return wfMessage( $msg,
 			// FIXME use title->getFullUrl( ??? )
 			$wgScript.'?'.http_build_query( array(
 				'title' => $this->getTitle()->getPrefixedText(),
 				'action' => 'wikilog',
 				'wlActionSubscribe' => 1,
 				'wl-subscribe' => $one ? 0 : 1,
-			) ) );
+			) )
+		)->plain();
 	}
 
 	/**
@@ -478,8 +506,8 @@ class WikilogCommentsPage
 	 * @param $parent If provided, generates a "post reply" form to reply to
 	 *   the given comment.
 	 */
-	public function getPostCommentForm( $parent = null ) {
-		global $wgUser, $wgTitle, $wgScript, $wgRequest;
+	public function getPostCommentForm( $parent = null, $inline_reply = false ) {
+		global $wgUser, $wgTitle, $wgRequest;
 		global $wgWikilogModerateAnonymous;
 
 		if ( $this->includeSubpageComments() && !$parent || !$this->mSubject ) {
@@ -494,36 +522,36 @@ class WikilogCommentsPage
 		if ( $comment && $comment->mParent == $pid ) {
 			$check = $this->validateComment( $comment );
 			if ( $check ) {
-				$preview = Xml::wrapClass( wfMsg( $check ), 'mw-warning', 'div' );
+				$preview = Xml::wrapClass( wfMessage( $check )->text(), 'mw-warning', 'div' );
 			} else {
 				$preview = $this->mFormatter->formatComment( $this->mPostedComment );
 			}
-			$header = wfMsgHtml( 'wikilog-form-preview' );
+			$header = wfMessage( 'wikilog-form-preview' )->escaped();
 			$preview = "<b>{$header}</b>{$preview}<hr/>";
 		}
 
+		$targetTitle = $parent ? $parent->mCommentTitle : $this->getTitle();
 		$form =
-			Html::hidden( 'title', ( $parent ? $parent->mCommentTitle : $this->getTitle()->getPrefixedText() ) ) .
 			Html::hidden( 'action', 'wikilog' ) .
-			Html::hidden( 'wpEditToken', $wgUser->editToken() ) .
+			Html::hidden( 'wpEditToken', $wgUser->getEditToken() ) .
 			( $parent ? Html::hidden( 'wlParent', $parent->mID ) : '' );
 
 		$fields = array();
 
 		if ( $wgUser->isLoggedIn() ) {
 			$fields[] = array(
-				wfMsg( 'wikilog-form-name' ),
+				wfMessage( 'wikilog-form-name' )->text(),
 				$this->mSkin->userLink( $wgUser->getId(), $wgUser->getName() )
 			);
 		} else {
 			$loginTitle = SpecialPage::getTitleFor( 'Userlogin' );
-			$loginLink = $this->mSkin->link( $loginTitle,
-				wfMsgHtml( 'loginreqlink' ), array(),
+			$loginLink = Linker::link( $loginTitle,
+				wfMessage( 'loginreqlink' )->escaped(), array(),
 				array( 'returnto' => $wgTitle->getPrefixedUrl() )
 			);
-			$message = wfMsg( 'wikilog-posting-anonymously', $loginLink );
+			$message = wfMessage( 'wikilog-posting-anonymously', $loginLink )->text();
 			$fields[] = array(
-				Xml::label( wfMsg( 'wikilog-form-name' ), 'wl-name' ),
+				Xml::label( wfMessage( 'wikilog-form-name' )->text(), 'wl-name' ),
 				Xml::input( 'wlAnonName', 25, $opts->consumeValue( 'wlAnonName' ),
 					array( 'id' => 'wl-name', 'maxlength' => 255 ) ) .
 					"<p>{$message}</p>"
@@ -532,7 +560,7 @@ class WikilogCommentsPage
 
 		$autofocus = $parent ? array( 'autofocus' => 'autofocus' ) : array();
 		$fields[] = array(
-			Xml::label( wfMsg( 'wikilog-form-comment' ), 'wl-comment' ),
+			Xml::label( wfMessage( 'wikilog-form-comment' )->text(), 'wl-comment' ),
 			Xml::textarea( 'wlComment', $opts->consumeValue( 'wlComment' ),
 				40, 5, array( 'id' => 'wl-comment' ) + $autofocus )
 		);
@@ -542,7 +570,7 @@ class WikilogCommentsPage
 		}
 
 		if ( $wgWikilogModerateAnonymous && $wgUser->isAnon() ) {
-			$fields[] = array( '', wfMsg( 'wikilog-anonymous-moderated' ) );
+			$fields[] = array( '', wfMessage( 'wikilog-anonymous-moderated' )->text() );
 		}
 
 		if ( $wgUser->getID() && $this->mSubject ) {
@@ -551,14 +579,14 @@ class WikilogCommentsPage
 			if ( $subscribed === NULL ) {
 				$subscribed = true;
 			}
-			$subscribe_html = ' &nbsp; ' . Xml::checkLabel( wfMsg( 'wikilog-subscribe' ), 'wl-subscribe', 'wl-subscribe', $subscribed );
+			$subscribe_html = ' &nbsp; ' . Xml::checkLabel( wfMessage( 'wikilog-subscribe' )->text(), 'wl-subscribe', 'wl-subscribe', $subscribed );
 		} else {
 			$subscribe_html = '';
 		}
 
 		$fields[] = array( '',
-			Xml::submitbutton( wfMsg( 'wikilog-submit' ), array( 'name' => 'wlActionCommentSubmit' ) ) . WL_NBSP .
-			Xml::submitbutton( wfMsg( 'wikilog-preview' ), array( 'name' => 'wlActionCommentPreview' ) ) .
+			Xml::submitbutton( wfMessage( 'wikilog-submit' )->text(), array( 'name' => 'wlActionCommentSubmit' ) ) . WL_NBSP .
+			Xml::submitbutton( wfMessage( 'wikilog-preview' )->text(), array( 'name' => 'wlActionCommentPreview' ) ) .
 			$subscribe_html
 		);
 
@@ -569,13 +597,13 @@ class WikilogCommentsPage
 		}
 
 		$form = Xml::tags( 'form', array(
-			'action' => "{$wgScript}#wl-comment-form",
-			'method' => 'post'
+			'action' => $targetTitle->getLocalUrl()."#wl-comment-form",
+			'method' => 'post',
 		), $form );
 
 		$msgid = ( $parent ? 'wikilog-post-reply' : 'wikilog-post-comment' );
-		return Xml::fieldset( wfMsg( $msgid ), $preview . $form,
-			array( 'id' => 'wl-comment-form' ) ) . "\n";
+		return Xml::fieldset( wfMessage( $msgid )->text(), $preview . $form,
+			array( 'id' => ( $inline_reply ? 'wl-comment-form-reply' : 'wl-comment-form' ) ) ) . "\n";
 	}
 
 	protected function setCommentApproval( $comment, $approval ) {
@@ -596,17 +624,14 @@ class WikilogCommentsPage
 			$log->addEntry( 'c-approv', $title, '' );
 			$wgOut->redirect( $this->mTalkTitle->getFullUrl() );
 		} elseif ( $approval == 'reject' ) {
-			$reason = wfMsgExt( 'wikilog-log-cmt-rejdel',
-				array( 'content', 'parsemag' ),
-				$comment->mUserText
-			);
+			$reason = wfMessage( 'wikilog-log-cmt-rejdel', $comment->mUserText )->inContentLanguage()->text();
 			$id = $title->getArticleID( Title::GAID_FOR_UPDATE );
 			if ( $this->doDeleteArticle( $reason, false, $id ) ) {
 				$comment->deleteComment();
 				$log->addEntry( 'c-reject', $title, '' );
 				$wgOut->redirect( $this->mTalkTitle->getFullUrl() );
 			} else {
-				$wgOut->showFatalError( wfMsgExt( 'cannotdelete', array( 'parse' ) ) );
+				$wgOut->showFatalError( wfMessage( 'cannotdelete' )->parse() );
 				$wgOut->addHTML( Xml::element( 'h2', null, LogPage::logName( 'delete' ) ) );
 				LogEventsList::showLogExtract( $wgOut, 'delete', $this->mTitle->getPrefixedText() );
 			}
@@ -627,7 +652,7 @@ class WikilogCommentsPage
 				'ws_page' => $page_id,
 				'ws_user' => $wgUser->getID(),
 				'ws_yes'  => $subscribe,
-				'ws_date' => wfTimestamp( TS_MW ),
+				'ws_date' => $dbw->timestamp(),
 			), __METHOD__ );
 			return $subscribe;
 		}
@@ -668,14 +693,30 @@ class WikilogCommentsPage
 			$comment->mStatus = WikilogComment::S_PENDING;
 		}
 
-		if ( !$this->exists() ) {
-			# Initialize a blank talk page.
-			$user = User::newFromName( wfMsgForContent( 'wikilog-auto' ), false );
-			$this->doEdit(
-				wfMsgForContent( 'wikilog-newtalk-text' ),
-				wfMsgForContent( 'wikilog-newtalk-summary' ),
-				EDIT_NEW | EDIT_SUPPRESS_RC, false, $user
-			);
+		if ( !$this->mSubject->getArticleID() || !$this->exists() ) {
+			$user = User::newFromName( wfMessage( 'wikilog-auto' )->inContentLanguage()->text(), false );
+			if ( !$this->exists() ) {
+				// Initialize a blank talk page.
+				$this->doEdit(
+					wfMessage( 'wikilog-newtalk-text' )->inContentLanguage()->text(),
+					wfMessage( 'wikilog-newtalk-summary' )->inContentLanguage()->text(),
+					EDIT_NEW | EDIT_SUPPRESS_RC, false, $user
+				);
+			}
+			if ( !$this->mSubject->getArticleID() ) {
+				// Initialize a blank subject page.
+				$page = new WikiPage( $this->mSubject );
+				$page->doEdit(
+					wfMessage( 'wikilog-newtalk-text' )->inContentLanguage()->text(),
+					wfMessage( 'wikilog-newtalk-summary' )->inContentLanguage()->text(),
+					EDIT_NEW | EDIT_SUPPRESS_RC, false, $user
+				);
+				if ( $this->mSubjectUser ) {
+					// Add newly created user talk page to user's watchlist
+					$w = WatchedItem::fromUserTitle( $this->mSubjectUser, $this->mSubject );
+					$w->addWatch();
+				}
+			}
 		}
 
 		$comment->saveComment();

@@ -60,6 +60,7 @@ In order to publish articles and enable other wikilog features, it has to be cre
 	'wikilog-new-item' => 'Create new wikilog article',
 	'wikilog-new-item-go' => 'Create',
 	'wikilog-new-item-subpage' => 'Invalid item name entered, it must not be a subpage!',
+	'wikilog-new-item-too-long' => 'Invalid item name entered, it must be shoter!',
 	'wikilog-item-name' => 'Article name:',
 	'wikilog-import' => 'Import for Blogger.com blogs',
 	'wikilog-import-go' => 'Import',
@@ -126,7 +127,7 @@ Uncheck this box to keep the article as a draft.',
 	# Comments
 	'wikilog-comment-header' => '',
 	'wikilog-comment-footer' => '— $2 • $5 $6',
-	'wikilog-comment-permalink' => '{{#if:$3|$1 at $2 ($3)|<b>$1 at $2 ($3) [unread]</b>}}',
+	'wikilog-comment-permalink' => '{{#if:$4|$1 at $2 ($3)|<b>$1 at $2 ($3) [unread]</b>}}',
 	'wikilog-comment-note-item' => 'posted to $1',
 	'wikilog-comment-note-edited' => 'last edited on $1 at $2',
 	'wikilog-comment-anonsig' => '$3 (anonymous)',
@@ -163,6 +164,7 @@ From now, you will be notified about all comments by default. You won\'t receive
 
 From now, you will be notified only if subscribed explicitly or if you\'re the author of post or the comment being replied.',
 	'wikilog-subscribed-as-author' => '<p>You will receive all comments to this entry by e-mail, because you are the author.</p><hr />',
+	'wikilog-subscribed-usertalk' => '<p>You will receive all comments to this page by e-mail, because it is your user talk page.</p><hr />',
 
 	/* These messages are parsed inside the context of item page, so {{SUBPAGENAME}} refers to the item,
 	   and <a href=""> is a crunch to output links instead of just bold text. */
@@ -187,9 +189,9 @@ Available actions:
 * <html><a href="$3"></html>Read the post {{SUBPAGENAME}}<html></a></html>.
 * [[$1|Reply to this comment]] and/or read discussion thread.',
 	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Unsubscribe</a> from comments to $1.</p>',
-	'wikilog-ptswitsher-to-parent' => 'answer to $1 from $2 $3 at $4',
-	'wikilog-ptswitsher-to-comment' => 'To comment page',
-	'wikilog-ptswitsher-comment-label' => 'comment',
+	'wikilog-ptswitcher-to-parent' => 'reply to $1 from $2 $3 at $4',
+	'wikilog-ptswitcher-to-comment' => 'To comment page',
+	'wikilog-ptswitcher-comment-label' => 'comment',
 	'wikilog-ptswitcher-thread' => 'Thread view',
 	'wikilog-ptswitcher-list' => 'List view',
 
@@ -272,9 +274,9 @@ The comment will only appear after it is reviewed by a moderator.',
 	'wikilog-subscription-comments' => 'Subscriptions to comments:',
 	'wikilog-subscription-comments-empty' => '<strong>You are not subscribed to any comments</strong>',
 	'wikilog-subscription-subscribe' => 'You are not subscribed to blog $1 via email yet. To subscribe click "watch".',
-	'wikilog-subscription-unsubscribe' => 'You are already subscribed to blog $1 via email. To cancel subscribe click "unwatch".',
+	'wikilog-subscription-unsubscribe' => 'You are already subscribed to blog $1 via email. Click "unwatch" on the main page of the blog to cancel the subscription.',
 	'wikilog-subscription-subscribe-email' => 'You are not subscribed to blog $1 via email yet. To subscribe click "watch" at main page of blog.',
-	'wikilog-subscription-unsubscribe-email' => 'You are already subscribed to blog $1 via email. To cancel subscribe click "unwatch" at main page of blog.',
+	'wikilog-subscription-unsubscribe-email' => 'You are already subscribed to blog $1 via email. Click "unwatch" on the main page of the blog to cancel the subscription.',
 	'wikilog-subscription-item-unsubscribe' => 'Cancel subscription',
 	'wikilog-subscription-header-action' => 'Action',
 	'wikilog-subscription-header-comments' => 'Article/blog title you are subscribed to comments',
@@ -285,7 +287,7 @@ The comment will only appear after it is reviewed by a moderator.',
 	'wikilog-subscription-comment-unsubscribed-article' => 'Your subscription to the comments to article <strong>$1</strong> is canceled.',
 	'wikilog-subscription-comment-subscription' => 'You can subscribe to comments at discussion page: <a href="$1">$2</a>.',
 	'wikilog-subscription-return-link' => 'Subscription management page',
-	'wikilog-subscription-email-subject' => '[Wikilog] $2 - New article in blog $4',
+	'wikilog-subscription-email-subject' => '[Wikilog] $2 - New article in blog $4: $1',
 	'wikilog-subscription-email-body' =>
 'User [[{{ns:User}}:$2|$2]] published the article [$3 $1] in blog [[{{ns:Blog}}:$4]]:
 <hr/>
@@ -6615,6 +6617,7 @@ $messages['ru'] = array(
 	'wikilog-new-item' => 'Создать новую статью викилога',
 	'wikilog-new-item-go' => 'Создать',
 	'wikilog-new-item-subpage' => 'Название статьи викилога некорректно, оно не может содержать /!',
+	'wikilog-new-item-too-long' => 'Название статьи викилога слишком длинное!',
 	'wikilog-item-name' => 'Название статьи:',
 	'wikilog-import' => 'Импорт для блогов blogger.com',
 	'wikilog-import-go' => 'Импортировать',
@@ -6698,6 +6701,7 @@ $messages['ru'] = array(
 
 С текущего момента вы будете получать уведомления, только если явно подписывались на запись, или вы автор этой записи, или вы автор комментария, на который оставлен ответ.',
 	'wikilog-subscribed-as-author' => '<p>Вы будете получать все комментарии к этой записи по e-mail, потому что вы её автор.</p><hr />',
+	'wikilog-subscribed-usertalk' => '<p>Вы будете получать все комментарии к этой странице по e-mail, потому что это обсуждение вашей страницы участника.</p><hr />',
 
 	'wikilog-feed-description' => 'Читать последние сообщения на этом канале.',
 	'wikilog-comment-feed-title1' => 'Комментарии от $2 (#$1)',
@@ -6727,9 +6731,9 @@ $messages['ru'] = array(
 * <html><a href="$3"></html>Прочитать запись {{SUBPAGENAME}}<html></a></html>.
 * [[$1|Ответить на этот комментарий]] и/или просмотреть ветвь обсуждения.',
 	'wikilog-comment-email-unsubscribe' => '<p><a href="$2">Отписаться</a> от комментариев к записи $1.</p>',
-	'wikilog-ptswitsher-to-parent' => 'ответ на $1 от $2 $3 в $4',
-	'wikilog-ptswitsher-to-comment' => 'Перейти к комментарию',
-	'wikilog-ptswitsher-comment-label' => 'комментарий',
+	'wikilog-ptswitcher-to-parent' => 'ответ на $1 от $2 $3 в $4',
+	'wikilog-ptswitcher-to-comment' => 'Перейти к комментарию',
+	'wikilog-ptswitcher-comment-label' => 'комментарий',
 	'wikilog-ptswitcher-thread' => 'Иерархический вид',
 	'wikilog-ptswitcher-list' => 'Хронологический вид',
 
@@ -6810,7 +6814,7 @@ $messages['ru'] = array(
 	'wikilog-subscription-comment-unsubscribed-article' => 'Вы отменили e-mail подписку на комментарии к статье <strong>$1</strong>.',
 	'wikilog-subscription-comment-subscription' => 'Подписаться на комментарии можно на странице обсуждения: <a href="$1">$2</a>.',
 	'wikilog-subscription-return-link' => 'Управление e-mail подписками на блоги и комментарии',
-	'wikilog-subscription-email-subject' => '[Wikilog] $2 - Новая статья в блоге $4',
+	'wikilog-subscription-email-subject' => '[Wikilog] $2 - Новая статья в блоге $4: $1',
 	'wikilog-subscription-email-body' =>
 'Пользователь [[{{ns:User}}:$2|$2]] опубликовал статью [$3 $1] в блоге [[{{ns:Blog}}:$4]]:
 <hr/>

@@ -52,12 +52,6 @@ $wgTaggingEntity = false;
  */
 $wgWikilogStylePath = false;
 
-/**
- * Wikilog style version, incremented when $wgWikilogStylePath/wikilog.css
- * is changed.
- */
-$wgWikilogStyleVersion = 6;
-
 /* *** Presentation options *** */
 
 /**

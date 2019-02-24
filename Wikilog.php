@@ -35,8 +35,8 @@ if ( !defined( 'MEDIAWIKI' ) )
 $wgExtensionCredits['specialpage'][] = array(
 	'path'           => __FILE__,
 	'name'           => 'Wikilog',
-	'version'        => '1.2.0',
-	'author'         => 'Juliano F. Ravasi',
+	'version'        => '2.0.1',
+	'author'         => 'Juliano F. Ravasi, Vitaliy Filippov',
 	'descriptionmsg' => 'wikilog-desc',
 	'url'            => 'https://www.mediawiki.org/wiki/Extension:Wikilog',
 );
@@ -131,6 +131,13 @@ $wgSpecialPages['WikilogSubscriptions'] = 'SpecialWikilogSubscriptions';
 $wgSpecialPageGroups['Wikilog'] = 'changes';
 $wgSpecialPageGroups['WikilogComments'] = 'changes';
 
+$wgResourceModules['ext.wikilog'] = array(
+	'localBasePath' => __DIR__.'/style',
+	'remoteExtPath' => 'Wikilog/style',
+	'scripts' => array('wikilog.js'),
+	'styles' => array('wikilog.css'),
+);
+
 /**
  * Hooks.
  */
@@ -154,8 +161,7 @@ $wgAutoloadClasses['WikilogCalendar'] = $dir . 'WikilogCalendar.php';
 // General Wikilog hooks
 $wgHooks['ArticleEditUpdates'][] = 'WikilogHooks::ArticleEditUpdates';
 $wgHooks['ArticleDelete'][] = 'WikilogHooks::ArticleDelete';
-$wgHooks['ArticleSave'][] = 'WikilogHooks::ArticleSave';
-$wgHooks['ArticleSaveComplete'][] = 'SpecialWikilogSubscriptions::sendEmails';
+$wgHooks['PageContentSave'][] = 'WikilogHooks::ArticleSave';
 $wgHooks['TitleMoveComplete'][] = 'WikilogHooks::TitleMoveComplete';
 $wgHooks['EditPage::attemptSave'][] = 'WikilogHooks::EditPageAttemptSave';
 $wgHooks['EditPage::showEditForm:fields'][] = 'WikilogHooks::EditPageEditFormFields';
@@ -253,7 +259,7 @@ class Wikilog
 	 */
 	static function setupBlogNamespace( $ns ) {
 		global $wgExtensionMessagesFiles, $wgExtraNamespaces, $wgWikilogNamespaces,
-			$wgWikilogCommentNamespaces, $wgContentNamespaces;
+			$wgNamespaceAliases, $wgWikilogCommentNamespaces, $wgContentNamespaces, $wgLanguageCode;
 		if ( $ns < 100 ) {
 			echo "Wikilog setup: custom namespaces should start " .
 				 "at 100 to avoid conflict with standard namespaces.\n";
@@ -265,11 +271,11 @@ class Wikilog
 		if ( $wgWikilogCommentNamespaces !== true ) {
 			$wgWikilogCommentNamespaces[NS_BLOG_TALK] = true;
 		}
-		$wgExtraNamespaces[NS_BLOG] = 'Blog';
-		$wgExtraNamespaces[NS_BLOG_TALK] = 'Blog_talk';
 		$wgWikilogNamespaces[] = $ns;
 		$wgContentNamespaces[] = $ns;
-		$wgExtensionMessagesFiles[ 'WikilogNamespace' ] = dirname( __FILE__ ).'/Wikilog.i18n.ns.php';
+		require dirname( __FILE__ ).'/Wikilog.i18n.ns.php';
+		$wgExtraNamespaces += $namespaceNames[isset($namespaceNames[$wgLanguageCode]) ? $wgLanguageCode : 'en'];
+		$wgNamespaceAliases += array_flip($namespaceNames['en']);
 	}
 
 	# ##
@@ -325,15 +331,17 @@ class Wikilog
 	 * returns an instance of WikilogInfo) and returns the proper class
 	 * instance for the article.
 	 */
-	static function ArticleFromTitle( &$title, &$article ) {
+	static function ArticleFromTitle( $title, &$article ) {
 		if ( $title->isTalkPage() ) {
-			if ( self::nsHasComments( $title ) ) {
-				$article = new WikilogCommentsPage( $title );
-				return false;	// stop processing
+			$page = WikilogCommentsPage::createInstance( $title );
+			if ( $page ) {
+				$article = $page;
+				return false;
 			}
+			return true; // continue hook processing if createInstance returned NULL
 		} elseif ( ( $wi = self::getWikilogInfo( $title ) ) ) {
 			if ( $wi->isItem() ) {
-				$item = WikilogItem::newFromInfo( $wi );
+				$item = WikilogItem::newFromID( $title->getArticleID() );
 				$article = new WikilogItemPage( $title, $item );
 			} else {
 				$article = new WikilogMainPage( $title, $wi );
@@ -350,20 +358,20 @@ class Wikilog
 	 * (msg:noarticletext), since it gives wrong instructions to visitors.
 	 * The comment form is self-explaining enough.
 	 */
-	static function ArticleViewHeader( &$article, &$outputDone, &$pcache ) {
+	static function ArticleViewHeader( $article, &$outputDone, $pcache ) {
 		if ( $article instanceof WikilogCommentsPage && $article->getID() == 0 ) {
 			$outputDone = true;
 			return false;
 		}
 		return true;
 	}
+
 	/**
 	 * BeforePageDisplay hook handler function.
-	 * Adds wikilog CSS to pages displayed.
+	 * Adds wikilog CSS and JS to pages displayed.
 	 */
-	static function BeforePageDisplay( &$output, &$skin ) {
-		global $wgWikilogStylePath, $wgWikilogStyleVersion;
-		$output->addExtensionStyle( "{$wgWikilogStylePath}/wikilog.css?{$wgWikilogStyleVersion}" );
+	static function BeforePageDisplay( $output, $skin ) {
+		$output->addModules( 'ext.wikilog' );
 		return true;
 	}
 
@@ -372,11 +380,10 @@ class Wikilog
 	 * Links to threaded talk pages should be always "known" and
 	 * always edited normally, without adding the sections.
 	 */
-	static function LinkBegin( $skin, $target, &$text, &$attribs, &$query,
-			&$options, &$ret )
+	static function LinkBegin( $skin, $target, $text, $attribs, $query, &$options, &$ret )
 	{
 		if ( $target->isTalkPage() &&
-			( $i = array_search( 'broken', $options ) ) !== false ) {
+			( $i = array_search( 'broken', array_keys($options) ) ) !== false ) {
 			if ( self::nsHasComments( $target ) ) {
 				array_splice( $options, $i, 1 );
 				$options[] = 'known';
@@ -389,8 +396,7 @@ class Wikilog
 	 * SkinTemplateTabAction hook handler function.
 	 * Same as Wikilog::LinkBegin, but for the tab actions.
 	 */
-	static function SkinTemplateTabAction( &$skin, $title, $message, $selected,
-			$checkEdit, &$classes, &$query, &$text, &$result )
+	static function SkinTemplateTabAction( $skin, $title, $message, $selected, $checkEdit, &$classes, &$query, &$text, &$result )
 	{
 		if ( $checkEdit && $title->isTalkPage() && !$title->exists() ) {
 			if ( self::nsHasComments( $title ) ) {
@@ -431,14 +437,14 @@ class Wikilog
 	 * Helper function for SkinTemplateTabs and SkinTemplateNavigation hooks
 	 * to configure views links in wikilog pages.
 	 */
-	private static function skinConfigViewsLinks( WikilogInfo &$wi, $skin, &$views ) {
+	private static function skinConfigViewsLinks( WikilogInfo $wi, $skin, &$views ) {
 		global $wgRequest, $wgWikilogEnableComments;
 
 		$action = $wgRequest->getText( 'action' );
 		if ( $wi->isMain() && $skin->getTitle()->quickUserCan( 'edit' ) ) {
 			$views['wikilog'] = array(
 				'class' => ( $action == 'wikilog' ) ? 'selected' : false,
-				'text' => wfMsg( 'wikilog-tab' ),
+				'text' => wfMessage( 'wikilog-tab' )->text(),
 				'href' => $skin->getTitle()->getLocalUrl( 'action=wikilog' )
 			);
 		}
@@ -453,16 +459,16 @@ class Wikilog
 	 * SkinBuildSidebar hook handler function.
 	 * Adds support for "* wikilogcalendar" on MediaWiki:Sidebar
 	 */
-	static function SkinBuildSidebar($skin, &$bar)
+	static function SkinBuildSidebar( $skin, &$bar )
 	{
 		global $wgTitle, $wgRequest, $wgWikilogNumArticles;
-		if (array_key_exists('wikilogcalendar', $bar))
-		{
+		if ( array_key_exists( 'wikilogcalendar', $bar ) ) {
 			global $wlCalPager;
-			if (!$wlCalPager)
-				unset($bar['wikilogcalendar']);
-			else
+			if ( !$wlCalPager ) {
+				unset( $bar['wikilogcalendar'] );
+			} else {
 				$bar['wikilogcalendar'] = WikilogCalendar::sidebarCalendar($wlCalPager);
+			}
 		}
 		return true;
 	}
@@ -482,8 +488,9 @@ class Wikilog
 	static function getWikilogInfo( $title ) {
 		global $wgWikilogNamespaces;
 
-		if ( !$title )
+		if ( !$title ) {
 			return null;
+		}
 
 		$ns = MWNamespace::getSubject( $title->getNamespace() );
 		if ( in_array( $ns, $wgWikilogNamespaces ) ) {
@@ -528,28 +535,28 @@ class WikilogInfo
 	 */
 	function __construct( $title ) {
 		$origns = $title->getNamespace();
-		$this->mIsTalk = MWNamespace::isTalk( $origns );
-		$ns = MWNamespace::getSubject( $origns );
-		$tns = MWNamespace::getTalk( $origns );
+        $this->mIsTalk = MWNamespace::isTalk( $origns );
+        $ns = MWNamespace::getSubject( $origns );
+        $tns = MWNamespace::getTalk( $origns );
 
-		$parts = explode( '/', $title->getText() );
-		if ( count( $parts ) > 1 && ( $this->mIsTalk || count( $parts ) == 2 ) ) {
-			// If title contains a '/', treat as a wikilog article title.
-			$this->mWikilogName = array_shift( $parts );
-			$this->mItemName = array_shift( $parts );
-			$this->mTrailing = implode( '/', $parts );
-			$rawtitle = "{$this->mWikilogName}/{$this->mItemName}";
-			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
-			$this->mItemTitle = Title::makeTitle( $ns, $rawtitle );
-			$this->mItemTalkTitle = Title::makeTitle( $tns, $rawtitle );
-		} elseif ( count( $parts ) == 1 ) {
-			// Title doesn't contain a '/', treat as a wikilog name.
-			$this->mWikilogName = $title->getText();
-			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
-			$this->mItemName = null;
-			$this->mItemTitle = null;
-			$this->mItemTalkTitle = null;
-		}
+        $parts = explode( '/', $title->getText() );
+        if ( count( $parts ) > 1 && (strlen($parts[1]) > 2 || count( $parts ) > 2)) {
+            // If title contains a '/', treat as a wikilog article title.
+            $this->mWikilogName = array_shift( $parts );
+            $this->mItemName = array_shift( $parts );
+            $this->mTrailing = implode( '/', $parts );
+            $rawtitle = "{$this->mWikilogName}/{$this->mItemName}";
+            $this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
+            $this->mItemTitle = Title::makeTitle( $ns, $rawtitle );
+            $this->mItemTalkTitle = Title::makeTitle( $tns, $rawtitle );
+        } else {
+            // Title doesn't contain a '/', treat as a wikilog name.
+            $this->mWikilogName = $title->getText();
+            $this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
+            $this->mItemName = null;
+            $this->mItemTitle = null;
+            $this->mItemTalkTitle = null;
+        }
 	}
 
 	function isMain() { return $this->mItemTitle === null; }

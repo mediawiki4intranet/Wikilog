@@ -131,7 +131,7 @@ abstract class WikilogCommentPager
 	}
 
 	function getEmptyBody() {
-		return WikilogUtils::wrapDiv( 'wl-empty', wfMsgExt( 'wikilog-pager-empty', array( 'parsemag' ) ) );
+		return WikilogUtils::wrapDiv( 'wl-empty', wfMessage( 'wikilog-pager-empty' )->text() );
 	}
 
 	function getNavigationBar() {
@@ -313,7 +313,7 @@ class WikilogCommentThreadPager
 				$doReply = $this->mReplyTrigger && $comment->mID == $this->mReplyTrigger;
 				$html .= $this->mFormatter->formatComment( $comment, $doReply );
 				if ( $doReply && is_callable( $this->mReplyCallback ) ) {
-					if ( ( $res = call_user_func( $this->mReplyCallback, $comment ) ) ) {
+					if ( ( $res = call_user_func( $this->mReplyCallback, $comment, true ) ) ) {
 						$html .= WikilogUtils::wrapDiv( 'wl-indent', $res );
 					}
 				}

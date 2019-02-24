@@ -38,11 +38,10 @@ class WikilogHooks
 	 * ArticleEditUpdates hook handler function.
 	 * Performs post-edit updates if article is a wikilog article or a comment.
 	 */
-	static function ArticleEditUpdates( &$article, &$editInfo, $changed ) {
+	static function ArticleEditUpdates( $article, &$editInfo, $changed ) {
 		$title = $article->getTitle();
 		$wi = Wikilog::getWikilogInfo( $title );
 
-		$title = $article->getTitle();
 		if ( $title->isTalkPage() ) {
 			if ( Wikilog::nsHasComments( $title ) &&
 				!isset( WikilogComment::$saveInProgress[$title->getPrefixedText()] ) ) {
@@ -63,13 +62,21 @@ class WikilogHooks
 		}
 
 		# Do nothing if not a wikilog article.
-		if ( !$wi ) return true;
+		if ( !$wi ) {
+			return true;
+		}
 
 		if ( $wi->isItem() ) {
 			# ::WikilogItemPage::
 			$item = WikilogItem::newFromInfo( $wi );
 			if ( !$item ) {
 				$item = new WikilogItem();
+			}
+
+			if ( !$wi->getTitle()->getArticleID() ) {
+				// If the parent (blog) page is not created yet - create it automatically
+				$page = new WikiPage( $wi->getTitle() );
+				$page->doEdit( wfMessage( 'wikilog-newtalk-text' )->text(), wfMessage( 'wikilog-newtalk-summary' )->text(), EDIT_FORCE_BOT );
 			}
 
 			$item->mName = $wi->getItemName();
@@ -106,6 +113,8 @@ class WikilogHooks
 			if ( isset( $editInfo->output->mExtWikilog ) ) {
 				$output = $editInfo->output->mExtWikilog;
 
+				$wasPublished = $item->mPublish;
+
 				# Update entry in wikilog_posts table.
 				# Entries in wikilog_authors and wikilog_tags are updated
 				# during LinksUpdate process.
@@ -115,6 +124,15 @@ class WikilogHooks
 				$item->mAuthors = $output->mAuthors;
 				$item->mTags    = $output->mTags;
 				$item->saveData();
+
+				if ( !$wasPublished && $item->mPublish ) {
+				    global $wgEnableEmail;
+					// Send email notifications about the new post
+					if ( $wgEnableEmail ) {
+					    SpecialWikilogSubscriptions::sendEmails( $article,
+						    !empty( $editInfo->pstContent ) ? $editInfo->pstContent->getNativeData() : $article->getText() );
+					}
+				}
 			} else {
 				# Remove entry from tables. Entries in wikilog_authors and
 				# wikilog_tags are removed during LinksUpdate process.
@@ -218,27 +236,43 @@ class WikilogHooks
 
 	/**
 	 * ArticleSave hook handler function.
+	 *
 	 * Add article signature if user selected "sign and publish" option in
-	 * EditPage.
+	 * EditPage, or if there is ~~~~ in the text.
 	 */
-	static function ArticleSave( &$article, &$user, &$text, &$summary,
-			$minor, $watch, $sectionanchor, &$flags )
-	{
-		# $article->mExtWikilog piggybacked from WikilogHooks::EditPageAttemptSave().
-		if ( isset( $article->mExtWikilog ) && $article->mExtWikilog['signpub'] ) {
-			$t = WikilogUtils::getPublishParameters();
-			$txtDate = $t['date'];
-			$txtUser = $t['user'];
-			$text = rtrim( $text ) . "\n{{wl-publish: {$txtDate} | {$txtUser} }}\n";
-		}
-		return true;
-	}
+    static function ArticleSave( &$wikiPage, &$user, &$content, &$summary,
+                        $isMinor, $isWatch, $section, &$flags, &$status )
+        {
+                $t = WikilogUtils::getPublishParameters();
+                $txtDate = $t['date'];
+                $txtUser = $t['user'];
+                $text = ContentHandler::getContentText( $content );
+
+                // $article->mExtWikilog piggybacked from WikilogHooks::EditPageAttemptSave().
+                if ( isset( $wikiPage->mExtWikilog ) && $wikiPage->mExtWikilog['signpub'] ) {
+                        $text = rtrim( $text ) . "\n{{wl-publish: $txtDate | $txtUser }}\n";
+                } elseif ( Wikilog::getWikilogInfo( $wikiPage->getTitle() ) ) {
+                        global $wgParser;
+                        $sigs = array(
+                                '/\n?(--)?~~~~~\n?/m' => "\n{{wl-publish: $txtDate }}\n",
+                                '/\n?(--)?~~~~\n?/m' => "\n{{wl-publish: $txtDate | $txtUser }}\n",
+                                '/\n?(--)?~~~\n?/m' => "\n{{wl-author: $txtUser }}\n"
+                        );
+                        $wgParser->startExternalParse( $wikiPage->getTitle(), ParserOptions::newFromUser( $user ), Parser::OT_WIKI );
+                        $text = $wgParser->replaceVariables( $text );
+                        $text = preg_replace( array_keys( $sigs ), array_values( $sigs ), $text );
+                        $text = $wgParser->mStripState->unstripBoth( $text );
+                }
+                $content = new WikitextContent( $text );
+                return true;
+        }
+
 
 	/**
 	 * TitleMoveComplete hook handler function.
 	 * Handles moving articles to and from wikilog namespaces.
 	 */
-	static function TitleMoveComplete( &$oldtitle, &$newtitle, &$user, $pageid, $redirid ) {
+	static function TitleMoveComplete( $oldtitle, $newtitle, $user, $pageid, $redirid ) {
 		global $wgWikilogNamespaces;
 
 		# Check if it was or is now in a wikilog namespace.
@@ -290,22 +324,22 @@ class WikilogHooks
 	 * EditPage::showEditForm:fields hook handler function.
 	 * Adds wikilog article options to edit pages.
 	 */
-	static function EditPageEditFormFields( &$editpage, &$output ) {
+	static function EditPageEditFormFields( $editpage, $output ) {
 		$wi = Wikilog::getWikilogInfo( $editpage->mTitle );
 		if ( $wi && $wi->isItem() && !$wi->isTalk() ) {
 			global $wgUser, $wgWikilogSignAndPublishDefault;
 			$fields = array();
 			$item = WikilogItem::newFromInfo( $wi );
 
-			# [x] Sign and publish this wikilog article.
+			// [x] Sign and publish this wikilog article.
 			if ( !$item || !$item->getIsPublished() ) {
 				if ( isset( $editpage->wlSignpub ) ) {
 					$checked = $editpage->wlSignpub;
 				} else {
 					$checked = !$item && $wgWikilogSignAndPublishDefault;
 				}
-				$label = wfMsgExt( 'wikilog-edit-signpub', array( 'parseinline' ) );
-				$tooltip = wfMsgExt( 'wikilog-edit-signpub-tooltip', array( 'parseinline' ) );
+				$label = wfMessage( 'wikilog-edit-signpub' )->parse();
+				$tooltip = wfMessage( 'wikilog-edit-signpub-tooltip' )->parse();
 				$fields['wlSignpub'] =
 					Xml::check( 'wlSignpub', $checked, array(
 						'id' => 'wl-signpub',
@@ -319,7 +353,7 @@ class WikilogHooks
 
 			$fields = implode( $fields, "\n" );
 			$html = Xml::fieldset(
-				wfMsgExt( 'wikilog-edit-fieldset-legend', array( 'parseinline' ) ),
+				wfMessage( 'wikilog-edit-fieldset-legend' )->parse(),
 				$fields
 			);
 			$editpage->editFormTextAfterWarn .= $html;
@@ -348,9 +382,9 @@ class WikilogHooks
 			'signpub' => $editpage->wlSignpub
 		);
 
-		# Piggyback options into article object. Will be retrieved later
-		# in 'ArticleEditUpdates' hook.
-		$editpage->mArticle->mExtWikilog = $options;
+		// Piggyback options into article object. Will be retrieved later
+		// in 'ArticleEditUpdates' hook.
+		$editpage->mArticle->getPage()->mExtWikilog = $options;
 		return true;
 	}
 
@@ -361,8 +395,7 @@ class WikilogHooks
 	 * @todo Add support for PostgreSQL and SQLite databases.
 	 */
 	static function ExtensionSchemaUpdates( $updater ) {
-		global $wikilogRegenThreads;
-		$wikilogRegenThreads = new WikilogRegenThreads();
+		register_shutdown_function( 'WikilogRegenThreads::execute' );
 
 		$dir = dirname( __FILE__ ) . '/';
 
@@ -394,6 +427,9 @@ class WikilogHooks
 				$updater->addExtensionUpdate( array( 'addIndex', "wikilog_comments",
 					"wlc_timestamp", "{$dir}archives/patch-comments-indexes.sql", true ) );
 				$updater->addExtensionUpdate( array( 'WikilogHooks::createForeignKeys' ) );
+			} elseif ( $updater->getDB()->getType() == 'postgres' ) {
+				$updater->addExtensionUpdate( array( 'addTable', "wikilog_wikilogs",
+					"{$dir}wikilog-tables.pg.sql", true ) );
 			} else {
 				// TODO: PostgreSQL, SQLite, etc...
 				print "\n" .
@@ -498,10 +534,10 @@ class WikilogHooks
 }
 
 class WikilogRegenThreads {
-	function __destruct() {
+	static function execute() {
 		$dbw = wfGetDB( DB_MASTER );
 		if ( !$dbw->selectField( 'wikilog_comments', 'wlc_id',
-			array( 'wlc_thread=LPAD(wlc_id, 6, \'0\')' ), __METHOD__ ) ) {
+			array( 'wlc_thread=LPAD(CONCAT(wlc_id, \'\'), 6, \'0\')' ), __METHOD__ ) ) {
 			return;
 		}
 		print "Regenerating wlc_thread for Wikilog comments\n";
