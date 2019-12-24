@@ -535,28 +535,28 @@ class WikilogInfo
 	 */
 	function __construct( $title ) {
 		$origns = $title->getNamespace();
-        $this->mIsTalk = MWNamespace::isTalk( $origns );
-        $ns = MWNamespace::getSubject( $origns );
-        $tns = MWNamespace::getTalk( $origns );
+		$this->mIsTalk = MWNamespace::isTalk( $origns );
+		$ns = MWNamespace::getSubject( $origns );
+		$tns = MWNamespace::getTalk( $origns );
 
-        $parts = explode( '/', $title->getText() );
-        if ( count( $parts ) > 1 && (strlen($parts[1]) > 2 || count( $parts ) > 2)) {
-            // If title contains a '/', treat as a wikilog article title.
-            $this->mWikilogName = array_shift( $parts );
-            $this->mItemName = array_shift( $parts );
-            $this->mTrailing = implode( '/', $parts );
-            $rawtitle = "{$this->mWikilogName}/{$this->mItemName}";
-            $this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
-            $this->mItemTitle = Title::makeTitle( $ns, $rawtitle );
-            $this->mItemTalkTitle = Title::makeTitle( $tns, $rawtitle );
-        } else {
-            // Title doesn't contain a '/', treat as a wikilog name.
-            $this->mWikilogName = $title->getText();
-            $this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
-            $this->mItemName = null;
-            $this->mItemTitle = null;
-            $this->mItemTalkTitle = null;
-        }
+		$parts = explode( '/', $title->getText() );
+		if ( count( $parts ) > 1 && (strlen($parts[1]) > 2 || count( $parts ) > 2)) {
+			// If title contains a '/', treat as a wikilog article title.
+			$this->mWikilogName = array_shift( $parts );
+			$this->mItemName = array_shift( $parts );
+			$this->mTrailing = implode( '/', $parts );
+			$rawtitle = "{$this->mWikilogName}/{$this->mItemName}";
+			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
+			$this->mItemTitle = Title::makeTitle( $ns, $rawtitle );
+			$this->mItemTalkTitle = Title::makeTitle( $tns, $rawtitle );
+		} else {
+			// Title doesn't contain a '/', treat as a wikilog name.
+			$this->mWikilogName = $title->getText();
+			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
+			$this->mItemName = null;
+			$this->mItemTitle = null;
+			$this->mItemTalkTitle = null;
+		}
 	}
 
 	function isMain() { return $this->mItemTitle === null; }

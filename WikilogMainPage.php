@@ -62,24 +62,24 @@ class WikilogMainPage
 	public function view() {
 		global $wgRequest, $wgOut, $wgMimeType, $wgUser;
 
-        $queryTitle;
-        $parts = explode( '/', $this->mTitle->getText() );
-        if (count( $parts ) > 1) {
-            $origns = $this->mTitle->getNamespace();
-            $ns = MWNamespace::getSubject( $origns );
-            $queryTitle = Title::makeTitle( $ns, $parts[0] );
-        } else {
-            $queryTitle = $this->mTitle;
-        }
+		$queryTitle;
+		$parts = explode( '/', $this->mTitle->getText() );
+		if (count( $parts ) > 1) {
+			$origns = $this->mTitle->getNamespace();
+			$ns = MWNamespace::getSubject( $origns );
+			$queryTitle = Title::makeTitle( $ns, $parts[0] );
+		} else {
+			$queryTitle = $this->mTitle;
+		}
 
 		$query = new WikilogItemQuery( $queryTitle );
 		$query->setPubStatus( $wgRequest->getVal( 'show' ) );
 
-        if (count( $parts ) > 1) {
-            $query->setCategory('News/'.$parts[1]);
-        } else {
-            $query->setCategory('News');
-        }
+		if (count( $parts ) > 1) {
+			$query->setCategory('News/'.$parts[1]);
+		} else {
+			$query->setCategory('News');
+		}
 
 		# RSS or Atom feed requested. Ignore all other options.
 		if ( ( $feedFormat = $wgRequest->getVal( 'feed' ) ) ) {
