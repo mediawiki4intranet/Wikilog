@@ -507,9 +507,9 @@ class WikilogItemFeed
 
 		# Make titles.
 		$wikilogName = str_replace( '_', ' ', $row->wlw_title );
-		$wikilogTitle =& Title::makeTitle( $row->wlw_namespace, $row->wlw_title );
+		$wikilogTitle = Title::makeTitle( $row->wlw_namespace, $row->wlw_title );
 		$itemName = str_replace( '_', ' ', $row->wlp_title );
-		$itemTitle =& Title::makeTitle( $row->page_namespace, $row->page_title );
+		$itemTitle = Title::makeTitle( $row->page_namespace, $row->page_title );
 
 		# Retrieve article parser output
 		list( $article, $parserOutput ) = WikilogUtils::parsedArticle( $itemTitle, true );
