@@ -173,7 +173,7 @@ class WikilogComment
 	 * Load current revision of comment wikitext.
 	 */
 	public function loadText() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$rev = Revision::loadFromId( $dbr, $this->mCommentRev );
 		if ( $rev ) {
 			$this->mText = $rev->getText();
@@ -312,7 +312,7 @@ class WikilogComment
 			$args[5] = $this->mParentObj->mUserText;
 		}
 		// Get user IDs for notification
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$id = $this->mSubject->getArticleId();
 		$parent = Title::makeTitle( $this->mSubject->getNamespace(), $this->mSubject->getBaseText() );
 		$wlid = $parent->getArticleId();
@@ -637,7 +637,7 @@ class WikilogComment
 	 * @return New WikilogComment object, or NULL if comment doesn't exist.
 	 */
 	public static function newFromID( $id ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$row = self::loadFromID( $dbr, $id );
 		return self::newFromRow( $row );
 	}
@@ -649,7 +649,7 @@ class WikilogComment
 	 * @return New WikilogComment object, or NULL if comment doesn't exist.
 	 */
 	public static function newFromPageID( $pageid ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$row = self::loadFromPageID( $dbr, $pageid );
 		return self::newFromRow( $row );
 	}

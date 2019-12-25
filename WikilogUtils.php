@@ -551,7 +551,7 @@ class WikilogUtils {
 
 	public static function getOldestRevision( $articleId ) {
 		$row = NULL;
-		$db = wfGetDB( DB_SLAVE );
+		$db = wfGetDB( DB_REPLICA );
 		$revSelectFields = Revision::selectFields();
 		while ( !$row ) {
 			$row = $db->selectRow(

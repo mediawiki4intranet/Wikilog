@@ -233,7 +233,7 @@ class WikilogCommentThreadPager
 		$this->mQuery->setLimit( 'thread', $this->mLimit );
 
 		// Execute query
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$res = $this->mQuery->select( $dbr, array(), false );
 		$nchild = array();
 		$rows = array();
