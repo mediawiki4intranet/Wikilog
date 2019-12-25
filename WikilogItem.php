@@ -239,7 +239,7 @@ class WikilogItem
 
 		$langCode = $item->mTitle->getPageLanguage()->getCode();
 		if ( strlen($langCode) != 0 && strcmp($langCode, "en") !== 0 ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			$displayTitle = $dbr->selectField(
 				'page_props',
 				'pp_value',
