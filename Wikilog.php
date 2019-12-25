@@ -147,7 +147,7 @@ $wgExtensionFunctions[] = array( 'Wikilog', 'ExtensionInit' );
 $wgHooks['ArticleFromTitle'][] = 'Wikilog::ArticleFromTitle';
 $wgHooks['ArticleViewHeader'][] = 'Wikilog::ArticleViewHeader';
 $wgHooks['BeforePageDisplay'][] = 'Wikilog::BeforePageDisplay';
-$wgHooks['LinkBegin'][] = 'Wikilog::LinkBegin';
+$wgHooks['TitleIsAlwaysKnown'][] = 'Wikilog::TitleIsAlwaysKnown';
 $wgHooks['SkinTemplateTabAction'][] = 'Wikilog::SkinTemplateTabAction';
 $wgHooks['SkinTemplateTabs'][] = 'Wikilog::SkinTemplateTabs';
 $wgHooks['SkinTemplateNavigation'][] = 'Wikilog::SkinTemplateNavigation';
@@ -376,17 +376,15 @@ class Wikilog
 	}
 
 	/**
-	 * LinkBegin hook handler function:
+	 * TitleIsAlwaysKnown hook handler function:
 	 * Links to threaded talk pages should be always "known" and
 	 * always edited normally, without adding the sections.
 	 */
-	static function LinkBegin( $skin, $target, $text, $attribs, $query, &$options, &$ret )
+	static function TitleIsAlwaysKnown( $title, &$isKnown )
 	{
-		if ( $target->isTalkPage() &&
-			( $i = array_search( 'broken', $options ) ) !== false ) {
-			if ( self::nsHasComments( $target ) ) {
-				array_splice( $options, $i, 1 );
-				$options[] = 'known';
+		if ( $title->isTalkPage() && $isKnown) {
+			if ( self::nsHasComments( $title ) ) {
+				$isKnown = true;
 			}
 		}
 		return true;
@@ -394,7 +392,7 @@ class Wikilog
 
 	/**
 	 * SkinTemplateTabAction hook handler function.
-	 * Same as Wikilog::LinkBegin, but for the tab actions.
+	 * Same as Wikilog::TitleIsAlwaysKnown, but for the tab actions.
 	 */
 	static function SkinTemplateTabAction( $skin, $title, $message, $selected, $checkEdit, &$classes, &$query, &$text, &$result )
 	{
