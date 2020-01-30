@@ -119,12 +119,6 @@ $wgWikilogDefaultNotCategory = false;
  */
 $wgWikilogSearchDropdowns = true;
 
-/**
- * Show existing comments on each item page just below the post content
- * Turn off with 'false'
- */
-$wgWikilogCommentsOnItemPage = true;
-
 /* *** Editing *** */
 
 /**
@@ -176,11 +170,21 @@ $wgWikilogEnableComments = true;
 
 /**
  * Set to array(NS_TALK => true, NS_<something>_TALK => true)
- * to enable threaded Wikilog-style comments in these namespaces.
+ * to enable threaded Wikilog-style comments in these namespaces,
+ * in addition to blog namespace comments.
  *
  * Set to boolean 'true' to enable such comments in ALL Talk namespaces.
  */
 $wgWikilogCommentNamespaces = array();
+
+/**
+ * Show existing comments on each item page just below the post content
+ *
+ * Turn off with 'false'
+ * Enable in select namespaces with array(NS_... => true)
+ * Enable everywhere with 'true'
+ */
+$wgWikilogCommentsOnItemPage = array();
 
 /**
  * Maximum size for wikilog article comments, in bytes.

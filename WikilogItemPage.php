@@ -74,7 +74,7 @@ class WikilogItemPage
 	 * View page action handler.
 	 */
 	public function view() {
-		global $wgOut, $wgUser, $wgContLang, $wgFeed, $wgWikilogFeedClasses, $wgWikilogCommentsOnItemPage;
+		global $wgOut, $wgUser, $wgContLang, $wgFeed, $wgWikilogFeedClasses;
 
 		# Get skin
 		$skin = $this->getContext()->getSkin();
@@ -120,14 +120,6 @@ class WikilogItemPage
 						)->inContentLanguage()->text(),
 						'href' => $this->mItem->mParentTitle->getLocalUrl( "feed={$format}" )
 					) );
-				}
-			}
-
-			if ( $wgWikilogCommentsOnItemPage ) {
-				$talk = $this->getTitle()->getTalkPage();
-				$comments = WikilogCommentsPage::createInstance( $talk );
-				if ( $comments ) {
-					$comments->outputComments();
 				}
 			}
 

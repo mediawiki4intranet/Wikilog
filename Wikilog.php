@@ -146,6 +146,7 @@ $wgExtensionFunctions[] = array( 'Wikilog', 'ExtensionInit' );
 // Main Wikilog hooks
 $wgHooks['ArticleFromTitle'][] = 'Wikilog::ArticleFromTitle';
 $wgHooks['ArticleViewHeader'][] = 'Wikilog::ArticleViewHeader';
+$wgHooks['ArticleViewFooter'][] = 'Wikilog::ArticleViewFooter';
 $wgHooks['BeforePageDisplay'][] = 'Wikilog::BeforePageDisplay';
 $wgHooks['LinkBegin'][] = 'Wikilog::LinkBegin';
 $wgHooks['SkinTemplateTabAction'][] = 'Wikilog::SkinTemplateTabAction';
@@ -259,7 +260,8 @@ class Wikilog
 	 */
 	static function setupBlogNamespace( $ns ) {
 		global $wgExtensionMessagesFiles, $wgExtraNamespaces, $wgWikilogNamespaces,
-			$wgNamespaceAliases, $wgWikilogCommentNamespaces, $wgContentNamespaces, $wgLanguageCode;
+			$wgNamespaceAliases, $wgWikilogCommentNamespaces, $wgContentNamespaces, $wgLanguageCode,
+			$wgWikilogCommentsOnItemPage;
 		if ( $ns < 100 ) {
 			echo "Wikilog setup: custom namespaces should start " .
 				 "at 100 to avoid conflict with standard namespaces.\n";
@@ -270,6 +272,9 @@ class Wikilog
 		define( 'NS_BLOG_TALK', $ns+1 );
 		if ( $wgWikilogCommentNamespaces !== true ) {
 			$wgWikilogCommentNamespaces[NS_BLOG_TALK] = true;
+		}
+		if ( $wgWikilogCommentsOnItemPage !== true ) {
+			$wgWikilogCommentsOnItemPage[NS_BLOG] = true;
 		}
 		$wgWikilogNamespaces[] = $ns;
 		$wgContentNamespaces[] = $ns;
@@ -362,6 +367,22 @@ class Wikilog
 		if ( $article instanceof WikilogCommentsPage && $article->getID() == 0 ) {
 			$outputDone = true;
 			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * ArticleViewFooter hook handler function.
+	 * Shows comments after the text of regular pages.
+	 */
+	static function ArticleViewFooter( $article, $patrolFooterShown ) {
+		global $wgWikilogCommentsOnItemPage;
+		if ( $wgWikilogCommentsOnItemPage === true || isset( $wgWikilogCommentsOnItemPage[$article->getTitle()->getNamespace()] ) ) {
+			$talk = $article->getTitle()->getTalkPage();
+			$comments = WikilogCommentsPage::createInstance( $talk );
+			if ( $comments ) {
+				$comments->outputComments();
+			}
 		}
 		return true;
 	}
