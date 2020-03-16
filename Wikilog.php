@@ -162,7 +162,7 @@ $wgAutoloadClasses['WikilogCalendar'] = $dir . 'WikilogCalendar.php';
 // General Wikilog hooks
 $wgHooks['ArticleEditUpdates'][] = 'WikilogHooks::ArticleEditUpdates';
 $wgHooks['ArticleDelete'][] = 'WikilogHooks::ArticleDelete';
-$wgHooks['ArticleSave'][] = 'WikilogHooks::ArticleSave';
+$wgHooks['PageContentSave'][] = 'WikilogHooks::ArticleSave';
 $wgHooks['TitleMoveComplete'][] = 'WikilogHooks::TitleMoveComplete';
 $wgHooks['EditPage::attemptSave'][] = 'WikilogHooks::EditPageAttemptSave';
 $wgHooks['EditPage::showEditForm:fields'][] = 'WikilogHooks::EditPageEditFormFields';
@@ -346,7 +346,7 @@ class Wikilog
 			return true; // continue hook processing if createInstance returned NULL
 		} elseif ( ( $wi = self::getWikilogInfo( $title ) ) ) {
 			if ( $wi->isItem() ) {
-				$item = WikilogItem::newFromInfo( $wi );
+				$item = WikilogItem::newFromID( $title->getArticleID() );
 				$article = new WikilogItemPage( $title, $item );
 			} else {
 				$article = new WikilogMainPage( $title, $wi );
@@ -405,7 +405,7 @@ class Wikilog
 	static function LinkBegin( $skin, $target, $text, $attribs, $query, &$options, &$ret )
 	{
 		if ( $target->isTalkPage() &&
-			( $i = array_search( 'broken', $options ) ) !== false ) {
+			( $i = array_search( 'broken', array_keys($options) ) ) !== false ) {
 			if ( self::nsHasComments( $target ) ) {
 				array_splice( $options, $i, 1 );
 				$options[] = 'known';
@@ -557,28 +557,28 @@ class WikilogInfo
 	 */
 	function __construct( $title ) {
 		$origns = $title->getNamespace();
-		$this->mIsTalk = MWNamespace::isTalk( $origns );
-		$ns = MWNamespace::getSubject( $origns );
-		$tns = MWNamespace::getTalk( $origns );
+        $this->mIsTalk = MWNamespace::isTalk( $origns );
+        $ns = MWNamespace::getSubject( $origns );
+        $tns = MWNamespace::getTalk( $origns );
 
-		$parts = explode( '/', $title->getText() );
-		if ( count( $parts ) > 1 && ( $this->mIsTalk || count( $parts ) == 2 ) ) {
-			// If title contains a '/', treat as a wikilog article title.
-			$this->mWikilogName = array_shift( $parts );
-			$this->mItemName = array_shift( $parts );
-			$this->mTrailing = implode( '/', $parts );
-			$rawtitle = "{$this->mWikilogName}/{$this->mItemName}";
-			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
-			$this->mItemTitle = Title::makeTitle( $ns, $rawtitle );
-			$this->mItemTalkTitle = Title::makeTitle( $tns, $rawtitle );
-		} elseif ( count( $parts ) == 1 ) {
-			// Title doesn't contain a '/', treat as a wikilog name.
-			$this->mWikilogName = $title->getText();
-			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
-			$this->mItemName = null;
-			$this->mItemTitle = null;
-			$this->mItemTalkTitle = null;
-		}
+        $parts = explode( '/', $title->getText() );
+        if ( count( $parts ) > 1 && (strlen($parts[1]) > 2 || count( $parts ) > 2)) {
+            // If title contains a '/', treat as a wikilog article title.
+            $this->mWikilogName = array_shift( $parts );
+            $this->mItemName = array_shift( $parts );
+            $this->mTrailing = implode( '/', $parts );
+            $rawtitle = "{$this->mWikilogName}/{$this->mItemName}";
+            $this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
+            $this->mItemTitle = Title::makeTitle( $ns, $rawtitle );
+            $this->mItemTalkTitle = Title::makeTitle( $tns, $rawtitle );
+        } else {
+            // Title doesn't contain a '/', treat as a wikilog name.
+            $this->mWikilogName = $title->getText();
+            $this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
+            $this->mItemName = null;
+            $this->mItemTitle = null;
+            $this->mItemTalkTitle = null;
+        }
 	}
 
 	function isMain() { return $this->mItemTitle === null; }
