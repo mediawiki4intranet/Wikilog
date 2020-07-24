@@ -378,7 +378,8 @@ class Wikilog
 	static function ArticleViewFooter( $article, $patrolFooterShown ) {
 		global $wgWikilogCommentsOnItemPage;
 		$ns = $article->getTitle()->getNamespace();
-		if ( !MWNamespace::isTalk( $ns ) && ( $wgWikilogCommentsOnItemPage === true || isset( $wgWikilogCommentsOnItemPage[$ns] ) ) ) {
+		if ( !MWNamespace::isTalk( $ns ) && !( $article instanceof WikilogMainPage ) &&
+			( $wgWikilogCommentsOnItemPage === true || isset( $wgWikilogCommentsOnItemPage[$ns] ) ) ) {
 			$talk = $article->getTitle()->getTalkPage();
 			$comments = WikilogCommentsPage::createInstance( $talk );
 			if ( $comments ) {
