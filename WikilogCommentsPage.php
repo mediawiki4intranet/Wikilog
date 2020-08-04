@@ -435,7 +435,7 @@ class WikilogCommentsPage
 		if ( $this->includeSubpageComments() ) {
 			$msg = $one ? 'wikilog-do-unsubscribe-all' : 'wikilog-do-subscribe-all';
 		} elseif ( !$this->mSingleComment ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			// Is it the user talk page? If yes, he can't unsubscribe.
 			if ( $this->mSubject->getNamespace() == NS_USER &&
 				$this->mSubject->getText() == $wgUser->getName() ) {
@@ -491,7 +491,7 @@ class WikilogCommentsPage
 	 */
 	public function isSubscribed( $itemid ) {
 		global $wgUser;
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$r = $dbr->selectField( 'wikilog_subscriptions', 'ws_yes', array( 'ws_page' => $itemid, 'ws_user' => $wgUser->getID() ), __METHOD__ );
 		if ( $r === false ) {
 			$r = NULL;

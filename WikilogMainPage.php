@@ -199,7 +199,7 @@ class WikilogMainPage
 	 * Returns wikilog information as formatted HTML.
 	 */
 	protected function formatWikilogInformation( $skin ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
 		$row = $dbr->selectRow(
 			array( 'wikilog_posts', 'page' ),
@@ -268,7 +268,7 @@ class WikilogMainPage
 			) );
 		} else {
 			global $wgWikilogNamespaces;
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			$r = $dbr->select( 'page', 'page_id', array(
 				'page_namespace' => $wgWikilogNamespaces,
 				'page_title NOT LIKE \'%/%\'',
@@ -409,7 +409,7 @@ class WikilogMainPage
 	 */
 	private function loadWikilogData() {
 		if ( !$this->mWikilogDataLoaded ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			$data = $this->getWikilogDataFromId( $dbr, $this->getId() );
 			if ( $data ) {
 				$this->mWikilogSubtitle = unserialize( $data->wlw_subtitle );

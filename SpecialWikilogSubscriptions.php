@@ -52,7 +52,7 @@ class SpecialWikilogSubscriptions
         }
 
         $id = $wgUser->getId();
-        $dbr = wfGetDB( DB_SLAVE );
+        $dbr = wfGetDB( DB_REPLICA );
 
         $opts = array(
             'blogs' => array(),
@@ -322,7 +322,7 @@ END_STRING;
     public static function sendEmails( &$article, $text ) {
         global $wgUser, $wgPasswordSender, $wgServer, $wgContLang;
 
-        $dbr = wfGetDB( DB_SLAVE );
+        $dbr = wfGetDB( DB_REPLICA );
 
         $title = $article->getTitle();
         $wi = Wikilog::getWikilogInfo( $title );

@@ -83,7 +83,7 @@ abstract class WikilogFeed
 		$this->mFormat = $format;
 		$this->mQuery = $query;
 		$this->mLimit = $limit;
-		$this->mDb = wfGetDB( DB_SLAVE );
+		$this->mDb = wfGetDB( DB_REPLICA );
 		$this->mIndexField = $this->getIndexField();
 
 		# Retrieve copyright notice.

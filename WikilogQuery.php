@@ -756,7 +756,7 @@ class WikilogCommentQuery
 
 		# Sort order and limits
 		if ( $this->mSort == 'thread' ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			$first = $last = $back = false;
 			if ( $this->mNextCommentId ) {
 				// Backward navigation: next comment ID is set from the outside.

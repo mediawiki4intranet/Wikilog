@@ -548,7 +548,7 @@ class WikilogArchivesPager
 			$attribs['class'] = 'wl-draft';
 		}
 		if ( $wgUser->getID() ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_REPLICA );
 			$result = $dbr->select(
 				array( 'wikilog_comments', 'page_last_visit' ),
 				'COUNT(*)',

@@ -421,7 +421,7 @@ class SpecialWikilog
 	/* Get possible options for combo-boxes */
 	protected function getSelectOptions()
 	{
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 		$select_options = array();
 
 		/* Wikilogs */
@@ -494,7 +494,7 @@ class SpecialWikilog
 
 	/* Get possible Author options for combo-box */
 	protected function getAuthorOptions() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 	}
 
 	/**
