@@ -62,7 +62,7 @@ class WikilogParser
 	 * ParserFirstCallInit hook handler function.
 	 */
 	public static function FirstCallInit( $parser ) {
-		$mwSummary =& MagicWord::get( 'wlk-summary' );
+		$mwSummary = MagicWord::get( 'wlk-summary' );
 		foreach ( $mwSummary->getSynonyms() as $tagname ) {
 			$parser->setHook( $tagname, array( 'WikilogParser', 'summary' ) );
 		}
@@ -134,7 +134,7 @@ class WikilogParser
 		if ( $parser->mExtWikilogInfo && $parser->mExtWikilogInfo->isItem() ) {
 			static $moreRegex = false;
 			if ( $moreRegex === false ) {
-				$mwMore =& MagicWord::get( 'wlk-more' );
+				$mwMore = MagicWord::get( 'wlk-more' );
 				$words = $mwMore->getBaseRegex();
 				$flags = $mwMore->getRegexCase();
 				$moreRegex = "/(?<=^|\\n)--+ *(?:$words) *--+\s*/$flags";
@@ -207,7 +207,7 @@ class WikilogParser
 	 * Summary tag parser hook handler.
 	 */
 	public static function summary( $text, $params, $parser ) {
-		$mwHidden =& MagicWord::get( 'wlk-hidden' );
+		$mwHidden = MagicWord::get( 'wlk-hidden' );
 
 		# Remove extra space to make block rendering easier.
 		$text = trim( $text );
@@ -224,9 +224,9 @@ class WikilogParser
 		global $wgOut;
 		self::checkNamespace( $parser );
 
-		$mwIcon     =& MagicWord::get( 'wlk-icon' );
-		$mwLogo     =& MagicWord::get( 'wlk-logo' );
-		$mwSubtitle =& MagicWord::get( 'wlk-subtitle' );
+		$mwIcon     = MagicWord::get( 'wlk-icon' );
+		$mwLogo     = MagicWord::get( 'wlk-logo' );
+		$mwSubtitle = MagicWord::get( 'wlk-subtitle' );
 
 		$args = array_slice( func_get_args(), 1 );
 		foreach ( $args as $arg ) {
