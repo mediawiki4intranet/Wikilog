@@ -168,7 +168,7 @@ class WikilogImportDocumentation
 					$revision->getText(), 0, false, $this->mTimeStamp,
 					$this->mUser);
 
-				if ( WikiError::isError( $archive ) || !$archive->isGood() ) {
+				if ( !$archive->isGood() ) {
 					$this->output( " failed.\n" );
 					return false;
 				} else {

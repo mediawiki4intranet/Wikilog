@@ -430,7 +430,7 @@ class SpecialWikilog
 		$res = $query->select( $dbr,
 			array(), 'p.page_namespace, p.page_title',
 			array(), __FUNCTION__,
-			array('GROUP BY' => 'wlp_parent', 'ORDER BY' => 'w.page_title')
+			array('GROUP BY' => [ 'wlp_parent', 'p.page_namespace', 'p.page_title', 'w.page_title' ], 'ORDER BY' => 'w.page_title')
 		);
 		$values = array();
 		while( $row = $dbr->fetchRow( $res ) )

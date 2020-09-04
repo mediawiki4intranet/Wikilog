@@ -552,7 +552,7 @@ class WikilogArchivesPager
 			$result = $dbr->select(
 				array( 'wikilog_comments', 'page_last_visit' ),
 				'COUNT(*)',
-				array( 'wlc_status' => 'OK', 'IFNULL(wlc_updated>pv_date,1)', 'wlc_post' => $row->wlp_page ),
+				array( 'wlc_status' => 'OK', 'COALESCE(wlc_updated>pv_date,TRUE)', 'wlc_post' => $row->wlp_page ),
 				__METHOD__,
 				NULL,
 				array( 'page_last_visit' => array( 'LEFT JOIN', array( 'pv_page = wlc_comment_page', 'pv_user' => $wgUser->getID() ) ) )

@@ -408,7 +408,7 @@ class Wikilog
 		if ( $target->isTalkPage() &&
 			( $i = array_search( 'broken', $options ) ) !== false ) {
 			if ( self::nsHasComments( $target ) ) {
-				array_splice( $options, $i, 1 );
+				array_splice( $options, (int) $i, 1 );
 				$options[] = 'known';
 			}
 		}
