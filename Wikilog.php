@@ -162,7 +162,7 @@ $wgAutoloadClasses['WikilogCalendar'] = $dir . 'WikilogCalendar.php';
 // General Wikilog hooks
 $wgHooks['ArticleEditUpdates'][] = 'WikilogHooks::ArticleEditUpdates';
 $wgHooks['ArticleDelete'][] = 'WikilogHooks::ArticleDelete';
-$wgHooks['ArticleSave'][] = 'WikilogHooks::ArticleSave';
+$wgHooks['PageContentSave'][] = 'WikilogHooks::ArticleSave';
 $wgHooks['TitleMoveComplete'][] = 'WikilogHooks::TitleMoveComplete';
 $wgHooks['EditPage::attemptSave'][] = 'WikilogHooks::EditPageAttemptSave';
 $wgHooks['EditPage::showEditForm:fields'][] = 'WikilogHooks::EditPageEditFormFields';
@@ -406,7 +406,7 @@ class Wikilog
 	static function LinkBegin( $skin, $target, $text, $attribs, $query, &$options, &$ret )
 	{
 		if ( $target->isTalkPage() &&
-			( $i = array_search( 'broken', $options ) ) !== false ) {
+			( $i = array_search( 'broken', array_keys($options) ) ) !== false ) {
 			if ( self::nsHasComments( $target ) ) {
 				array_splice( $options, $i, 1 );
 				$options[] = 'known';
