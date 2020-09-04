@@ -62,17 +62,7 @@ class WikilogMainPage
 	public function view() {
 		global $wgRequest, $wgOut, $wgMimeType, $wgUser;
 
-		$queryTitle;
-		$parts = explode( '/', $this->mTitle->getText() );
-		if (count( $parts ) > 1) {
-			$origns = $this->mTitle->getNamespace();
-			$ns = MWNamespace::getSubject( $origns );
-			$queryTitle = Title::makeTitle( $ns, $parts[0] );
-		} else {
-			$queryTitle = $this->mTitle;
-		}
-
-		$query = new WikilogItemQuery( $queryTitle );
+		$query = new WikilogItemQuery( $this->mTitle );
 		$query->setPubStatus( $wgRequest->getVal( 'show' ) );
 
 		# RSS or Atom feed requested. Ignore all other options.

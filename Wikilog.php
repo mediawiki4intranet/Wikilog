@@ -341,7 +341,7 @@ class Wikilog
 			return true; // continue hook processing if createInstance returned NULL
 		} elseif ( ( $wi = self::getWikilogInfo( $title ) ) ) {
 			if ( $wi->isItem() ) {
-				$item = WikilogItem::newFromID( $title->getArticleID() );
+				$item = WikilogItem::newFromInfo( $wi );
 				$article = new WikilogItemPage( $title, $item );
 			} else {
 				$article = new WikilogMainPage( $title, $wi );
@@ -540,7 +540,7 @@ class WikilogInfo
 		$tns = MWNamespace::getTalk( $origns );
 
 		$parts = explode( '/', $title->getText() );
-		if ( count( $parts ) > 1 && (strlen($parts[1]) > 2 || count( $parts ) > 2)) {
+		if ( count( $parts ) > 1 && ( $this->mIsTalk || count( $parts ) == 2 ) ) {
 			// If title contains a '/', treat as a wikilog article title.
 			$this->mWikilogName = array_shift( $parts );
 			$this->mItemName = array_shift( $parts );
@@ -549,7 +549,7 @@ class WikilogInfo
 			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );
 			$this->mItemTitle = Title::makeTitle( $ns, $rawtitle );
 			$this->mItemTalkTitle = Title::makeTitle( $tns, $rawtitle );
-		} else {
+		} elseif ( count( $parts ) == 1 ) {
 			// Title doesn't contain a '/', treat as a wikilog name.
 			$this->mWikilogName = $title->getText();
 			$this->mWikilogTitle = Title::makeTitle( $ns, $this->mWikilogName );

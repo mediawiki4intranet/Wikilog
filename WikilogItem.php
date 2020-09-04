@@ -236,18 +236,6 @@ class WikilogItem
 		if ( !is_array( $item->mTags ) ) {
 			$item->mTags = array();
 		}
-
-		$langCode = $item->mTitle->getPageLanguage()->getCode();
-		if ( strlen($langCode) != 0 && strcmp($langCode, "en") !== 0 ) {
-			$dbr = wfGetDB( DB_REPLICA );
-			$displayTitle = $dbr->selectField(
-				'page_props',
-				'pp_value',
-				array( 'pp_propname' => 'displaytitle', 'pp_page' => $item->mID ),
-					__METHOD__
-				);
-			$item->mName = $displayTitle;
-		}
 		return $item;
 	}
 
