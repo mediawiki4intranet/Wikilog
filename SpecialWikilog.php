@@ -361,7 +361,7 @@ class SpecialWikilog
 	protected function getHeader( FormOptions $opts ) {
 		global $wgScript;
 
-		$out = Html::hidden( 'title', $this->getTitle()->getPrefixedText() );
+		$out = Html::hidden( 'title', $this->getPageTitle()->getPrefixedText() );
 
 		$out .= $this->getQueryForm( $opts );
 

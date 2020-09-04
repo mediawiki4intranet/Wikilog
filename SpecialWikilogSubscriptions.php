@@ -324,7 +324,7 @@ END_STRING;
 
         $dbr = wfGetDB( DB_SLAVE );
 
-        $title = $article->getTitle();
+        $title = $article->getPageTitle();
         $wi = Wikilog::getWikilogInfo( $title );
         $args = array(
             $title->getSubpageText(),
