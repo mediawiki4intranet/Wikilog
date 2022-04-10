@@ -126,9 +126,12 @@ class WikilogHooks
 				$item->saveData();
 
 				if ( !$wasPublished && $item->mPublish ) {
+				    global $wgEnableEmail;
 					// Send email notifications about the new post
-					SpecialWikilogSubscriptions::sendEmails( $article,
-						!empty( $editInfo->pstContent ) ? $editInfo->pstContent->getNativeData() : $article->getText() );
+					if ( $wgEnableEmail ) {
+					    SpecialWikilogSubscriptions::sendEmails( $article,
+						    !empty( $editInfo->pstContent ) ? $editInfo->pstContent->getNativeData() : $article->getText() );
+					}
 				}
 			} else {
 				# Remove entry from tables. Entries in wikilog_authors and
@@ -237,29 +240,33 @@ class WikilogHooks
 	 * Add article signature if user selected "sign and publish" option in
 	 * EditPage, or if there is ~~~~ in the text.
 	 */
-	static function ArticleSave( $article, $user, &$text, &$summary,
-			$minor, $watch, $sectionanchor, &$flags )
-	{
-		$t = WikilogUtils::getPublishParameters();
-		$txtDate = $t['date'];
-		$txtUser = $t['user'];
-		// $article->mExtWikilog piggybacked from WikilogHooks::EditPageAttemptSave().
-		if ( isset( $article->mExtWikilog ) && $article->mExtWikilog['signpub'] ) {
-			$text = rtrim( $text ) . "\n{{wl-publish: $txtDate | $txtUser }}\n";
-		} elseif ( Wikilog::getWikilogInfo( $article->getTitle() ) ) {
-			global $wgParser;
-			$sigs = array(
-				'/\n?(--)?~~~~~\n?/m' => "\n{{wl-publish: $txtDate }}\n",
-				'/\n?(--)?~~~~\n?/m' => "\n{{wl-publish: $txtDate | $txtUser }}\n",
-				'/\n?(--)?~~~\n?/m' => "\n{{wl-author: $txtUser }}\n"
-			);
-			$wgParser->startExternalParse( $article->getTitle(), ParserOptions::newFromUser( $user ), Parser::OT_WIKI );
-			$text = $wgParser->replaceVariables( $text );
-			$text = preg_replace( array_keys( $sigs ), array_values( $sigs ), $text );
-			$text = $wgParser->mStripState->unstripBoth( $text );
-		}
-		return true;
-	}
+    static function ArticleSave( &$wikiPage, &$user, &$content, &$summary,
+                        $isMinor, $isWatch, $section, &$flags, &$status )
+        {
+                $t = WikilogUtils::getPublishParameters();
+                $txtDate = $t['date'];
+                $txtUser = $t['user'];
+                $text = ContentHandler::getContentText( $content );
+
+                // $article->mExtWikilog piggybacked from WikilogHooks::EditPageAttemptSave().
+                if ( isset( $wikiPage->mExtWikilog ) && $wikiPage->mExtWikilog['signpub'] ) {
+                        $text = rtrim( $text ) . "\n{{wl-publish: $txtDate | $txtUser }}\n";
+                } elseif ( Wikilog::getWikilogInfo( $wikiPage->getTitle() ) ) {
+                        global $wgParser;
+                        $sigs = array(
+                                '/\n?(--)?~~~~~\n?/m' => "\n{{wl-publish: $txtDate }}\n",
+                                '/\n?(--)?~~~~\n?/m' => "\n{{wl-publish: $txtDate | $txtUser }}\n",
+                                '/\n?(--)?~~~\n?/m' => "\n{{wl-author: $txtUser }}\n"
+                        );
+                        $wgParser->startExternalParse( $wikiPage->getTitle(), ParserOptions::newFromUser( $user ), Parser::OT_WIKI );
+                        $text = $wgParser->replaceVariables( $text );
+                        $text = preg_replace( array_keys( $sigs ), array_values( $sigs ), $text );
+                        $text = $wgParser->mStripState->unstripBoth( $text );
+                }
+                $content = new WikitextContent( $text );
+                return true;
+        }
+
 
 	/**
 	 * TitleMoveComplete hook handler function.
@@ -377,7 +384,7 @@ class WikilogHooks
 
 		// Piggyback options into article object. Will be retrieved later
 		// in 'ArticleEditUpdates' hook.
-		$editpage->mArticle->mExtWikilog = $options;
+		$editpage->mArticle->getPage()->mExtWikilog = $options;
 		return true;
 	}
 

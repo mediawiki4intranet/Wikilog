@@ -192,9 +192,9 @@ class WikilogSummaryPager
 		$heading = Linker::link( $item->mTitle, $titleText, array(), array(),
 			array( 'known', 'noclasses' )
 		);
-		if ( $this->mShowEditLink && $item->mTitle->quickUserCan( 'edit' ) ) {
-			$heading = $this->doEditLink( $item->mTitle, $item->mName ) . $heading;
-		}
+		//if ( $this->mShowEditLink && $item->mTitle->quickUserCan( 'edit' ) ) {
+		//	$heading = $this->doEditLink( $item->mTitle, $item->mName ) . $heading;
+		//}
 		$heading = Xml::tags( 'h2', null, $heading );
 
 		# Sumary entry header.
