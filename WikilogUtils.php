@@ -102,9 +102,10 @@ class WikilogUtils {
         $userTs = $lang->userAdjust( $ts );
 
         $df = $format ?: $lang->dateFormat( true );
-        $date = $lang->userDate( $ts, RequestContext::getMain()->getUser() );
-        $time = $lang->userTime( $ts, RequestContext::getMain()->getUser() );
-        $tz = MediaWikiServices::getInstance()->getContentLanguage()->getTimezoneName( $ts );
+        $user = RequestContext::getMain()->getUser();
+        $date = $lang->userDate( $ts, $user );
+        $time = $lang->userTime( $ts, $user );
+        $tz = MediaWikiServices::getInstance()->getLanguageTimeUtils()->getTimezoneName( $user, $ts );
 
         return [ $date, $time, $tz ];
     }
