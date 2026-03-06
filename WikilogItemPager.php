@@ -110,7 +110,7 @@ class WikilogSummaryPager
 		# We will need a clean parser if not including.
 			$parser->startExternalParse( $wgTitle, $popt, Parser::OT_HTML );
 		}
-		$this->mShowEditLink = !$popt->getInterfaceMessage() && $this->getContext()->getUser()->getBoolOption( 'editsection' );
+		$this->mShowEditLink = !$popt->getInterfaceMessage() && $this->getContext()->getUser()->getOptions()->getBool( 'editsection' );
 	}
 
 	/**
