@@ -84,9 +84,14 @@ class WikilogSummaryPager
 		if ( $limit ) {
 			$this->mLimit = $limit;
 		} else {
-			list( $this->mLimit, /* $offset */ ) =
-				$this->mRequest->getLimitOffset( $wgWikilogNumArticles, '' );
-		}
+
+            $limitOffset = $this->getContext()->getConfig()->get( 'WikilogNumArticles' ); // или используйте глобальную переменную напрямую
+            $this->mLimit = $this->mRequest->getInt( 'limit', $this->mDefaultLimit );
+            if ( $this->mLimit <= 0 ) {
+                $this->mLimit = $this->mDefaultLimit;
+            }
+
+        }
 
 		# This is too expensive, limit listing.
 		global $wgWikilogExpensiveLimit;
