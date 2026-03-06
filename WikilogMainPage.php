@@ -66,7 +66,7 @@ class WikilogMainPage
 	public function view() {
 		global $wgRequest, $wgOut, $wgMimeType, $wgUser;
 
-		$query = new WikilogItemQuery( $this->mTitle );
+		$query = new WikilogItemQuery( $this->getTitle() );
 		$query->setPubStatus( $wgRequest->getVal( 'show' ) );
 
 		# RSS or Atom feed requested. Ignore all other options.
@@ -153,15 +153,15 @@ class WikilogMainPage
 		$wgOut->setPageTitle( wfMessage( 'wikilog-tab-title' )->text() );
 		$wgOut->setRobotpolicy( 'noindex,nofollow' );
 
-		if ( $this->mTitle->exists() ) {
+		if ( $this->getTitle()->exists() ) {
 			$skin = $this->getContext()->getSkin();
 			$wgOut->addHTML( $this->formatWikilogDescription( $skin ) );
 			$wgOut->addHTML( $this->formatWikilogInformation( $skin ) );
-			if ( $this->mTitle->quickUserCan( 'edit' ) ) {
-				$wgOut->addHTML( self::formNewItem( $this->mTitle ) );
+			if ( $this->getTitle()->quickUserCan( 'edit' ) ) {
+				$wgOut->addHTML( self::formNewItem( $this->getTitle() ) );
 				$wgOut->addHTML( $this->formImport() );
 			}
-		} elseif ( $this->mTitle->userCan( 'create' ) ) {
+		} elseif ( $this->getTitle()->userCan( 'create' ) ) {
 			$text = wfMessage( 'wikilog-missing-wikilog' )->parse();
 			$text = WikilogUtils::wrapDiv( 'noarticletext', $text );
 			$wgOut->addHTML( $text );
@@ -186,7 +186,7 @@ class WikilogMainPage
 			);
 		}
 		$s .= Html::rawElement( 'div', array( 'class' => 'wl-title' ),
-			Linker::link( $this->mTitle, null, array(), array(), array( 'known', 'noclasses' ) ) );
+			Linker::link( $this->getTitle(), null, array(), array(), array( 'known', 'noclasses' ) ) );
 
 		$st =& $this->mWikilogSubtitle;
 		if ( is_array( $st ) ) {
@@ -235,7 +235,7 @@ class WikilogMainPage
 		global $wgWikilogFeedClasses;
 
 		// Uses messages 'wikilog-post-count-published', 'wikilog-post-count-drafts', 'wikilog-post-count-all'
-		$s = Linker::link( $this->mTitle,
+		$s = Linker::link( $this->getTitle(),
 			wfMessage( "wikilog-post-count-{$type}", $num )->text(),
 			array(),
 			array( 'view' => "archives", 'show' => $type ),
@@ -244,7 +244,7 @@ class WikilogMainPage
 		if ( !empty( $wgWikilogFeedClasses ) ) {
 			$f = array();
 			foreach ( $wgWikilogFeedClasses as $format => $class ) {
-				$f[] = Linker::link( $this->mTitle,
+				$f[] = Linker::link( $this->getTitle(),
 					wfMessage( "feed-{$format}" )->text(),
 					array( 'class' => "feedlink", 'type' => "application/{$format}+xml" ),
 					array( 'view' => "archives", 'show' => $type, 'feed' => $format ),
@@ -329,7 +329,7 @@ class WikilogMainPage
 		global $wgScript;
 
 		$fields = array();
-		$fields[] = Html::hidden( 'title', $this->mTitle->getPrefixedText() );
+		$fields[] = Html::hidden( 'title', $this->getTitle()->getPrefixedText() );
 		$fields[] = Html::hidden( 'action', 'wikilog' );
 		$fields[] = Html::hidden( 'wikilog-import', 'blogger' );
 		$fields[] = Html::label( wfMessage( 'wikilog-import-file' )->text(), 'wl-import-file' ) .
