@@ -123,7 +123,11 @@ class WikilogUtils {
     public static function parsedArticle( Title $title, $useParserCache = false ) {
         $wikipage = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $title );
         $popts = $wikipage->makeParserOptions( RequestContext::getMain() );
-        $popts->setUseParserCache( $useParserCache );
+        if ( method_exists( $popts, 'setUseParserCache' ) ) {
+            $popts->setUseParserCache( $useParserCache );
+        } elseif ( method_exists( $popts, 'setCacheEnabled' ) ) {
+            $popts->setCacheEnabled( $useParserCache );
+        }
         $parserOutput = $wikipage->getParserOutput( $popts );
         if ( $parserOutput === null ) {
             $parserOutput = new ParserOutput();
