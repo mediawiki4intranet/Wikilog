@@ -555,7 +555,7 @@ class WikilogCommentsPage
 			$message = wfMessage( 'wikilog-posting-anonymously', $loginLink )->text();
 			$fields[] = array(
 				Html::label( wfMessage( 'wikilog-form-name' )->text(), 'wl-name' ),
-				Html::input( 'wlAnonName', $opts->consumeValue( 'wlAnonName' ), 'text',
+				Html::input( 'wlAnonName', $opts['wlAnonName'], 'text',
 					array( 'id' => 'wl-name', 'maxlength' => 255, 'size' => 25 ) ) .
 					"<p>{$message}</p>"
 			);
