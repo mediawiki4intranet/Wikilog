@@ -1,0 +1,60 @@
+{
+	"manifest_version": 2,
+	"name": "Wikilog",
+	"version": "2.0.0",
+	"author": "Juliano F. Ravasi",
+	"descriptionmsg": "wikilog-desc",
+	"type": "other",
+	"requires": {
+		"MediaWiki": ">= 1.44.0"
+	},
+    "AutoloadClasses": {
+        "Wikilog": "Wikilog.php",
+        "WikilogParser": "WikilogParser.php",
+        "WikilogParserOutput": "WikilogParser.php",
+        "WikilogCustomAction": "WikilogCustomAction.php",
+        "WikilogInfo": "WikilogInfo.php",
+        "WikilogItem": "WikilogItem.php",
+        "WikilogUtils": "WikilogUtils.php",
+        "WikilogNavbar": "WikilogUtils.php",
+        "PageLastVisitUpdater": "WikilogUtils.php",
+        "WikilogComment": "WikilogComment.php",
+        "WikilogCommentFormatter": "WikilogComment.php",
+        "WikilogCommentsPage": "WikilogCommentsPage.php",
+        "SpecialWikilogComments": "WikilogCommentsPage.php",
+        "WikilogMainPage": "WikilogMainPage.php",
+        "WikilogItemPage": "WikilogItemPage.php",
+        "WikilogWikiItemPage": "WikilogItemPage.php",
+        "WikilogQuery": "WikilogQuery.php",
+        "WikilogItemQuery": "WikilogQuery.php",
+        "WikilogCommentQuery": "WikilogQuery.php",
+        "WikilogSummaryPager": "WikilogItemPager.php",
+        "WikilogArchivesPager": "WikilogItemPager.php",
+        "WikilogTemplatePager": "WikilogItemPager.php",
+        "WikilogCommentPager": "WikilogCommentPager.php",
+        "WikilogCommentListPager": "WikilogCommentPager.php",
+        "WikilogCommentThreadPager": "WikilogCommentPager.php",
+        "SpecialWikilogSubscriptions": "SpecialWikilogSubscriptions.php",
+        "SpecialWikilog": "SpecialWikilog.php",
+        "WikilogCommentPagerSwitcher": "WikilogCommentPagerSwitcher.php",
+        "WlCaptcha": "WlCaptchaAdapter.php",
+        "WlCaptchaAdapter": "WlCaptchaAdapter.php"
+    }
+    ,
+	"ExtensionMessagesFiles": {
+		"WikilogMagic": "Wikilog.i18n.magic.php"
+	},
+	"ResourceModules": {
+		"ext.wikilog": {
+			"styles": "style/wikilog.css",
+			"scripts": "style/wikilog.js",
+			"targets": [ "desktop", "mobile" ]
+		}
+	},
+	"Hooks": {
+		"ArticleFromTitle": "Wikilog::ArticleFromTitle",
+		"ParserFirstCallInit": "WikilogParser::FirstCallInit",
+		"ArticleEditUpdates": "WikilogHooks::ArticleEditUpdates",
+		"EntitySchema": "WikilogHooks::ExtensionSchemaUpdates"
+	}
+}

@@ -281,13 +281,13 @@ END_STRING;
      */
     public static function generateSubscriptionLink( $title, $subscribed = null, $forEmail = false, $lang = NULL ) {
         global $wgUser, $wgLang;
-        if ( $wgUser->isAnon() ) {
+        if ( !$title || $wgUser->isAnon() ) {
             return '';
         }
-
         $prefix = '';
         if ( $subscribed === null ) {
-            $subscribed = $wgUser->isWatched( $title );
+            $watchlistManager = \MediaWiki\MediaWikiServices::getInstance()->getWatchlistManager();
+            $subscribed = $watchlistManager->isWatched( $wgUser, $title );
         }
 
         $query = array(
