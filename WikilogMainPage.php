@@ -73,7 +73,7 @@ class WikilogMainPage
 		# RSS or Atom feed requested. Ignore all other options.
 		if ( ( $feedFormat = $wgRequest->getVal( 'feed' ) ) ) {
 			global $wgWikilogNumArticles;
-			$feed = new WikilogItemFeed( $this->mTitle, $feedFormat, $query,
+			$feed = new WikilogItemFeed( $this->getTitle(), $feedFormat, $query,
 				$wgRequest->getInt( 'limit', $wgWikilogNumArticles ) );
 			return $feed->execute();
 		}
@@ -115,7 +115,7 @@ class WikilogMainPage
 		$body .= $pager->getNavigationBar();
 		$wgOut->addHTML( Html::openElement( 'div', array( 'class' => 'wl-wrapper' ) ) );
 		$wgOut->addHTML( $body );
-		$wgOut->addHTML( Html::closeElement( 'div' ) ) );
+		$wgOut->addHTML( Html::closeElement( 'div' ) );
 
 		# Get query parameter array, for the following links.
 		$qarr = $query->getDefaultQuery();

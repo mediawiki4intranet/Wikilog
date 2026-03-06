@@ -50,7 +50,7 @@ class HtmlToMediaWiki
     static function checkHref($e)
     {
         $h = $e->getAttribute('href');
-        return strlen($h) && $h{0} != '#';
+        return strlen($h) && $h[0] != '#';
     }
 
     static function loadDOM($html)
