@@ -199,7 +199,8 @@ class WikilogSummaryPager
 		$heading = Linker::link( $item->mTitle, $titleText, array(), array(),
 			array( 'known', 'noclasses' )
 		);
-		if ( $this->mShowEditLink && $item->mTitle->quickUserCan( 'edit' ) ) {
+		$permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
+		if ( $this->mShowEditLink && $permissionManager->quickUserCan( 'edit', $this->getContext()->getUser(), $item->mTitle ) ) {
 			$heading = $this->doEditLink( $item->mTitle, $item->mName ) . $heading;
 		}
 		$heading = Html::rawElement( 'h2', null, $heading );
@@ -635,7 +636,8 @@ class WikilogArchivesPager
 					array( 'known', 'noclasses' ) );
 
 			case '_wl_actions':
-				if ( $this->mCurrentItem->mTitle->quickUserCan( 'edit' ) ) {
+				$permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
+				if ( $permissionManager->quickUserCan( 'edit', $this->getContext()->getUser(), $this->mCurrentItem->mTitle ) ) {
 					return $this->doEditLink( $this->mCurrentItem->mTitle, $this->mCurrentItem->mName );
 				} else {
 					return '';

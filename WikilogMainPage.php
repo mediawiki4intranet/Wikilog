@@ -30,6 +30,7 @@ use MediaWiki\Linker\Linker;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use MediaWiki\Html\Html;
+use RequestContext;
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
@@ -154,15 +155,16 @@ class WikilogMainPage
 		$wgOut->setPageTitle( wfMessage( 'wikilog-tab-title' )->text() );
 		$wgOut->setRobotpolicy( 'noindex,nofollow' );
 
+		$permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
 		if ( $this->getTitle()->exists() ) {
 			$skin = $this->getContext()->getSkin();
 			$wgOut->addHTML( $this->formatWikilogDescription( $skin ) );
 			$wgOut->addHTML( $this->formatWikilogInformation( $skin ) );
-			if ( $this->getTitle()->quickUserCan( 'edit' ) ) {
+			if ( $permissionManager->quickUserCan( 'edit', $this->getUser(), $this->getTitle() ) ) {
 				$wgOut->addHTML( self::formNewItem( $this->getTitle() ) );
 				$wgOut->addHTML( $this->formImport() );
 			}
-		} elseif ( $this->getTitle()->userCan( 'create' ) ) {
+		} elseif ( $permissionManager->userCan( 'create', $this->getUser(), $this->getTitle() ) ) {
 			$text = wfMessage( 'wikilog-missing-wikilog' )->parse();
 			$text = WikilogUtils::wrapDiv( 'noarticletext', $text );
 			$wgOut->addHTML( $text );
@@ -280,9 +282,11 @@ class WikilogMainPage
 				'page_title NOT LIKE \'%/%\'',
 			), __METHOD__ );
 			$opts = array();
+			$permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
+			$user = RequestContext::getMain()->getUser();
 			foreach ( $r as $obj ) {
 				$t = Title::newFromID( $obj->page_id );
-				if ( $t->userCan( 'edit' ) ) {
+				if ( $permissionManager->userCan( 'edit', $user, $t ) ) {
 					$opts[] = $t;
 				}
 			}

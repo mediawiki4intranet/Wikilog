@@ -1121,7 +1121,8 @@ class WikilogCommentFormatter
 				'known'
 			);
 			// TODO: batch checking of page restrictions
-			if ( $comment->mCommentTitle->quickUserCan( 'edit' ) ) {
+			$permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
+			if ( $permissionManager->quickUserCan( 'edit', $wgUser, $comment->mCommentTitle ) ) {
 				$tools['edit'] = Linker::link( $comment->mCommentTitle,
 					wfMessage( 'wikilog-edit-lc' )->text(),
 					array( 'title' => wfMessage( 'wikilog-comment-edit' )->text() ),
@@ -1129,7 +1130,7 @@ class WikilogCommentFormatter
 					'known'
 				);
 			}
-			if ( $comment->mCommentTitle->quickUserCan( 'delete' ) ) {
+			if ( $permissionManager->quickUserCan( 'delete', $wgUser, $comment->mCommentTitle ) ) {
 				$tools['delete'] = Linker::link( $comment->mCommentTitle,
 					wfMessage( 'wikilog-delete-lc' )->text(),
 					array( 'title' => wfMessage( 'wikilog-comment-delete' )->text() ),

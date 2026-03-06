@@ -178,7 +178,8 @@ class SpecialWikilogSubscriptions
         $id = $wgRequest->getVal( 'subscribe_to' );
 
         $title = Title::newFromID( $id );
-        if ( !$title || !$title->userCan( 'read' ) ) {
+        $permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
+        if ( !$title || !$permissionManager->userCan( 'read', $this->getUser(), $title ) ) {
             return $this->errorPage( 'wikilog-subscription-access-denied' );
         }
 
