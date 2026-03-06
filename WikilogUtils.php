@@ -105,9 +105,33 @@ class WikilogUtils {
         $user = RequestContext::getMain()->getUser();
         $date = $lang->userDate( $ts, $user );
         $time = $lang->userTime( $ts, $user );
-        $tz = MediaWikiServices::getInstance()->get( 'LanguageTimeUtils' )->getTimezoneName( $user, $ts );
+        
+        $optionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
+        $tzPref = $optionsManager->getOption( $user, 'timezone' );
+        $tzName = null;
 
-        return [ $date, $time, $tz ];
+        if ( strpos( $tzPref, '|' ) !== false ) {
+            list( $type, $zone ) = explode( '|', $tzPref, 2 );
+            if ( $type === 'ZoneInfo' ) {
+                $tzName = $zone;
+            }
+        } elseif ( $tzPref && $tzPref !== 'System' ) {
+            // Backwards compatibility
+            $tzName = $tzPref;
+        }
+
+        if ( $tzName === null ) {
+            $tzName = MediaWikiServices::getInstance()->getMainConfig()->get( 'Localtimezone' );
+        }
+        
+        // In case of invalid timezone from preferences, fall back to UTC
+        try {
+            new DateTimeZone( $tzName );
+        } catch ( Exception $e ) {
+            $tzName = 'UTC';
+        }
+
+        return [ $date, $time, $tzName ];
     }
 
     public static function wrapDiv( $class, $text ) {
