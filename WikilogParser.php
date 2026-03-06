@@ -32,25 +32,11 @@ class WikilogParser
         }
 
         // Исправлено: заменяем формат [ __CLASS__, 'method' ] на анонимные функции
-        $parser->setFunctionHook( 'wl-settings', function ( $parser, $frame, $args ) {
-            return WikilogParser::settings( $parser, $frame, $args );
-        }, SFH_NO_HASH );
-
-        $parser->setFunctionHook( 'wl-publish', function ( $parser, $frame, $args ) {
-            return WikilogParser::publish( $parser, $frame, $args );
-        }, SFH_NO_HASH );
-
-        $parser->setFunctionHook( 'wl-comment', function ( $parser, $frame, $args ) {
-            return WikilogParser::comment( $parser, $frame, $args );
-        }, SFH_NO_HASH );
-
-        $parser->setFunctionHook( 'wl-author', function ( $parser, $frame, $args ) {
-            return WikilogParser::author( $parser, $frame, $args );
-        }, SFH_NO_HASH );
-
-        $parser->setFunctionHook( 'wl-tags', function ( $parser, $frame, $args ) {
-            return WikilogParser::tags( $parser, $frame, $args );
-        }, SFH_NO_HASH );
+        $parser->setFunctionHook( 'wl-settings', 'WikilogParser::settings' );
+        $parser->setFunctionHook( 'wl-publish', 'WikilogParser::publish' );
+        $parser->setFunctionHook( 'wl-comment', 'WikilogParser::comment' );
+        $parser->setFunctionHook( 'wl-author', 'WikilogParser::author' );
+        $parser->setFunctionHook( 'wl-tags', 'WikilogParser::tags' );
 
         $mwMore = $mwFactory->get( 'wlk-more' );
         foreach ( $mwMore->getSynonyms() as $tagname ) {
@@ -73,15 +59,15 @@ class WikilogParser
         return '';
     }
 
-    public static function publish( $parser, $frame, $args ) {
+    public static function publish( $parser, ...$args ) {
         $data = self::getParserData($parser);
         $data->mPublish = true;
-        $date = isset( $args[0] ) ? trim( $frame->expand( $args[0] ) ) : false;
+        $date = isset( $args[0] ) ? trim( $args[0] ) : false;
         if ( $date ) {
             $data->mPubDate = wfTimestamp( TS_MW, strtotime( $date ) );
         }
         for ( $i = 1; $i < count( $args ); $i++ ) {
-            $author = trim( $frame->expand( $args[$i] ) );
+            $author = trim( $args[$i] );
             if ( $author !== '' ) {
                 $user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $author );
                 if ( $user && $user->getId() ) {
@@ -94,19 +80,19 @@ class WikilogParser
         return '';
     }
 
-    public static function comment( $parser, $frame, $args ) {
+    public static function comment( $parser, ...$args ) {
         $data = self::getParserData($parser);
         $data->mComment = [];
         foreach ( $args as $arg ) {
-            $data->mComment[] = trim( $frame->expand( $arg ) );
+            $data->mComment[] = trim( $arg );
         }
         return '';
     }
 
-    public static function author( $parser, $frame, $args ) {
+    public static function author( $parser, ...$args ) {
         $data = self::getParserData($parser);
         foreach ( $args as $arg ) {
-            $author = trim( $frame->expand( $arg ) );
+            $author = trim( $arg );
             if ( $author !== '' ) {
                 $user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $author );
                 if ( $user && $user->getId() ) {
@@ -119,10 +105,10 @@ class WikilogParser
         return '';
     }
 
-    public static function tags( $parser, $frame, $args ) {
+    public static function tags( $parser, ...$args ) {
         $data = self::getParserData($parser);
         foreach ( $args as $arg ) {
-            $tag = trim( $frame->expand( $arg ) );
+            $tag = trim( $arg );
             if ( $tag !== '' ) {
                 $data->mTags[$tag] = 1;
             }
@@ -130,7 +116,7 @@ class WikilogParser
         return '';
     }
 
-    public static function settings( $parser, $frame, $args ) {
+    public static function settings( $parser, ...$args ) {
         // Логика парсинга настроек (упрощена для совместимости)
         return '';
     }
