@@ -559,10 +559,10 @@ class SpecialWikilog
 				if ( count( $values ) > 0 )
 				{
 					$selectedValue = $formvalues[$valueid];
-					$optionsHtml = Html::option( wfMessage( 'wikilog-form-all' )->text(), '', $selectedValue === '' );
+					$optionsHtml = Html::element( 'option', [ 'value' => '', 'selected' => ($selectedValue === '') ], wfMessage( 'wikilog-form-all' )->text() );
 					foreach( $values as $o ) {
 						$val = count($o) > 1 ? $o[1] : $o[0];
-						$optionsHtml .= Html::option( $o[0], $val, $val === $selectedValue );
+						$optionsHtml .= Html::element( 'option', [ 'value' => $val, 'selected' => ($val === $selectedValue) ], $o[0] );
 					}
 					$select = Html::rawElement( 'select', [ 'name' => $valueid, 'id' => 'wl-'.$valueid ], $optionsHtml );
 
@@ -583,9 +583,9 @@ class SpecialWikilog
 
 		$lang = $this->getLanguage();
 		$selectedMonth = $opts['month'];
-		$optionsHtml = Html::option( wfMessage( 'monthsall' )->text(), '', $selectedMonth === null || $selectedMonth === '' );
+		$optionsHtml = Html::element( 'option', [ 'value' => '', 'selected' => ($selectedMonth === null || $selectedMonth === '') ], wfMessage( 'monthsall' )->text() );
 		for ($i = 1; $i <= 12; $i++) {
-			$optionsHtml .= Html::option( $lang->getMonthName( $i ), $i, $i == $selectedMonth );
+			$optionsHtml .= Html::element( 'option', [ 'value' => $i, 'selected' => ($i == $selectedMonth) ], $lang->getMonthName( $i ) );
 		}
 		$month_select = Html::rawElement( 'select', [
 			'name' => 'month',
@@ -600,8 +600,8 @@ class SpecialWikilog
 		// ignore day, not really useful
 
 		$selectedView = $opts['view'];
-		$optionsHtml = Html::option( wfMessage( 'wikilog-view-summary' )->text(), 'summary', 'summary' === $selectedView );
-		$optionsHtml .= Html::option( wfMessage( 'wikilog-view-archives' )->text(), 'archives', 'archives' === $selectedView );
+		$optionsHtml = Html::element( 'option', [ 'value' => 'summary', 'selected' => ('summary' === $selectedView) ], wfMessage( 'wikilog-view-summary' )->text() );
+		$optionsHtml .= Html::element( 'option', [ 'value' => 'archives', 'selected' => ('archives' === $selectedView) ], wfMessage( 'wikilog-view-archives' )->text() );
 		$viewSelect = Html::rawElement( 'select', [ 'name' => 'view', 'id' => 'wl-view' ], $optionsHtml );
 		$fields['view'] = array(
 			Html::label( wfMessage( 'wikilog-form-view' )->text(), 'wl-view' ),
@@ -610,9 +610,9 @@ class SpecialWikilog
 		if( $wgUser && $wgUser->getID() )
 		{
 			$selectedStatus = $opts['show'];
-			$optionsHtml = Html::option( wfMessage( 'wikilog-show-all' )->text(), 'all', 'all' === $selectedStatus );
-			$optionsHtml .= Html::option( wfMessage( 'wikilog-show-published' )->text(), 'published', 'published' === $selectedStatus );
-			$optionsHtml .= Html::option( wfMessage( 'wikilog-show-drafts' )->text(), 'drafts', 'drafts' === $selectedStatus );
+			$optionsHtml = Html::element( 'option', [ 'value' => 'all', 'selected' => ('all' === $selectedStatus) ], wfMessage( 'wikilog-show-all' )->text() );
+			$optionsHtml .= Html::element( 'option', [ 'value' => 'published', 'selected' => ('published' === $selectedStatus) ], wfMessage( 'wikilog-show-published' )->text() );
+			$optionsHtml .= Html::element( 'option', [ 'value' => 'drafts', 'selected' => ('drafts' === $selectedStatus) ], wfMessage( 'wikilog-show-drafts' )->text() );
 			$statusSelect = Html::rawElement( 'select', [ 'name' => 'show', 'id' => 'wl-status' ], $optionsHtml );
 			$fields['status'] = array(
 				Html::label( wfMessage( 'wikilog-form-status' )->text(), 'wl-status' ),

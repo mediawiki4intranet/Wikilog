@@ -583,7 +583,7 @@ class WikilogCommentsPage
 			if ( $subscribed === NULL ) {
 				$subscribed = true;
 			}
-			$subscribe_html = ' &nbsp; ' . Html::checkLabel( wfMessage( 'wikilog-subscribe' )->text(), 'wl-subscribe', 'wl-subscribe', $subscribed );
+			$subscribe_html = ' &nbsp; ' . Html::checkbox( 'wl-subscribe', $subscribed, [ 'id' => 'wl-subscribe' ] ) . ' ' . Html::label( wfMessage( 'wikilog-subscribe' )->text(), 'wl-subscribe' );
 		} else {
 			$subscribe_html = '';
 		}

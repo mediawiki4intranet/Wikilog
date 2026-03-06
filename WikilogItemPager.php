@@ -585,7 +585,7 @@ class WikilogArchivesPager
 			$class = 'TablePager_col_' . htmlspecialchars( $field );
 			$columns[] = "<td class=\"$class\">$formatted</td>";
 		}
-		return Xml::tags( 'tr', $attribs, implode( "\n", $columns ) ) . "\n";
+		return Html::rawElement( 'tr', $attribs, implode( "\n", $columns ) ) . "\n";
 	}
 
 	function formatValue( $name, $value ) {
@@ -595,7 +595,7 @@ class WikilogArchivesPager
 			case 'wlp_pubdate':
 				$s = $lang->timeanddate( $value, true );
 				if ( !$this->mCurrentRow->wlp_publish ) {
-					$s = Xml::wrapClass( $s, 'wl-draft-inline' );
+					$s = Html::wrap( $s, 'span', [ 'class' => 'wl-draft-inline' ] );
 				}
 				return $s;
 
@@ -621,7 +621,7 @@ class WikilogArchivesPager
 					array( 'known', 'noclasses' ) );
 				if ( !$this->mCurrentRow->wlp_publish ) {
 					$draft = wfMessage( 'wikilog-draft-title-mark' )->text();
-					$s = Xml::wrapClass( "$s $draft", 'wl-draft-inline' );
+					$s = Html::wrap( "$s $draft", 'span', [ 'class' => 'wl-draft-inline' ] );
 				}
 				return $s;
 

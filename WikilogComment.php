@@ -178,10 +178,11 @@ class WikilogComment
 	 * Load current revision of comment wikitext.
 	 */
 	public function loadText() {
-		$dbr = wfGetDB( DB_SLAVE );
-		$rev = Revision::loadFromId( $dbr, $this->mCommentRev );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+		$rev = MediaWikiServices::getInstance()->getRevisionStore()->getRevisionById( $this->mCommentRev );
 		if ( $rev ) {
-			$this->mText = $rev->getText();
+			$content = $rev->getContent( \MediaWiki\Revision\RevisionRecord::RAW );
+			$this->mText = $content ? $content->getNativeData() : '';
 			$this->mTextChanged = false;
 		}
 	}
@@ -1081,7 +1082,7 @@ class WikilogCommentFormatter
 		if ( $comment->mID && $comment->mCommentTitle &&
 				$comment->mCommentTitle->exists() ) {
 			if ( $this->mAllowReplies && $comment->isVisible() ) {
-				$tools['reply'] = Xml::tags( 'a',
+				$tools['reply'] = Html::rawElement( 'a',
 					array(
 						'title' => wfMessage( 'wikilog-reply-to-comment' )->text(),
 						'href' => $wgRequest->appendQueryValue( 'wlParent', $comment->mID ),
@@ -1142,9 +1143,9 @@ class WikilogCommentFormatter
 		if ( $tools ) {
 			$html = '';
 			foreach ( $tools as $cls => $tool ) {
-				$html .= Xml::tags( 'li', array( 'class' => "wl-comment-action-{$cls}" ), $tool );
+				$html .= Html::rawElement( 'li', array( 'class' => "wl-comment-action-{$cls}" ), $tool );
 			}
-			return Xml::tags( 'ul', array( 'class' => 'wl-comment-tools' ), $html );
+			return Html::rawElement( 'ul', array( 'class' => 'wl-comment-tools' ), $html );
 		} else {
 			return '';
 		}

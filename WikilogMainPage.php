@@ -113,9 +113,9 @@ class WikilogMainPage
 		# Display list of wikilog posts.
 		$body = $pager->getBody();
 		$body .= $pager->getNavigationBar();
-		$wgOut->addHTML( Xml::openElement( 'div', array( 'class' => 'wl-wrapper' ) ) );
+		$wgOut->addHTML( Html::openElement( 'div', array( 'class' => 'wl-wrapper' ) ) );
 		$wgOut->addHTML( $body );
-		$wgOut->addHTML( Xml::closeElement( 'div' ) );
+		$wgOut->addHTML( Html::closeElement( 'div' ) ) );
 
 		# Get query parameter array, for the following links.
 		$qarr = $query->getDefaultQuery();
@@ -290,7 +290,7 @@ class WikilogMainPage
 			}
 			$optionsHtml = '';
 			foreach ( $opts as $o ) {
-				$optionsHtml .= Html::option( $o->getText(), $o->getPrefixedText() );
+				$optionsHtml .= Html::element( 'option', [ 'value' => $o->getPrefixedText() ], $o->getText() );
 			}
 			$wikilog_select = Html::rawElement( 'select', [ 'id' => 'wl-newitem-wikilog' ], $optionsHtml );
 			$fields[] = Html::label( wfMessage( 'wikilog-form-wikilog' )->text(), 'wl-newitem-wikilog' )
