@@ -74,24 +74,17 @@ class WikilogSummaryPager
 		$this->mQuery = $query;
 		$this->mIncluding = $including;
 
+		# Set default limit before calling parent constructor.
+		global $wgWikilogNumArticles;
+		$this->mDefaultLimit = $wgWikilogNumArticles;
+
 		# Parent constructor.
 		parent::__construct();
 
 		# Fix our limits, Pager's defaults are too high.
-		global $wgUser, $wgWikilogNumArticles;
-		$this->mDefaultLimit = $wgWikilogNumArticles;
-
-		if ( $limit ) {
-			$this->mLimit = $limit;
-		} else {
-
-            $limitOffset = $this->getContext()->getConfig()->get( 'WikilogNumArticles' ); // или используйте глобальную переменную напрямую
-            $this->mLimit = $this->mRequest->getInt( 'limit', $this->mDefaultLimit );
-            if ( $this->mLimit <= 0 ) {
-                $this->mLimit = $this->mDefaultLimit;
-            }
-
-        }
+		if ( $limit !== false ) {
+			$this->mLimit = (int)$limit;
+		}
 
 		# This is too expensive, limit listing.
 		global $wgWikilogExpensiveLimit;
@@ -475,17 +468,16 @@ class WikilogArchivesPager
 		$this->mQuery->setOption( 'last-visit-date', true );
 		$this->mIncluding = $including;
 
+		# Set default limit before calling parent constructor.
+		global $wgWikilogNumArticles;
+		$this->mDefaultLimit = $wgWikilogNumArticles;
+
 		# Parent constructor.
 		parent::__construct();
 
 		# Fix our limits, Pager's defaults are too high.
-		global $wgUser, $wgWikilogNumArticles;
-		$this->mDefaultLimit = $wgWikilogNumArticles;
-
-		if ( $limit ) {
-			$this->mLimit = $limit;
-		} else {
-			$this->mLimit = $wgWikilogNumArticles;
+		if ( $limit !== false ) {
+			$this->mLimit = (int)$limit;
 		}
 
 		# This is too expensive, limit listing.

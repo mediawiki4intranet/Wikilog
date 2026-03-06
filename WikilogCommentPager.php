@@ -50,18 +50,11 @@ abstract class WikilogCommentPager
 			$this->mFormatter->setShowItem( true );
 		}
 
-		# Parent constructor.
-		parent::__construct();
-
-		# Fix our limits, Pager defaults are too high.
+		# Set default limit before calling parent constructor.
 		$this->mDefaultLimit = $wgWikilogNumComments;
 
-        $limitOffset = $this->getContext()->getConfig()->get( 'WikilogNumArticles' );
-        $this->mLimit = $this->mRequest->getInt( 'limit', $this->mDefaultLimit );
-        if ( $this->mLimit <= 0 ) {
-            $this->mLimit = $this->mDefaultLimit;
-        }
-
+		# Parent constructor.
+		parent::__construct();
 
 		# This is too expensive, limit listing.
 		if ( $this->mLimit > $wgWikilogExpensiveLimit ) {
