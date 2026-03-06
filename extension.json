@@ -38,16 +38,30 @@
         "SpecialWikilog": "SpecialWikilog.php",
         "WikilogCommentPagerSwitcher": "WikilogCommentPagerSwitcher.php",
         "WlCaptcha": "WlCaptchaAdapter.php",
-        "WlCaptchaAdapter": "WlCaptchaAdapter.php"
+        "WlCaptchaAdapter": "WlCaptchaAdapter.php",
+        "WikilogFeed": "WikilogFeed.php",
+        "WikilogItemFeed": "WikilogFeed.php",
+        "WikilogCommentFeed": "WikilogFeed.php",
+        "WlFeed": "WlFeed.php",
+        "WlSyndicationBase": "WlFeed.body.php",
+        "WlSyndicationFeed": "WlFeed.body.php",
+        "WlSyndicationEntry": "WlFeed.body.php",
+        "WlTextConstruct": "WlFeed.body.php",
+        "WlAtomFeed": "WlFeed.body.php",
+        "WlRSSFeed": "WlFeed.body.php",
+        "WlFeedItemCompat": "WlFeed.body.php",
+        "WlAtomFeedCompat": "WlFeed.body.php",
+        "WlRSSFeedCompat": "WlFeed.body.php"
     },
     "SpecialPages": {
         "Wikilog": "SpecialWikilog",
         "WikilogComments": "SpecialWikilogComments",
         "WikilogSubscriptions": "SpecialWikilogSubscriptions"
-    },    
+    },
 	"ExtensionMessagesFiles": {
 		"WikilogMagic": "Wikilog.i18n.magic.php",
-        "WikilogAlias": "Wikilog.i18n.alias.php"
+        "WikilogAlias": "Wikilog.i18n.alias.php",
+        "WlFeed": "WlFeed.i18n.php"
 	},
 	"ResourceModules": {
 		"ext.wikilog": {

@@ -30,32 +30,6 @@ if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
 /**
- * Module autoload information.
- */
-
-$dir = dirname( __FILE__ ) . '/';
-
-$wgExtensionMessagesFiles['WlFeed'] = $dir . 'WlFeed.i18n.php';
-
-$wgAutoloadClasses += array(
-	'WlSyndicationBase'		=> $dir . 'WlFeed.body.php',
-	'WlSyndicationFeed'		=> $dir . 'WlFeed.body.php',
-	'WlSyndicationEntry'	=> $dir . 'WlFeed.body.php',
-	'WlTextConstruct'		=> $dir . 'WlFeed.body.php',
-	'WlAtomFeed'			=> $dir . 'WlFeed.body.php',
-	'WlRSSFeed'				=> $dir . 'WlFeed.body.php',
-	'WlFeedItemCompat'		=> $dir . 'WlFeed.body.php',
-	'WlAtomFeedCompat'		=> $dir . 'WlFeed.body.php',
-	'WlRSSFeedCompat'		=> $dir . 'WlFeed.body.php'
-);
-
-/**
- * Extension setup.
- */
-
-$wgExtensionFunctions[] = array( 'WlFeed', 'ExtensionInit' );
-
-/**
  * Main WlFeed class.
  */
 class WlFeed
