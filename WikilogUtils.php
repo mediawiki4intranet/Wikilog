@@ -11,7 +11,7 @@ use RequestContext;
 use Article;
 use MediaWiki\Linker\Linker;
 use ParserOptions;
-use Wikimedia\LightweightObject\Html;
+use MediaWiki\Html\Html;
 
 if ( !defined( 'MEDIAWIKI' ) )
     die();

@@ -29,7 +29,7 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
-use Wikimedia\LightweightObject\Html;
+use MediaWiki\Html\Html;
 
 /**
  * Syndication base class. This class shares common metadata for both feeds

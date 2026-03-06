@@ -1,6 +1,6 @@
 <?php
 use MediaWiki\Title\Title;
-use Wikimedia\LightweightObject\Html;
+use MediaWiki\Html\Html;
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
