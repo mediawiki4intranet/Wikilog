@@ -226,7 +226,8 @@ class WikilogMainPage
 		$cont .= $this->formatPostCount( $skin, 'li', 'all', $n_total );
 		$cont .= Html::closeElement( 'ul' );
 
-		return Html::fieldset( wfMessage( 'wikilog-information' )->text(), $cont ) . "\n";
+		$legend = Html::rawElement( 'legend', [], wfMessage( 'wikilog-information' )->text() );
+		return Html::rawElement( 'fieldset', [], $legend . $cont ) . "\n";
 	}
 
 	/**
@@ -319,7 +320,8 @@ class WikilogMainPage
 			implode( "\n", $fields )
 		);
 
-		$form = Html::fieldset( wfMessage( 'wikilog-new-item' )->text(), $form, array( 'id' => 'wl-new-item' ) ) . "\n";
+		$legend = Html::rawElement( 'legend', [], wfMessage( 'wikilog-new-item' )->text() );
+		$form = Html::rawElement( 'fieldset', array( 'id' => 'wl-new-item' ), $legend . $form ) . "\n";
 		return $form;
 	}
 
@@ -345,7 +347,8 @@ class WikilogMainPage
 			implode( "\n", $fields )
 		);
 
-		return Html::fieldset( wfMessage( 'wikilog-import' )->text(), $form ) . "\n";
+		$legend = Html::rawElement( 'legend', [], wfMessage( 'wikilog-import' )->text() );
+		return Html::rawElement( 'fieldset', [], $legend . $form ) . "\n";
 	}
 
 	/**

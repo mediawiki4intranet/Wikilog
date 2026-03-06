@@ -402,9 +402,8 @@ class SpecialWikilog
 		$out .= $this->getQueryForm( $opts );
 
 		$out = Html::rawElement( 'form', array( 'action' => $wgScript ), $out );
-		$out = Html::fieldset( wfMessage( 'wikilog-form-legend' )->text(), $out,
-			array( 'class' => 'wl-options' )
-		);
+		$legend = Html::rawElement( 'legend', [], wfMessage( 'wikilog-form-legend' )->text() );
+		$out = Html::rawElement( 'fieldset', [ 'class' => 'wl-options' ], $legend . $out );
 		$out .= WikilogMainPage::formNewItem( NULL );
 		return $out;
 	}

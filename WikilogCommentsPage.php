@@ -607,8 +607,11 @@ class WikilogCommentsPage
 		), $form );
 
 		$msgid = ( $parent ? 'wikilog-post-reply' : 'wikilog-post-comment' );
-		return Html::fieldset( wfMessage( $msgid )->text(), $preview . $form,
-			array( 'id' => ( $inline_reply ? 'wl-comment-form-reply' : 'wl-comment-form' ) ) ) . "\n";
+		$legend = Html::rawElement( 'legend', [], wfMessage( $msgid )->text() );
+		return Html::rawElement( 'fieldset',
+			array( 'id' => ( $inline_reply ? 'wl-comment-form-reply' : 'wl-comment-form' ) ),
+			$legend . $preview . $form
+		) . "\n";
 	}
 
 	protected function setCommentApproval( $comment, $approval ) {
