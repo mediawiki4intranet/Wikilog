@@ -132,7 +132,7 @@ class WikilogMainPage
 				$altquery = wfArrayToCGI( array( 'view' => $alt ), $qarr );
 				$wgOut->addLink( array(
 					'rel' => 'alternate',
-					'href' => $this->mTitle->getLocalURL( $altquery ),
+					'href' => $this->getTitle()->getLocalURL( $altquery ),
 					'type' => $wgMimeType,
 					'title' => wfMessage( "wikilog-view-{$alt}" )->inContentLanguage()->text()
 				) );
@@ -146,7 +146,7 @@ class WikilogMainPage
 	public function wikilog() {
 		global $wgUser, $wgOut, $wgRequest;
 
-		if ( $this->mTitle->exists() && $wgRequest->getBool( 'wlActionImport' ) ) {
+		if ( $this->getTitle()->exists() && $wgRequest->getBool( 'wlActionImport' ) ) {
 			return $this->actionImport();
 		}
 
