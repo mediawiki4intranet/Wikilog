@@ -1,0 +1,45 @@
+# Default Olegcat Configuration
+# Lines starting with # are comments and are ignored.
+#
+# Include patterns:
+# Specify file extensions or relative paths to include.
+# Wildcards * (matches anything except path separators) and ? (matches a single character except path separators) are supported.
+# Use ** for recursive directory matching (e.g., src/**/*.ts).
+# Examples:
+# *.ts
+# src/**/*.ts
+# specific-file.js
+
+*.py
+*.js
+*.ts
+*.html
+*.css
+*.json
+*.md
+*.txt
+*.yaml
+*.yml
+*.rs
+*.toml
+*.php
+
+# Exclude patterns:
+# Prepend with ! to exclude.
+# These take precedence over include patterns.
+# Directory patterns should ideally end with a / for clarity (e.g., !node_modules/).
+# Examples:
+# !node_modules/
+# !dist/
+# !*.log
+# !src/test/
+
+!node_modules
+!fonts
+!.git
+!dist
+!out
+!target
+!.idea
+!package-lock.json
+# !.olegcat # Exclude the config file itself
