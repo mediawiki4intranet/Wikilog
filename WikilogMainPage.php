@@ -362,7 +362,8 @@ class WikilogMainPage
 		global $wgOut, $wgRequest;
 		$wgOut->setPageTitle( wfMessage( 'wikilog-import' )->text() );
 
-		if ( !$this->mTitle->quickUserCan( 'edit' ) ) {
+		$permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
+		if ( !$permissionManager->quickUserCan( 'edit', $this->getUser(), $this->getTitle() ) ) {
 			$wgOut->loginToUse();
 			$wgOut->output();
 			exit;
@@ -411,7 +412,7 @@ class WikilogMainPage
 					$r = "RewriteRule ^$u ".str_replace('%', '\\%', Title::newFromText($r[1])->getLocalUrl())." [R=301,L,NE]";
 				}
 				$rewrite = implode( "\n", $rewrite );
-				$wgOut->addHTML( Xml::textarea( 'htaccess', $rewrite, 100, 10 ) );
+				$wgOut->addHTML( Html::textarea( 'htaccess', $rewrite, [ 'cols' => 100, 'rows' => 10 ] ) );
 			}
 			else
 				$wgOut->addWikiMsg( 'wikilog-import-failed' );

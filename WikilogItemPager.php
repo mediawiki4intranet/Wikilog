@@ -596,7 +596,7 @@ class WikilogArchivesPager
 			case 'wlp_pubdate':
 				$s = $lang->timeanddate( $value, true );
 				if ( !$this->mCurrentRow->wlp_publish ) {
-					$s = Html::wrap( $s, 'span', [ 'class' => 'wl-draft-inline' ] );
+					$s = Html::rawElement( 'span', [ 'class' => 'wl-draft-inline' ], $s );
 				}
 				return $s;
 
@@ -622,7 +622,7 @@ class WikilogArchivesPager
 					array( 'known', 'noclasses' ) );
 				if ( !$this->mCurrentRow->wlp_publish ) {
 					$draft = wfMessage( 'wikilog-draft-title-mark' )->text();
-					$s = Html::wrap( "$s $draft", 'span', [ 'class' => 'wl-draft-inline' ] );
+					$s = Html::rawElement( 'span', [ 'class' => 'wl-draft-inline' ], "$s $draft" );
 				}
 				return $s;
 

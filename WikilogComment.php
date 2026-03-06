@@ -977,7 +977,7 @@ class WikilogCommentFormatter
 		} else {
 			$authorPlain = htmlspecialchars( $comment->mAnonName );
 			$authorFmt = wfMessage( 'wikilog-comment-anonsig',
-				Html::wrap( $this->mSkin->userLink( $comment->mUserID, $comment->mUserText ), 'span', [ 'class' => 'wl-comment-author' ] ),
+				Html::rawElement( 'span', [ 'class' => 'wl-comment-author' ], $this->mSkin->userLink( $comment->mUserID, $comment->mUserText ) ),
 				$this->mSkin->userTalkLink( $comment->mUserID, $comment->mUserText ),
 				htmlspecialchars( $comment->mAnonName )
 			)->inContentLanguage()->text();

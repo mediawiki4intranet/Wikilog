@@ -256,7 +256,7 @@ class SpecialWikilog
             $body .= '<p>' . SpecialWikilogSubscriptions::subcriptionsRuleLink() . '</p>';
 
 			# Wrap only when not including
-			$body = Html::wrap( $body, 'div', [ 'class' => 'wl-wrapper' ] );
+			$body = Html::rawElement( 'div', [ 'class' => 'wl-wrapper' ], $body );
 		}
 
 		# Output.
@@ -310,9 +310,8 @@ class SpecialWikilog
 		global $wgRequest, $wgTitle;
 		$query = $wgRequest->getValues();
 		$query['markallread'] = wfTimestamp( TS_MW );
-		return Html::wrap(
-			Html::element( 'a', array( 'href' => $wgTitle->getFullUrl( $query ) ), wfMessage( 'wikilog-mark-all-read' )->text() ),
-			'p', [ 'class' => 'markallread' ]
+		return Html::rawElement( 'p', [ 'class' => 'markallread' ],
+			Html::element( 'a', array( 'href' => $wgTitle->getFullUrl( $query ) ), wfMessage( 'wikilog-mark-all-read' )->text() )
 		);
 	}
 

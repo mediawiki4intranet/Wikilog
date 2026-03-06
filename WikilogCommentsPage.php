@@ -526,7 +526,7 @@ class WikilogCommentsPage
 		if ( $comment && $comment->mParent == $pid ) {
 			$check = $this->validateComment( $comment );
 			if ( $check ) {
-				$preview = Html::wrap( wfMessage( $check )->text(), 'div', [ 'class' => 'mw-warning' ] );
+				$preview = Html::rawElement( 'div', [ 'class' => 'mw-warning' ], wfMessage( $check )->text() );
 			} else {
 				$preview = $this->mFormatter->formatComment( $this->mPostedComment );
 			}
