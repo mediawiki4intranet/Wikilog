@@ -451,8 +451,8 @@ class WikilogCommentsPage
 			}
 			// Is the user subscribed globally to comments to ALL Wikilog posts?
 			// This can be overridden by individual subscription settings (below)
-			$optionsLookup = \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsLookup();
-			$globalAll = $optionsLookup->getBool( $wgUser, 'wl-subscribetoall' ) &&
+			$optionsLookup = \MediaWiki\MediaWikiServices::getInstance()->getUserOptionsManager();
+			$globalAll = (bool)$optionsLookup->getOption( $wgUser, 'wl-subscribetoall' ) &&
 				in_array( $this->mSubject->getNamespace(), $wgWikilogNamespaces );
 			// Is the user subscribed/unsubscribed to/from all entries of the wikilog?
 			// (or to/from discussion of all subpages of a root page)
