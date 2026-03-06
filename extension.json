@@ -39,10 +39,15 @@
         "WikilogCommentPagerSwitcher": "WikilogCommentPagerSwitcher.php",
         "WlCaptcha": "WlCaptchaAdapter.php",
         "WlCaptchaAdapter": "WlCaptchaAdapter.php"
-    }
-    ,
+    },
+    "SpecialPages": {
+        "Wikilog": "SpecialWikilog",
+        "WikilogComments": "SpecialWikilogComments",
+        "WikilogSubscriptions": "SpecialWikilogSubscriptions"
+    },    
 	"ExtensionMessagesFiles": {
-		"WikilogMagic": "Wikilog.i18n.magic.php"
+		"WikilogMagic": "Wikilog.i18n.magic.php",
+        "WikilogAlias": "Wikilog.i18n.alias.php"
 	},
 	"ResourceModules": {
 		"ext.wikilog": {
