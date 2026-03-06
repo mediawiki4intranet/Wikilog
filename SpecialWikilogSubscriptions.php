@@ -21,6 +21,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+use MediaWiki\Linker\Linker;
 use MediaWiki\Title\Title;
 
 if ( !defined( 'MEDIAWIKI' ) )

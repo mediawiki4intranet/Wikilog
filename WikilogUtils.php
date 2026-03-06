@@ -9,6 +9,7 @@ use MediaWiki\Page\WikiPage;
 use ParserOutput;
 use RequestContext;
 use Article;
+use MediaWiki\Linker\Linker;
 use ParserOptions;
 
 if ( !defined( 'MEDIAWIKI' ) )

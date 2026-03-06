@@ -26,6 +26,7 @@
  * @author Juliano F. Ravasi < dev juliano info >
  */
 
+use MediaWiki\Linker\Linker;
 use MediaWiki\Title\Title;
 
 if ( !defined( 'MEDIAWIKI' ) )

@@ -26,6 +26,7 @@
  * @author Juliano F. Ravasi < dev juliano info >
  */
 
+use MediaWiki\Linker\Linker;
 use MediaWiki\Title\Title;
 
 if ( !defined( 'MEDIAWIKI' ) )
@@ -237,7 +238,7 @@ class WikilogMainPage
 			wfMessage( "wikilog-post-count-{$type}", $num )->text(),
 			array(),
 			array( 'view' => "archives", 'show' => $type ),
-			array( 'knwon', 'noclasses' )
+			array( 'known', 'noclasses' )
 		);
 		if ( !empty( $wgWikilogFeedClasses ) ) {
 			$f = array();
