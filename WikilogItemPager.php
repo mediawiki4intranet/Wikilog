@@ -400,7 +400,7 @@ class WikilogTemplatePager
 		# Template parameters.
 		$vars = array(
 			'class'         => $divclass,
-			'wikilogTitle'  => $item->mParentName,
+			'wikilogTitle'  => $item->mParentTitle->getText(),
 			'wikilogPage'   => $item->mParentTitle->getPrefixedText(),
 			'title'         => $item->mName,
 			'page'          => $item->mTitle->getPrefixedText(),
@@ -607,7 +607,7 @@ class WikilogArchivesPager
 
 			case 'wlw_title':
 				$page = $this->mCurrentItem->mParentTitle;
-				$text = Sanitizer::escapeHtmlAllowEntities( $this->mCurrentItem->mParentName );
+				$text = Sanitizer::escapeHtmlAllowEntities( $this->mCurrentItem->mParentTitle->getText() );
 				return Linker::link( $page, $text, array(), array(),
 					array( 'known', 'noclasses' ) );
 

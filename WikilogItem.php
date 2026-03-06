@@ -13,12 +13,53 @@ class WikilogItem {
     public $mAuthors = [];
     public $mTags = [];
     public $mNumComments = 0;
+    public $mTalkUpdated;
+
+    public static function selectTables( $db = null ) {
+        return [
+            'tables' => [
+                'wikilog_posts',
+                'p' => 'page',
+                'w' => 'page',
+                'wikilog_talkinfo',
+            ],
+            'join_conds' => [
+                'p' => [ 'JOIN', 'p.page_id = wlp_page' ],
+                'w' => [ 'JOIN', 'w.page_id = wlp_parent' ],
+                'wikilog_talkinfo' => [ 'LEFT JOIN', 'wti_page = wlp_page' ],
+            ]
+        ];
+    }
+
+    public static function selectFields() {
+        return [
+            'wlp_page',
+            'wlp_parent',
+            'wlp_title',
+            'wlp_publish',
+            'wlp_pubdate',
+            'wlp_updated',
+            'wlp_authors',
+            'wlp_tags',
+            'p.page_id',
+            'p.page_namespace',
+            'p.page_title',
+            'p.page_len',
+            'p.page_is_redirect',
+            'p.page_latest',
+            'w.page_namespace AS wlw_namespace',
+            'w.page_title AS wlw_title',
+            'wti_num_comments',
+            'wti_talk_updated',
+        ];
+    }
 
     public function getID() { return $this->mID; }
     public function getNumComments() { return $this->mNumComments; }
     public function getIsPublished() { return $this->mPublish; }
     public function getPublishDate() { return $this->mPubDate; }
     public function getUpdatedDate() { return $this->mUpdated; }
+    public function getTalkUpdatedDate() { return $this->mTalkUpdated; }
 
     public function saveData() {
         $dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
@@ -44,7 +85,7 @@ class WikilogItem {
         $dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
         $row = $dbr->selectRow(
             [ 'wikilog_posts', 'p' => 'page', 'w' => 'page' ],
-            [ '*', 'w_ns' => 'w.page_namespace', 'w_title' => 'w.page_title' ],
+            [ '*', 'wlw_namespace' => 'w.page_namespace', 'wlw_title' => 'w.page_title' ],
             [ 'wlp_page' => $id ],
             __METHOD__,
             [],
@@ -66,6 +107,12 @@ class WikilogItem {
         $item->mPubDate = $row->wlp_pubdate;
         $item->mUpdated = $row->wlp_updated;
         $item->mAuthors = unserialize( $row->wlp_authors ) ?: [];
+        if ( isset( $row->wti_num_comments ) ) {
+            $item->mNumComments = (int)$row->wti_num_comments;
+        }
+        if ( isset( $row->wti_talk_updated ) ) {
+            $item->mTalkUpdated = $row->wti_talk_updated;
+        }
         return $item;
     }
 
