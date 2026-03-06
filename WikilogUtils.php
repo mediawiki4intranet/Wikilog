@@ -105,13 +105,7 @@ class WikilogUtils {
         $user = RequestContext::getMain()->getUser();
         $date = $lang->userDate( $ts, $user );
         $time = $lang->userTime( $ts, $user );
-        if ( method_exists( MediaWikiServices::getInstance(), 'getLanguageTimeUtils' ) ) {
-            $tz = MediaWikiServices::getInstance()->getLanguageTimeUtils()->getTimezoneName( $user, $ts );
-        } else {
-            // Fallback for older MediaWiki versions (e.g., 1.32-1.35)
-            $tzData = $lang->getTimezoneData( $user, $ts );
-            $tz = $tzData['name'];
-        }
+        $tz = MediaWikiServices::getInstance()->get( 'LanguageTimeUtils' )->getTimezoneName( $user, $ts );
 
         return [ $date, $time, $tz ];
     }
