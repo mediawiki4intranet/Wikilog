@@ -232,10 +232,12 @@ class SpecialWikilog
 			$title = $query->getWikilogTitle();
 			if ( !is_null( $title ) ) {
 				# Retrieve wikilog front page
-				$article = new Article( $title );
-				$content = $article->getContent();
+				$wikipage = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $title );
+				$content = $wikipage->getContent();
 				$wgOut->setPageTitle( $title->getPrefixedText() );
-				$wgOut->addWikiTextTitle( $content, $title, true );
+				if ( $content ) {
+					$wgOut->addWikiTextAsContent( $content->getNativeData() );
+				}
 			}
 
 			# Display query options.

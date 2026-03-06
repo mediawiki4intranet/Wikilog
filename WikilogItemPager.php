@@ -180,7 +180,7 @@ class WikilogSummaryPager
 
 		# Retrieve article parser output and other data.
 		$item = WikilogItem::newFromRow( $row );
-		list( $article, $parserOutput ) = WikilogUtils::parsedArticle( $item->mTitle );
+		list( , $parserOutput ) = WikilogUtils::parsedArticle( $item->mTitle );
 		list( $summary, $content ) = WikilogUtils::splitSummaryContent( $parserOutput );
 
 		// FIXME: Do not use global output, pass it from somewhere

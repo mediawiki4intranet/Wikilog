@@ -514,7 +514,7 @@ class WikilogItemFeed
 		$itemTitle =& Title::makeTitle( $row->page_namespace, $row->page_title );
 
 		# Retrieve article parser output
-		list( $article, $parserOutput ) = WikilogUtils::parsedArticle( $itemTitle, true );
+		list( , $parserOutput ) = WikilogUtils::parsedArticle( $itemTitle, true );
 
 		# Generate some fixed bits
 		$authors = unserialize( $row->wlp_authors );
@@ -734,7 +734,7 @@ class WikilogCommentFeed
 
 		# Comment text.
 		if ( $comment->mCommentRev ) {
-			list( $article, $parserOutput ) = WikilogUtils::parsedArticle( $comment->mCommentTitle, true );
+			list( , $parserOutput ) = WikilogUtils::parsedArticle( $comment->mCommentTitle, true );
 			$content = Sanitizer::removeHTMLcomments( $parserOutput->getText() );
 			if ( $content ) {
 				$entry->setContent( new WlTextConstruct( 'html', $content ) );

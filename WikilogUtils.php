@@ -159,7 +159,7 @@ class WikilogUtils {
         if ( $parserOutput === null ) {
             $parserOutput = new ParserOutput();
         }
-        return [ new Article($title), $parserOutput ];
+        return [ null, $parserOutput ];
     }
 
     public static function splitSummaryContent( ParserOutput $parserOutput ) {
