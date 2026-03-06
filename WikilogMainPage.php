@@ -253,7 +253,7 @@ class WikilogMainPage
 			}
 			$s .= ' (' . implode( ', ', $f ) . ')';
 		}
-		return Xml::tags( $elem, null, $s );
+		return Html::rawElement( $elem, null, $s );
 	}
 
 	/**
