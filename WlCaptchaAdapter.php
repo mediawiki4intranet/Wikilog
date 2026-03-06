@@ -197,11 +197,12 @@ class WlCaptchaAdapter
 	}
 
 	private function findLinks( $title, $text ) {
-		global $wgParser, $wgUser;
+		global $wgUser;
+		$parser = \MediaWiki\MediaWikiServices::getInstance()->getParser();
 		if ( $text ) {
 			$options = new ParserOptions();
-			$text = $wgParser->preSaveTransform( $text, $title, $wgUser, $options );
-			$out = $wgParser->parse( $text, $title, $options );
+			$text = $parser->preSaveTransform( $text, $title, $wgUser, $options );
+			$out = $parser->parse( $text, $title, $options );
 			return array_keys( $out->getExternalLinks() );
 		} else {
 			return array();

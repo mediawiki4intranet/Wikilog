@@ -282,7 +282,8 @@ class WikilogComment
 	 * Notify about new comment by email
 	 */
 	public function sendCommentEmails() {
-		global $wgParser, $wgPasswordSender, $wgWikilogNamespaces, $wgTitle;
+		global $wgPasswordSender, $wgWikilogNamespaces, $wgTitle;
+		$parser = \MediaWiki\MediaWikiServices::getInstance()->getParser();
 		if ( $wgTitle->getNamespace() == NS_SPECIAL ) {
 			$alias = SpecialPageFactory::resolveAlias( $wgTitle->getText() );
 			if ( $alias[0] == 'Import' ) {
@@ -378,10 +379,10 @@ class WikilogComment
 		// Build message subject, body and unsubscribe link
 		$saveExpUrls = WikilogParser::expandLocalUrls();
 		$popt = new ParserOptions( User::newFromId( $this->mUserID ) );
-		$subject = $wgParser->parse( wfMessage( 'wikilog-comment-email-subject', $args )->plain(),
+		$subject = $parser->parse( wfMessage( 'wikilog-comment-email-subject', $args )->plain(),
 			$this->mSubject, $popt, false, false );
 		$subject = 'Re: ' . strip_tags( $subject->getText() );
-		$body = $wgParser->parse( wfMessage( 'wikilog-comment-email-body', $args )->plain(),
+		$body = $parser->parse( wfMessage( 'wikilog-comment-email-body', $args )->plain(),
 			$this->mSubject, $popt, true, false );
 		$body = $body->getText();
 		WikilogParser::expandLocalUrls( $saveExpUrls );
@@ -872,9 +873,10 @@ class WikilogCommentFormatter
 				$text = $parserOutput->getText();
 			} else {
 				// FIXME do not reuse wgParser
-				global $wgParser, $wgUser, $wgTitle;
+				global $wgUser, $wgTitle;
+				$parser = \MediaWiki\MediaWikiServices::getInstance()->getParser();
 				$text = $comment->getText();
-				$text = $wgParser->parse( $text, $wgTitle, ParserOptions::newFromUser( $wgUser ) );
+				$text = $parser->parse( $text, $wgTitle, ParserOptions::newFromUser( $wgUser ) );
 				$text = $text->getText();
 			}
 
