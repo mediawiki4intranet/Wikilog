@@ -1,5 +1,7 @@
 <?php
 
+use MediaWiki\Title\Title;
+
 # blogger.com import for Wikilog
 # License: GPL v2 or later
 # Copyright (c) 2010 Vitaliy Filippov

@@ -42,6 +42,7 @@ if ( !file_exists( "$MEDIAWIKIDIR/maintenance/Maintenance.php" ) ) {
 # Maintenance scripts base class.
 require_once( "$MEDIAWIKIDIR/maintenance/Maintenance.php" );
 
+use MediaWiki\Title\Title;
 
 /**
  * Wikilog documentation importer. Imports the Wikilog extension documentation

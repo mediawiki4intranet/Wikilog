@@ -1,5 +1,7 @@
 <?php
 
+use MediaWiki\Title\Title;
+
 # Wikilog Calendar
 # Календарь для расширения Wikilog
 # Copyright (c) Vitaliy Filippov, 2010+

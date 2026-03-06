@@ -1,4 +1,6 @@
 <?php
+use MediaWiki\Title\Title;
+
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 

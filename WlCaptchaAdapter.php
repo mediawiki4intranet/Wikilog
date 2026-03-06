@@ -26,6 +26,8 @@
  * @author Juliano F. Ravasi < dev juliano info >
  */
 
+use MediaWiki\Title\Title;
+
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 

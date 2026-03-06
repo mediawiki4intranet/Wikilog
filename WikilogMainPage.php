@@ -26,6 +26,8 @@
  * @author Juliano F. Ravasi < dev juliano info >
  */
 
+use MediaWiki\Title\Title;
+
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
@@ -52,7 +54,7 @@ class WikilogMainPage
 	/**
 	 * Constructor.
 	 */
-	public function __construct( &$title, &$wi ) {
+	public function __construct( Title $title, $wi ) {
 		parent::__construct( $title );
 	}
 

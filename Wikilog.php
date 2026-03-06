@@ -65,7 +65,7 @@ class Wikilog
         return true;
     }
 
-    public static function ArticleFromTitle( $title, &$article ) {
+    public static function ArticleFromTitle( Title $title, &$article ) {
         if ( $title->isTalkPage() ) {
             $page = WikilogCommentsPage::createInstance( $title );
             if ( $page ) {
