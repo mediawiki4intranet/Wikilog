@@ -163,10 +163,14 @@ class WikilogSummaryPager
 	}
 
 	function getNavigationBar() {
-			if ( !$this->isNavigationBarShown() ) return '';
+		if ( !$this->isNavigationBarShown() ) {
+			return '';
+		}
 		if ( !isset( $this->mNavigationBar ) ) {
-			$navbar = new WikilogNavbar( $this, 'chrono-rev' );
-			$this->mNavigationBar = $navbar->getNavigationBar( $this->mLimit );
+			$html = parent::getNavigationBar();
+			$this->mNavigationBar = Html::rawElement( 'div', [ 'class' => 'wl-navbar' ],
+				Html::rawElement( 'div', [ 'class' => 'wl-pagination' ], $html )
+			);
 		}
 		return $this->mNavigationBar;
 	}
@@ -539,10 +543,14 @@ class WikilogArchivesPager
 	}
 
 	function getNavigationBar() {
-			if ( !$this->isNavigationBarShown() ) return '';
+		if ( !$this->isNavigationBarShown() ) {
+			return '';
+		}
 		if ( !isset( $this->mNavigationBar ) ) {
-			$navbar = new WikilogNavbar( $this, 'pages' );
-			$this->mNavigationBar = $navbar->getNavigationBar( $this->mLimit );
+			$html = parent::getNavigationBar();
+			$this->mNavigationBar = Html::rawElement( 'div', [ 'class' => 'wl-navbar' ],
+				Html::rawElement( 'div', [ 'class' => 'wl-pagination' ], $html )
+			);
 		}
 		return $this->mNavigationBar;
 	}

@@ -115,15 +115,3 @@ class WikilogUtils {
     }
 }
 
-class WikilogNavbar {
-    protected $mPager;
-    function __construct( IndexPager $pager ) { $this->mPager = $pager; }
-
-    public function getNavigationBar( $limit ) {
-        $pagingLinks = $this->mPager->getPagingLinks();
-        $html = implode( ' ', $pagingLinks );
-        return Html::rawElement( 'div', [ 'class' => 'wl-navbar' ], 
-            Html::rawElement( 'div', [ 'class' => 'wl-pagination' ], $html )
-        );
-    }
-}

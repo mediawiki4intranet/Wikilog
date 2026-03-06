@@ -117,8 +117,10 @@ abstract class WikilogCommentPager
 			return '';
 		}
 		if ( !isset( $this->mNavigationBar ) ) {
-			$navbar = new WikilogNavbar( $this );
-			$this->mNavigationBar = $navbar->getNavigationBar( $this->mLimit );
+			$html = parent::getNavigationBar();
+			$this->mNavigationBar = Html::rawElement( 'div', [ 'class' => 'wl-navbar' ],
+				Html::rawElement( 'div', [ 'class' => 'wl-pagination' ], $html )
+			);
 		}
 		return $this->mNavigationBar;
 	}
