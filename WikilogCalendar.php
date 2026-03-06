@@ -1,5 +1,6 @@
 <?php
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 
 # Wikilog Calendar
@@ -114,7 +115,7 @@ class WikilogCalendar
     static function sidebarCalendar($pager)
     {
         global $wgRequest, $wgWikilogNumArticles;
-        $dbr = wfGetDB(DB_SLAVE);
+        $dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
         // Make limit and offset work, but only in the terms of
         // selecting displayed MONTHS, not DATES. I.e. if there
         // are posts selected from 2011-01-15 to 2011-02-15,

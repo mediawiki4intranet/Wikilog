@@ -29,6 +29,8 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
+use MediaWiki\MediaWikiServices;
+
 /**
  * Syndication feed driver base class.
  * Loosely based on Pager/IndexPager classes.
@@ -83,7 +85,7 @@ abstract class WikilogFeed
 		$this->mFormat = $format;
 		$this->mQuery = $query;
 		$this->mLimit = $limit;
-		$this->mDb = wfGetDB( DB_SLAVE );
+		$this->mDb = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$this->mIndexField = $this->getIndexField();
 
 		# Retrieve copyright notice.

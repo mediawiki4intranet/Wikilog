@@ -1,4 +1,5 @@
 <?php
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use MediaWiki\Html\Html;
 
@@ -209,7 +210,7 @@ class WikilogCommentThreadPager
 		$this->mQuery->setLimit( 'thread', $this->mLimit );
 
 		// Execute query
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$res = $this->mQuery->select( $dbr, array(), false );
 		$nchild = array();
 		$rows = array();

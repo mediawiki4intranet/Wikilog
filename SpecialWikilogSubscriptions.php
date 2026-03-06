@@ -22,6 +22,7 @@
  */
 
 use MediaWiki\Linker\Linker;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use RequestContext;
 
@@ -56,7 +57,7 @@ class SpecialWikilogSubscriptions
         }
 
         $id = $wgUser->getId();
-        $dbr = wfGetDB( DB_SLAVE );
+        $dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
         $opts = array(
             'blogs' => array(),
@@ -192,7 +193,7 @@ class SpecialWikilogSubscriptions
         }
 
         if ( $isComments ) {
-            $dbw = wfGetDB( DB_MASTER );
+            $dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
             $dbw->replace(
                 'wikilog_subscriptions',
                 array( array( 'ws_page', 'ws_user' ) ),
@@ -326,7 +327,7 @@ END_STRING;
     public static function sendEmails( &$article, $text ) {
         global $wgUser, $wgPasswordSender, $wgServer, $wgContLang;
 
-        $dbr = wfGetDB( DB_SLAVE );
+        $dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 
         $title = $article->getTitle();
         $wi = Wikilog::getWikilogInfo( $title );

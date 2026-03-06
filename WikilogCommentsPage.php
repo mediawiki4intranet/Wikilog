@@ -27,6 +27,7 @@
  */
 
 use MediaWiki\Linker\Linker;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use MediaWiki\Html\Html;
 
@@ -494,7 +495,7 @@ class WikilogCommentsPage
 	 */
 	public function isSubscribed( $itemid ) {
 		global $wgUser;
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$r = $dbr->selectField( 'wikilog_subscriptions', 'ws_yes', array( 'ws_page' => $itemid, 'ws_user' => $wgUser->getID() ), __METHOD__ );
 		if ( $r === false ) {
 			$r = NULL;
@@ -651,7 +652,7 @@ class WikilogCommentsPage
 		global $wgUser, $wgRequest;
 		if ( $wgUser->getID() ) {
 			$subscribe = $wgRequest->getBool( 'wl-subscribe' ) ? 1 : 0;
-			$dbw = wfGetDB( DB_MASTER );
+			$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 			$dbw->replace( 'wikilog_subscriptions', array( array( 'ws_page', 'ws_user' ) ), array(
 				'ws_page' => $page_id,
 				'ws_user' => $wgUser->getID(),

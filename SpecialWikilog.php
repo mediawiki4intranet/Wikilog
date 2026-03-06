@@ -28,6 +28,7 @@
 
 use MediaWiki\Title\Title;
 use MediaWiki\Html\Html;
+use MediaWiki\MediaWikiServices;
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
@@ -291,7 +292,7 @@ class SpecialWikilog
 	public function markAllRead( $query, $time )
 	{
 		global $wgUser;
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$p = $dbw->tablePrefix();
 		$sql = $query->selectSQLText( $dbw, array(), "wlp_page", array("wlp_pubdate <= $time"), __METHOD__ );
 		$userid = $wgUser->getId();
@@ -451,7 +452,7 @@ class SpecialWikilog
 	/* Get possible options for combo-boxes */
 	protected function getSelectOptions()
 	{
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$select_options = array();
 
 		/* Wikilogs */

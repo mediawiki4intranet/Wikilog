@@ -1,5 +1,6 @@
 <?php
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 
 # blogger.com import for Wikilog
@@ -10,7 +11,7 @@ class WikilogBloggerImport
 {
     static function parse_blogger_xml($str, $params = array())
     {
-        $dbw = wfGetDB(DB_MASTER);
+        $dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
         $comment_ai = $dbw->selectField('wikilog_comments', 'MAX(wlc_id)', '1')+1;
 
         /* Default parameter values */
@@ -113,7 +114,7 @@ class WikilogBloggerImport
 
     static function import_parsed_blogger($out)
     {
-        $dbw = wfGetDB(DB_MASTER);
+        $dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
         $pageids = array();
         $users = array();
         /* Import pages and record their IDs */

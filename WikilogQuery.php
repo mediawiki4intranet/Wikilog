@@ -26,6 +26,7 @@
  * @author Juliano F. Ravasi < dev juliano info >
  */
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 
 if ( !defined( 'MEDIAWIKI' ) )
@@ -758,7 +759,7 @@ class WikilogCommentQuery
 
 		# Sort order and limits
 		if ( $this->mSort == 'thread' ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$first = $last = $back = false;
 			if ( $this->mNextCommentId ) {
 				// Backward navigation: next comment ID is set from the outside.

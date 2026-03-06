@@ -27,6 +27,7 @@
  */
 
 use MediaWiki\Linker\Linker;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use MediaWiki\Html\Html;
 
@@ -189,7 +190,7 @@ class WikilogComment
 	 * Saves comment data in the database.
 	 */
 	public function saveComment() {
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->begin();
 
 		$this->mPost = $this->mSubject->getArticleId();
@@ -317,7 +318,7 @@ class WikilogComment
 			$args[5] = $this->mParentObj->mUserText;
 		}
 		// Get user IDs for notification
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$id = $this->mSubject->getArticleId();
 		$parent = Title::makeTitle( $this->mSubject->getNamespace(), $this->mSubject->getBaseText() );
 		$wlid = $parent->getArticleId();
@@ -451,7 +452,7 @@ class WikilogComment
 	 * Deletes comment data from the database.
 	 */
 	public function deleteComment() {
-		$dbw = wfGetDB( DB_MASTER );
+		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$dbw->begin();
 
 		$dbw->delete( 'wikilog_comments', array( 'wlc_id' => $this->mID ), __METHOD__ );
@@ -498,7 +499,7 @@ class WikilogComment
 			if ( $forCreation && $title->exists() ) {
 				// Collision! Are there imported comments?
 				// Generate another title.
-				$dbw = wfGetDB( DB_MASTER );
+				$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 				$max = $dbw->selectField( 'page', 'MAX( page_title )', array(
 					'page_namespace' => $title->getNamespace(),
 					'page_title ' . $dbw->buildLike( $title->getDBkey().'-', $dbw->anyString() )
@@ -642,7 +643,7 @@ class WikilogComment
 	 * @return New WikilogComment object, or NULL if comment doesn't exist.
 	 */
 	public static function newFromID( $id ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$row = self::loadFromID( $dbr, $id );
 		return self::newFromRow( $row );
 	}
@@ -654,7 +655,7 @@ class WikilogComment
 	 * @return New WikilogComment object, or NULL if comment doesn't exist.
 	 */
 	public static function newFromPageID( $pageid ) {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 		$row = self::loadFromPageID( $dbr, $pageid );
 		return self::newFromRow( $row );
 	}

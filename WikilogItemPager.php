@@ -27,6 +27,7 @@
  */
 
 use MediaWiki\Linker\Linker;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use MediaWiki\Html\Html;
 
@@ -560,7 +561,7 @@ class WikilogArchivesPager
 			$attribs['class'] = 'wl-draft';
 		}
 		if ( $wgUser->getID() ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$result = $dbr->select(
 				array( 'wikilog_comments', 'page_last_visit' ),
 				'COUNT(*)',

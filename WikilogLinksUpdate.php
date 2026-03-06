@@ -29,6 +29,8 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
+use MediaWiki\MediaWikiServices;
+
 class WikilogLinksUpdate
 {
 	private $mId;
@@ -40,7 +42,7 @@ class WikilogLinksUpdate
 	function __construct( &$lupd, $parserOutput ) {
 		$this->mId = $lupd->mId;
 		$this->mTitle = $lupd->mTitle;
-		$this->mDb = wfGetDB( DB_MASTER );
+		$this->mDb = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 		$this->mAuthors = $parserOutput->getAuthors();
 		$this->mTags = $parserOutput->getTags();
 	}

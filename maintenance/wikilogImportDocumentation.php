@@ -119,7 +119,7 @@ class WikilogImportDocumentation
 			throw new MWException( __CLASS__ . ": Failed to open {$this->mFilename}." );
 		}
 
-		$this->mDB = wfGetDB( DB_MASTER );
+		$this->mDB = $this->getDB( DB_PRIMARY );
 		$this->mSource = new ImportStreamSource( $this->mFileHandle );
 		$this->mImporter = new WikiImporter( $this->mSource );
 
