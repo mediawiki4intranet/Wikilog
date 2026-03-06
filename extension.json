@@ -55,6 +55,8 @@
 		"ArticleFromTitle": "Wikilog::ArticleFromTitle",
 		"ParserFirstCallInit": "WikilogParser::FirstCallInit",
 		"ArticleEditUpdates": "WikilogHooks::ArticleEditUpdates",
-		"EntitySchema": "WikilogHooks::ExtensionSchemaUpdates"
+		"DatabaseSchemaUpdates": "WikilogHooks::onDatabaseSchemaUpdates",
+		"ParserStart": "WikilogParser::onParserStart",
+		"InternalParseBeforeSanitize": "WikilogParser::onInternalParseBeforeSanitize"
 	}
 }

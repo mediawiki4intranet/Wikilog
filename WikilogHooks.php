@@ -42,7 +42,7 @@ class WikilogHooks {
         return true;
     }
 
-    public static function ExtensionSchemaUpdates( $updater ) {
+    public static function onDatabaseSchemaUpdates( $updater ) {
         $dir = __DIR__ . '/';
         $dbType = $updater->getDB()->getType();
         if ( $dbType === 'mysql' ) {

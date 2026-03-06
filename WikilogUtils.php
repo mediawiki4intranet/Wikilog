@@ -5,6 +5,11 @@
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
+use MediaWiki\Page\WikiPage;
+use ParserOutput;
+use RequestContext;
+use Article;
+use ParserOptions;
 
 if ( !defined( 'MEDIAWIKI' ) )
     die();
@@ -113,6 +118,43 @@ class WikilogUtils {
         $msg = $num ? 'wikilog-has-comments' : 'wikilog-no-comments';
         $txt = wfMessage( $msg, $num )->inContentLanguage()->text();
         return "[[" . $item->mTitle->getTalkPage()->getPrefixedText() . "|$txt]]";
+    }
+
+    public static function parsedArticle( Title $title, $useParserCache = false ) {
+        $wikipage = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $title );
+        $popts = $wikipage->makeParserOptions( RequestContext::getMain() );
+        $parserOutput = $wikipage->getParserOutput( $popts, $useParserCache ? WikiPage::READ_CACHE_OK : WikiPage::READ_NORMAL );
+        return [ new Article($title), $parserOutput ];
+    }
+
+    public static function splitSummaryContent( ParserOutput $parserOutput ) {
+        $text = $parserOutput->getText();
+        $summary = $parserOutput->getExtensionData( 'wikilog-summary' );
+        $moreMarker = $parserOutput->getExtensionData( 'wikilog-more' );
+
+        if ( $summary !== null ) {
+            // summary from <summary> tag.
+            return [ $summary, $text ];
+        } elseif ( $moreMarker ) {
+            // summary from <!--more-->
+            $parts = explode( $moreMarker, $text, 2 );
+            return [ $parts[0], $text ];
+        } else {
+            // no summary
+            return [ false, $text ];
+        }
+    }
+
+    public static function buildForm( $fields ) {
+        $form = '';
+        foreach ( $fields as $field ) {
+            if ( is_array( $field ) ) {
+                $form .= '<tr><td class="mw-label">' . $field[0] . '</td><td class="mw-input">' . $field[1] . '</td></tr>';
+            } else {
+                $form .= '<tr><td colspan="2">' . $field . '</td></tr>';
+            }
+        }
+        return '<table class="mw-htmlform-inner">' . $form . '</table>';
     }
 }
 

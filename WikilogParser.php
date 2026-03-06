@@ -42,8 +42,21 @@ class WikilogParser
             return WikilogParser::tags( $parser, $arg );
         }, SFH_NO_HASH );
 
+        $mwMore = $mwFactory->get( 'wlk-more' );
+        foreach ( $mwMore->getSynonyms() as $tagname ) {
+            $parser->setHook( $tagname, function ( $text, $params, $parser ) {
+                return WikilogParser::more( $text, $params, $parser );
+            } );
+        }
+
         return true;
-    }    
+    }
+
+    public static function more( $text, $params, $parser ) {
+        $marker = '<!--wikilog-more-->';
+        $parser->mExtWikilog->mMore = $marker;
+        return $marker;
+    }
 
     public static function summary( $text, $params, $parser ) {
         $parser->mExtWikilog->mSummary = $parser->recursiveTagParse( $text );
@@ -55,7 +68,7 @@ class WikilogParser
         return '';
     }
 
-    public static function ClearState( $parser ) {
+    public static function onParserStart( $parser ) {
         $parser->mExtWikilog = new WikilogParserOutput;
         return true;
     }
@@ -65,10 +78,24 @@ class WikilogParser
         $parser->mExtWikilogInfo = Wikilog::getWikilogInfo( $title );
         return true;
     }
+
+    public static function onInternalParseBeforeSanitize( $parser, &$text, $stripState ) {
+        if ( isset( $parser->mExtWikilog ) ) {
+            $output = $parser->getOutput();
+            if ( $parser->mExtWikilog->mSummary !== false ) {
+                $output->setExtensionData( 'wikilog-summary', $parser->mExtWikilog->mSummary );
+            }
+            if ( $parser->mExtWikilog->mMore !== false ) {
+                $output->setExtensionData( 'wikilog-more', $parser->mExtWikilog->mMore );
+            }
+        }
+        return true;
+    }
 }
 
 class WikilogParserOutput {
     public $mSummary = false;
+    public $mMore = false;
     public $mAuthors = [];
     public $mTags = [];
     public $mPublish = false;
