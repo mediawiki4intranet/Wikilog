@@ -184,7 +184,6 @@ class WikilogSummaryPager
 		global $wgOut;
 		$wgOut->addModules( $parserOutput->getModules() );
 		$wgOut->addModuleStyles( $parserOutput->getModuleStyles() );
-		$wgOut->addModuleScripts( $parserOutput->getModuleScripts() );
 
 		# Retrieve the common header and footer parameters.
 		$params = $item->getMsgParams( $wgWikilogExtSummaries, $parserOutput );
