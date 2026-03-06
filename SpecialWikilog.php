@@ -414,9 +414,9 @@ class SpecialWikilog
 	 * @return HTML of the query form.
 	 */
 	protected function getQueryForm( $opts ) {
-		global $wgContLang;
+		$contLang = \MediaWiki\MediaWikiServices::getInstance()->getContentLanguage();
 
-		$align = $wgContLang->isRtl() ? 'left' : 'right';
+		$align = $contLang->isRtl() ? 'left' : 'right';
 		$fields = $this->getQueryFormFields( $opts );
 		$columns = array_chunk( $fields, ( count( $fields ) + 1 ) / 2, true );
 
@@ -536,7 +536,7 @@ class SpecialWikilog
 		global $wgWikilogEnableTags;
 		global $wgWikilogDefaultNotCategory;
 		global $wgWikilogSearchDropdowns;
-		global $wgLang, $wgUser;
+		global $wgUser;
 
 		$fields = array();
 		$formvalues = array();
@@ -582,10 +582,11 @@ class SpecialWikilog
 			}
 		}
 
+		$lang = $this->getLanguage();
 		$selectedMonth = $opts['month'];
 		$optionsHtml = Html::option( wfMessage( 'monthsall' )->text(), '', $selectedMonth === null || $selectedMonth === '' );
 		for ($i = 1; $i <= 12; $i++) {
-			$optionsHtml .= Html::option( $wgLang->getMonthName( $i ), $i, $i == $selectedMonth );
+			$optionsHtml .= Html::option( $lang->getMonthName( $i ), $i, $i == $selectedMonth );
 		}
 		$month_select = Html::rawElement( 'select', [
 			'name' => 'month',

@@ -14,11 +14,11 @@ class WikilogBloggerImport
         $comment_ai = $dbw->selectField('wikilog_comments', 'MAX(wlc_id)', '1')+1;
 
         /* Default parameter values */
-        global $wgContLang;
+        $contLang = \MediaWiki\MediaWikiServices::getInstance()->getContentLanguage();
         $params += array(
             'blog' => '',
-            'ns_blog' => $wgContLang->getNsText(NS_BLOG & ~1),
-            'ns_blog_talk' => $wgContLang->getNsText(NS_BLOG | 1),
+            'ns_blog' => $contLang->getNsText(NS_BLOG & ~1),
+            'ns_blog_talk' => $contLang->getNsText(NS_BLOG | 1),
             'users' => array(),
         );
 

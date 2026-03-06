@@ -23,6 +23,7 @@
 
 use MediaWiki\Linker\Linker;
 use MediaWiki\Title\Title;
+use RequestContext;
 
 if ( !defined( 'MEDIAWIKI' ) )
     die();
@@ -132,7 +133,8 @@ class SpecialWikilogSubscriptions
     }
 
     protected function webOutputPartial( $opts, $key, $offsetReplacement, $limitReplacement, $query ) {
-        global $wgOut, $wgLang;
+        global $wgOut;
+        $lang = $this->getLanguage();
 
         $html = '<div>';
         $html .= '<h2>' . wfMessage( 'wikilog-subscription-'.$key )->plain() . '</h2>';
@@ -149,7 +151,7 @@ class SpecialWikilogSubscriptions
         }
         $html .= '</div>';
         $wgOut->addHtml( $html );
-        $link = $wgLang->viewPrevNext(
+        $link = $lang->viewPrevNext(
             $this->mTitle,
             $opts[$key . '_offset'],
             $opts[$key . '_limit'],
@@ -283,7 +285,7 @@ END_STRING;
      * @return string
      */
     public static function generateSubscriptionLink( $title, $subscribed = null, $forEmail = false, $lang = NULL ) {
-        global $wgUser, $wgLang;
+        global $wgUser;
         if ( !$title || $wgUser->isAnon() ) {
             return '';
         }
@@ -304,7 +306,7 @@ END_STRING;
             ? ( $subscribed ? 'wikilog-subscription-unsubscribe-email' : 'wikilog-subscription-subscribe-email' )
             : ( $subscribed ? 'wikilog-subscription-unsubscribe' : 'wikilog-subscription-subscribe' ) );
         return $prefix . wfMessage( $msg, $title->getText(), $link )
-            ->inLanguage( $lang ? $lang : $wgLang )->plain();
+            ->inLanguage( $lang ? $lang : RequestContext::getMain()->getLanguage() )->plain();
     }
 
     /**
@@ -314,11 +316,10 @@ END_STRING;
      * @return string
      */
     public static function subcriptionsRuleLink( $lang = NULL ) {
-        global $wgLang;
         return Linker::link(
             SpecialPage::getTitleFor( 'wikilogsubscriptions' ),
             wfMessage( 'wikilog-subscription-return-link' )
-                ->inLanguage( $lang ? $lang : $wgLang )->plain()
+                ->inLanguage( $lang ? $lang : RequestContext::getMain()->getLanguage() )->plain()
         );
     }
 

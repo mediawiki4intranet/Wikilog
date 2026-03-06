@@ -518,9 +518,9 @@ class WikilogComment
 	 * Returns automatic summary (for recent changes) for the posted comment.
 	 */
 	public function getAutoSummary() {
-		global $wgContLang;
+		$contLang = \MediaWiki\MediaWikiServices::getInstance()->getContentLanguage();
 		$user = $this->mUserID ? $this->mUserText : $this->mAnonName;
-		$summ = $wgContLang->truncate( str_replace( "\n", ' ', $this->mText ),
+		$summ = $contLang->truncate( str_replace( "\n", ' ', $this->mText ),
 			max( 0, 200 - strlen( wfMessage( 'wikilog-comment-autosumm' )->inContentLanguage()->text() ) ),
 			'...' );
 		return wfMessage( 'wikilog-comment-autosumm', $user, $summ )->inContentLanguage()->text();

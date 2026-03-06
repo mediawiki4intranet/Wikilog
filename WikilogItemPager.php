@@ -589,18 +589,18 @@ class WikilogArchivesPager
 	}
 
 	function formatValue( $name, $value ) {
-		global $wgLang;
+		$lang = $this->getLanguage();
 
 		switch ( $name ) {
 			case 'wlp_pubdate':
-				$s = $wgLang->timeanddate( $value, true );
+				$s = $lang->timeanddate( $value, true );
 				if ( !$this->mCurrentRow->wlp_publish ) {
 					$s = Xml::wrapClass( $s, 'wl-draft-inline' );
 				}
 				return $s;
 
 			case 'wti_talk_updated':
-				return $wgLang->timeanddate( $value, true );
+				return $lang->timeanddate( $value, true );
 
 			case 'wlp_updated':
 				return $value;
