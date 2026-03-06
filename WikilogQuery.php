@@ -818,8 +818,7 @@ class WikilogCommentQuery
 		$tmpOpts['ORDER BY'] = "wlc_post $dir, wlc_thread $dir, wlc_id $dir";
 		$other = false;
 		// Select $limit'th comment, get post and thread from it
-		$res = $dbr->select( $tables, 'wlc_post, wlc_thread', $tmpConds, __METHOD__, $tmpOpts, $joins );
-		$row = $res->fetchObject();
+		$row = $dbr->selectRow( $tables, ['wlc_post', 'wlc_thread'], $tmpConds, __METHOD__, $tmpOpts, $joins );
 		if ( $row ) {
 			$thread = WikilogUtils::decodeVarintArray( $row->wlc_thread );
 			$parentThread = WikilogUtils::decodeVarintArray( $parentThread );
@@ -837,8 +836,7 @@ class WikilogCommentQuery
 			$tmpConds[] = $this->getPostThreadCond( $dbr, $backwards ? $first : $other, $backwards ? $other : $last );
 			$tmpOpts['OFFSET'] = 0;
 			// Get "other" comment id
-			$res = $dbr->select( $tables, 'wlc_id', $tmpConds, __METHOD__, $tmpOpts, $joins );
-			$row = $res->fetchObject();
+			$row = $dbr->selectRow( $tables, 'wlc_id', $tmpConds, __METHOD__, $tmpOpts, $joins );
 			$other->id = $row ? $row->wlc_id : false;
 		}
 		return $backwards ? array( $other, $last ) : array( $first, $other );
@@ -851,9 +849,8 @@ class WikilogCommentQuery
 		if ( !$id ) {
 			return false;
 		}
-		$res = $dbr->select( 'wikilog_comments', 'wlc_post, wlc_thread',
+		$row = $dbr->selectRow( 'wikilog_comments', ['wlc_post', 'wlc_thread'],
 			array( 'wlc_id' => $this->mFirstCommentId ), __METHOD__ );
-		$row = $dbr->fetchObject( $res );
 		if ( $row ) {
 			return (object)array(
 				'id' => $id,

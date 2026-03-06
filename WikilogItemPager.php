@@ -564,15 +564,14 @@ class WikilogArchivesPager
 			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$result = $dbr->select(
 				array( 'wikilog_comments', 'page_last_visit' ),
-				'COUNT(*)',
+				'COUNT(*) AS unread_count',
 				array( 'wlc_status' => 'OK', 'IFNULL(wlc_updated>pv_date,1)', 'wlc_post' => $row->wlp_page ),
 				__METHOD__,
 				NULL,
 				array( 'page_last_visit' => array( 'LEFT JOIN', array( 'pv_page = wlc_comment_page', 'pv_user' => $wgUser->getID() ) ) )
 			);
-			$v = $dbr->fetchRow( $result );
-			$dbr->freeResult( $result );
-			$row->wlp_unread_comments = $v[0];
+			$v = $result->fetchObject();
+			$row->wlp_unread_comments = $v ? $v->unread_count : 0;
 			if ( $row->wlp_last_visit < $row->wlp_updated || $row->wlp_unread_comments ) {
 				$attribs['class'] .= ' wl-unread';
 			}

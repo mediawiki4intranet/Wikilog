@@ -137,10 +137,9 @@ class WikilogLinksUpdate
 		$res = $this->mDb->select( 'wikilog_authors', array( 'wla_page', 'wla_author' ),
 			array( 'wla_page' => $this->mId ), __METHOD__ );
 		$arr = array();
-		while ( $row = $this->mDb->fetchObject( $res ) ) {
+		foreach ( $res as $row ) {
 			$arr[$row->wla_author] = 1;
 		}
-		$this->mDb->freeResult( $res );
 		return $arr;
 	}
 
@@ -148,10 +147,9 @@ class WikilogLinksUpdate
 		$res = $this->mDb->select( 'wikilog_tags', array( 'wlt_page', 'wlt_tag' ),
 			array( 'wlt_page' => $this->mId ), __METHOD__ );
 		$arr = array();
-		while ( $row = $this->mDb->fetchObject( $res ) ) {
+		foreach ( $res as $row ) {
 			$arr[$row->wlt_tag] = 1;
 		}
-		$this->mDb->freeResult( $res );
 		return $arr;
 	}
 

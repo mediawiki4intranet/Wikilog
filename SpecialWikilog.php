@@ -459,19 +459,18 @@ class SpecialWikilog
 		$query = clone $this->query;
 		$query->setWikilogTitle(NULL);
 		$res = $query->select( $dbr,
-			array(), 'p.page_namespace, p.page_title',
+			array(), ['p.page_namespace', 'p.page_title'],
 			array(), __FUNCTION__,
 			array('GROUP BY' => 'wlp_parent', 'ORDER BY' => 'w.page_title')
 		);
 		$values = array();
-		while( $row = $dbr->fetchRow( $res ) )
+		foreach ( $res as $row )
 		{
-			$parts = explode( '/', $row['page_title'] );
-			$row = Title::makeTitleSafe( $row['page_namespace'], $parts[0] );
-			if ($row)
-				$values[] = array( $row->getText(), $row->getPrefixedText() );
+			$parts = explode( '/', $row->page_title );
+			$title = Title::makeTitleSafe( $row->page_namespace, $parts[0] );
+			if ($title)
+				$values[] = array( $title->getText(), $title->getPrefixedText() );
 		}
-		$dbr->freeResult( $res );
 		$select_options['wikilog'] = $values;
 
 		/* Authors */
@@ -479,9 +478,8 @@ class SpecialWikilog
 		$query->setAuthor(NULL);
 		$res = $query->select( $dbr, array(), 'DISTINCT wlp_authors', array(), __FUNCTION__ );
 		$rows = array();
-		while( $row = $dbr->fetchRow( $res ) )
-			$rows += unserialize( $row['wlp_authors'] );
-		$dbr->freeResult( $res );
+		foreach ( $res as $row )
+			$rows += unserialize( $row->wlp_authors );
 		ksort( $rows );
 		$select_options['author'] = array();
 		foreach( $rows as $k => $v )

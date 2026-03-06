@@ -416,7 +416,7 @@ class WikilogMainPage
 	 */
 	private function loadWikilogData() {
 		if ( !$this->mWikilogDataLoaded ) {
-			$dbr = wfGetDB( DB_SLAVE );
+			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 			$data = $this->getWikilogDataFromId( $dbr, $this->getId() );
 			if ( $data ) {
 				$this->mWikilogSubtitle = unserialize( $data->wlw_subtitle );
