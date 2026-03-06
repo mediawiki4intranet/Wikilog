@@ -57,6 +57,7 @@
 		"ArticleEditUpdates": "WikilogHooks::ArticleEditUpdates",
 		"DatabaseSchemaUpdates": "WikilogHooks::onDatabaseSchemaUpdates",
 		"ParserStart": "WikilogParser::onParserStart",
-		"InternalParseBeforeSanitize": "WikilogParser::onInternalParseBeforeSanitize"
+		"InternalParseBeforeSanitize": "WikilogParser::onInternalParseBeforeSanitize",
+		"ParserClearState": "WikilogParser::onParserClearState"
 	}
 }

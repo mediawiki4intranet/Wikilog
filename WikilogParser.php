@@ -10,6 +10,8 @@ if ( !defined( 'MEDIAWIKI' ) )
 
 class WikilogParser
 {
+    private static $parserData = [];
+
     public static function FirstCallInit( $parser ) {
         $mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
         $mwSummary = $mwFactory->get( 'wlk-summary' );
@@ -54,29 +56,30 @@ class WikilogParser
 
     public static function more( $text, $params, $parser ) {
         $marker = '<!--wikilog-more-->';
-        $parser->mExtWikilog->mMore = $marker;
+        self::$parserData[spl_object_hash($parser)]->mMore = $marker;
         return $marker;
     }
 
     public static function summary( $text, $params, $parser ) {
-        $parser->mExtWikilog->mSummary = $parser->recursiveTagParse( $text );
+        self::$parserData[spl_object_hash($parser)]->mSummary = $parser->recursiveTagParse( $text );
         return '';
     }
 
     public static function publish( $parser, $frame, $args ) {
-        $parser->mExtWikilog->mPublish = true;
+        $data = self::$parserData[spl_object_hash($parser)];
+        $data->mPublish = true;
         $date = isset( $args[0] ) ? trim( $frame->expand( $args[0] ) ) : false;
         if ( $date ) {
-            $parser->mExtWikilog->mPubDate = wfTimestamp( TS_MW, strtotime( $date ) );
+            $data->mPubDate = wfTimestamp( TS_MW, strtotime( $date ) );
         }
         for ( $i = 1; $i < count( $args ); $i++ ) {
             $author = trim( $frame->expand( $args[$i] ) );
             if ( $author !== '' ) {
                 $user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $author );
                 if ( $user && $user->getId() ) {
-                    $parser->mExtWikilog->mAuthors[$user->getName()] = $user->getId();
+                    $data->mAuthors[$user->getName()] = $user->getId();
                 } else {
-                    $parser->mExtWikilog->mAuthors[$author] = 0;
+                    $data->mAuthors[$author] = 0;
                 }
             }
         }
@@ -84,22 +87,24 @@ class WikilogParser
     }
 
     public static function comment( $parser, $frame, $args ) {
-        $parser->mExtWikilog->mComment = [];
+        $data = self::$parserData[spl_object_hash($parser)];
+        $data->mComment = [];
         foreach ( $args as $arg ) {
-            $parser->mExtWikilog->mComment[] = trim( $frame->expand( $arg ) );
+            $data->mComment[] = trim( $frame->expand( $arg ) );
         }
         return '';
     }
 
     public static function author( $parser, $frame, $args ) {
+        $data = self::$parserData[spl_object_hash($parser)];
         foreach ( $args as $arg ) {
             $author = trim( $frame->expand( $arg ) );
             if ( $author !== '' ) {
                 $user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $author );
                 if ( $user && $user->getId() ) {
-                    $parser->mExtWikilog->mAuthors[$user->getName()] = $user->getId();
+                    $data->mAuthors[$user->getName()] = $user->getId();
                 } else {
-                    $parser->mExtWikilog->mAuthors[$author] = 0;
+                    $data->mAuthors[$author] = 0;
                 }
             }
         }
@@ -107,10 +112,11 @@ class WikilogParser
     }
 
     public static function tags( $parser, $frame, $args ) {
+        $data = self::$parserData[spl_object_hash($parser)];
         foreach ( $args as $arg ) {
             $tag = trim( $frame->expand( $arg ) );
             if ( $tag !== '' ) {
-                $parser->mExtWikilog->mTags[$tag] = 1;
+                $data->mTags[$tag] = 1;
             }
         }
         return '';
@@ -122,20 +128,24 @@ class WikilogParser
     }
 
     public static function onParserStart( $parser ) {
-        $parser->mExtWikilog = new WikilogParserOutput;
+        self::$parserData[spl_object_hash($parser)] = new WikilogParserOutput;
+        return true;
+    }
+
+    public static function onParserClearState( $parser ) {
+        unset(self::$parserData[spl_object_hash($parser)]);
         return true;
     }
 
     public static function BeforeStrip( $parser, &$text, &$stripState ) {
-        $title = $parser->getTitle();
-        $parser->mExtWikilogInfo = Wikilog::getWikilogInfo( $title );
         return true;
     }
 
     public static function onInternalParseBeforeSanitize( $parser, &$text, $stripState ) {
-        if ( isset( $parser->mExtWikilog ) ) {
+        $hash = spl_object_hash($parser);
+        if ( isset( self::$parserData[$hash] ) ) {
             $output = $parser->getOutput();
-            $output->setExtensionData( 'wikilog', $parser->mExtWikilog );
+            $output->setExtensionData( 'wikilog', self::$parserData[$hash] );
         }
         return true;
     }
