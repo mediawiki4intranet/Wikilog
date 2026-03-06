@@ -28,6 +28,7 @@
 
 use MediaWiki\Linker\Linker;
 use MediaWiki\Title\Title;
+use Wikimedia\LightweightObject\Html;
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
@@ -200,7 +201,7 @@ class WikilogSummaryPager
 		if ( $this->mShowEditLink && $item->mTitle->quickUserCan( 'edit' ) ) {
 			$heading = $this->doEditLink( $item->mTitle, $item->mName ) . $heading;
 		}
-		$heading = Xml::tags( 'h2', null, $heading );
+		$heading = Html::rawElement( 'h2', null, $heading );
 
 		# Sumary entry header.
 		$key = $this->mQuery->isSingleWikilog()

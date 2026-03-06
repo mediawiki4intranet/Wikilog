@@ -29,6 +29,8 @@
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
+use Wikimedia\LightweightObject\Html;
+
 /**
  * Syndication base class. This class shares common metadata for both feeds
  * (RSS channels) and entries (RSS items).
@@ -654,7 +656,7 @@ class WlTextConstruct
 	 */
 	function getXML( $element = null, $attribs = array() ) {
 		if ( $this->mType == self::T_XHTML ) {
-			$content = Xml::tags( 'div', array( 'xmlns' => "http://www.w3.org/1999/xhtml" ), $this->mText );
+			$content = Html::rawElement( 'div', array( 'xmlns' => "http://www.w3.org/1999/xhtml" ), $this->mText );
 		} else {
 			$content = htmlspecialchars( $this->mText );
 		}
@@ -663,7 +665,7 @@ class WlTextConstruct
 				$attribs['xml:lang'] = $this->mLang;
 			}
 			$attribs['type'] = $this->mType;
-			$content = Xml::tags( $element, $attribs, $content );
+			$content = Html::rawElement( $element, $attribs, $content );
 		}
 		return $content;
 	}
@@ -702,7 +704,7 @@ class WlAtomFeed
 		} elseif ( $contents instanceof WlTextConstruct ) {
 			return $contents->getXML( $element ) . "\n";
 		} else {
-			return Xml::element( $element, null, $contents ) . "\n";
+			return Html::element( $element, null, $contents ) . "\n";
 		}
 	}
 
@@ -714,26 +716,26 @@ class WlAtomFeed
 	 * @return An XML fragment.
 	 */
 	static function formatPersonData( $element, $person ) {
-		$content = Xml::element( 'name', null, $person['name'] );
+		$content = Html::element( 'name', null, $person['name'] );
 		if ( isset( $person['uri'] ) && !empty( $person['uri'] ) ) {
-			$content .= Xml::element( 'uri', null, $person['uri'] );
+			$content .= Html::element( 'uri', null, $person['uri'] );
 		}
 		if ( isset( $person['email'] ) && !empty( $person['email'] ) ) {
-			$content .= Xml::element( 'email', null, $person['email'] );
+			$content .= Html::element( 'email', null, $person['email'] );
 		}
-		return Xml::tags( $element, null, $content );
+		return Html::rawElement( $element, null, $content );
 	}
 
 	/**
 	 * Formats feed metadata.
 	 */
 	function formatFeedMetadata() {
-		$content = Xml::element( 'id', null, $this->getId() ) . "\n";
+		$content = Html::element( 'id', null, $this->getId() ) . "\n";
 		$content .= self::formatTextData( 'title', $this->getTitle() );
 		$content .= self::formatTextData( 'subtitle', $this->getSubtitle() );
 		foreach ( $this->getLinks() as $rel => $links ) {
 			foreach ( $links as $link ) {
-				$content .= Xml::element( 'link', array( 'rel' => $rel ) + $link ) . "\n";
+				$content .= Html::element( 'link', array( 'rel' => $rel ) + $link ) . "\n";
 			}
 		}
 		foreach ( $this->getAuthors() as $author ) {
@@ -743,15 +745,15 @@ class WlAtomFeed
 			$content .= self::formatPersonData( 'contributor', $contributor ) . "\n";
 		}
 		foreach ( $this->getCategories() as $category ) {
-			$content .= Xml::element( 'category', $category ) . "\n";
+			$content .= Html::element( 'category', $category ) . "\n";
 		}
 		if ( $this->getIcon() ) {
-			$content .= Xml::element( 'icon', null, $this->getIconUrl() ) . "\n";
+			$content .= Html::element( 'icon', null, $this->getIconUrl() ) . "\n";
 		}
 		if ( $this->getLogo() ) {
-			$content .= Xml::element( 'logo', null, $this->getLogoUrl() ) . "\n";
+			$content .= Html::element( 'logo', null, $this->getLogoUrl() ) . "\n";
 		}
-		$content .= Xml::element( 'updated', null,
+		$content .= Html::element( 'updated', null,
 					$this->formatTime( $this->getUpdated() ) ) . "\n";
 		$content .= self::formatTextData( 'rights', $this->getRights() );
 		return $content;
@@ -763,7 +765,7 @@ class WlAtomFeed
 	function outHeader() {
 		$this->outXmlHeader();
 
-		echo Xml::openElement( 'feed',
+		echo Html::openElement( 'feed',
 			array(
 				'xmlns'     => "http://www.w3.org/2005/Atom",
 				'xmlns:thr' => "http://purl.org/syndication/thread/1.0",
@@ -774,21 +776,21 @@ class WlAtomFeed
 		echo $this->formatFeedMetadata();
 
 		$gtor = $this->getGenerator();
-		echo Xml::element( 'generator', $gtor['attribs'], $gtor['content'] ) . "\n";
+		echo Html::element( 'generator', $gtor['attribs'], $gtor['content'] ) . "\n";
 	}
 
 	/**
 	 * Output a single feed entry.
 	 */
 	function outEntry( WlSyndicationEntry $entry ) {
-		echo Xml::openElement( 'entry' ) . "\n";
+		echo Html::openElement( 'entry' ) . "\n";
 
-		echo Xml::element( 'id', null, $entry->getId() ) . "\n";
+		echo Html::element( 'id', null, $entry->getId() ) . "\n";
 		echo self::formatTextData( 'title', $entry->getTitle() );
 
 		foreach ( $entry->getLinks() as $rel => $links ) {
 			foreach ( $links as $link ) {
-				echo Xml::element( 'link', array( 'rel' => $rel ) + $link ) . "\n";
+				echo Html::element( 'link', array( 'rel' => $rel ) + $link ) . "\n";
 			}
 		}
 
@@ -801,20 +803,20 @@ class WlAtomFeed
 		}
 
 		foreach ( $entry->getCategories() as $category ) {
-			echo Xml::element( 'category', $category ) . "\n";
+			echo Html::element( 'category', $category ) . "\n";
 		}
 
-		echo Xml::element( 'published', null,
+		echo Html::element( 'published', null,
 			$this->formatTime( $entry->getPublished() ) ) . "\n";
 
-		echo Xml::element( 'updated', null,
+		echo Html::element( 'updated', null,
 			$this->formatTime( $entry->getUpdated() ) ) . "\n";
 
 		echo self::formatTextData( 'rights', $entry->getRights() );
 
 		$source = $entry->getSource();
 		if ( $source instanceof WlSyndicationFeed ) {
-			echo Xml::tags( 'source', array(
+			echo Html::rawElement( 'source', array(
 				'xml:lang' => $source->getLanguage()
 			), $source->formatFeedMetadata() );
 		}
@@ -822,14 +824,14 @@ class WlAtomFeed
 		echo self::formatTextData( 'summary', $entry->getSummary() );
 		echo self::formatTextData( 'content', $entry->getContent() );
 
-		echo Xml::closeElement( 'entry' ) . "\n";
+		echo Html::closeElement( 'entry' ) . "\n";
 	}
 
 	/**
 	 * Output the footer of the Atom feed.
 	 */
 	function outFooter() {
-		echo Xml::closeElement( 'feed' ) . "\n";
+		echo Html::closeElement( 'feed' ) . "\n";
 	}
 }
 
@@ -864,9 +866,9 @@ class WlRSSFeed
 		if ( is_null( $contents ) ) {
 			return null;
 		} elseif ( $contents instanceof WlTextConstruct ) {
-			return Xml::element( $element, null, $contents->getText() ) . "\n";
+			return Html::element( $element, null, $contents->getText() ) . "\n";
 		} else {
-			return Xml::element( $element, null, $contents ) . "\n";
+			return Html::element( $element, null, $contents ) . "\n";
 		}
 	}
 
@@ -877,7 +879,7 @@ class WlRSSFeed
 		$this->outXmlHeader();
 		$mlink = false;
 
-		echo Xml::openElement( 'rss',
+		echo Html::openElement( 'rss',
 			array(
 				'version'       => "2.0",
 				'xmlns:atom'    => "http://www.w3.org/2005/Atom",
@@ -887,7 +889,7 @@ class WlRSSFeed
 			)
 		) . "\n";
 
-		echo Xml::openElement( 'channel' ) . "\n";
+		echo Html::openElement( 'channel' ) . "\n";
 		echo self::formatTextData( 'title', $this->getTitle() );
 		echo self::formatTextData( 'description', $this->getSubtitle() );
 
@@ -895,43 +897,43 @@ class WlRSSFeed
 			if ( $rel == 'alternate' ) {
 				# RSS only supports (and requires) a single link element.
 				$mlink = array_shift( $links );
-				echo Xml::element( 'link', null, $mlink['href'] ) . "\n";
+				echo Html::element( 'link', null, $mlink['href'] ) . "\n";
 			} else {
 				# For other links, we use the atom namespace.
 				foreach ( $links as $link ) {
-					echo Xml::element( 'atom:link', array( 'rel' => $rel ) + $link ) . "\n";
+					echo Html::element( 'atom:link', array( 'rel' => $rel ) + $link ) . "\n";
 				}
 			}
 		}
 
 		foreach ( $this->getAuthors() as $author ) {
-			echo Xml::element( 'dc:creator', null, $author['name'] ) . "\n";
+			echo Html::element( 'dc:creator', null, $author['name'] ) . "\n";
 		}
 
 		if ( $this->getLogo() && $mlink ) {
 			$title = $this->getTitle();
 			if ( $title instanceof WlTextConstruct ) $title = $title->getText();
-			echo Xml::openElement( 'image' ) .
-				 Xml::element( 'url', null, $this->getLogoUrl() ) .
-				 Xml::element( 'title', null, $title ) .
-				 Xml::element( 'link', null, $mlink['href'] ) .
-				 Xml::closeElement( 'image' ) . "\n";
+			echo Html::openElement( 'image' ) .
+				 Html::element( 'url', null, $this->getLogoUrl() ) .
+				 Html::element( 'title', null, $title ) .
+				 Html::element( 'link', null, $mlink['href'] ) .
+				 Html::closeElement( 'image' ) . "\n";
 		}
 
-		echo Xml::element( 'language', null, $this->getLanguage() ) . "\n";
-		echo Xml::element( 'lastBuildDate', null, $this->formatTime( $this->getUpdated() ) ) . "\n";
+		echo Html::element( 'language', null, $this->getLanguage() ) . "\n";
+		echo Html::element( 'lastBuildDate', null, $this->formatTime( $this->getUpdated() ) ) . "\n";
 		echo $this->formatTextData( 'copyright', $this->getRights() );
 
 		$gtor = $this->getGenerator();
-		echo Xml::element( 'generator', null, "{$gtor['content']} {$gtor['attribs']['version']}" ) . "\n";
+		echo Html::element( 'generator', null, "{$gtor['content']} {$gtor['attribs']['version']}" ) . "\n";
 	}
 
 	/**
 	 * Output a single feed entry.
 	 */
 	function outEntry( WlSyndicationEntry $entry ) {
-		echo Xml::openElement( 'item' ) . "\n";
-		echo Xml::element( 'guid', array( 'isPermaLink' => "false" ), $entry->getId() ) . "\n";
+		echo Html::openElement( 'item' ) . "\n";
+		echo Html::element( 'guid', array( 'isPermaLink' => "false" ), $entry->getId() ) . "\n";
 		echo $this->formatTextData( 'title', $entry->getTitle() );
 
 		foreach ( $entry->getLinks() as $rel => $links ) {
@@ -939,7 +941,7 @@ class WlRSSFeed
 				if ( !empty( $links ) ) {
 					# RSS only supports a single link element.
 					$link = array_shift( $links );
-					echo Xml::element( 'link', null, $link['href'] ) . "\n";
+					echo Html::element( 'link', null, $link['href'] ) . "\n";
 				}
 			} elseif ( $rel == 'enclosure' ) {
 				if ( !empty( $links ) ) {
@@ -950,24 +952,24 @@ class WlRSSFeed
 						'type' => $link['type'],
 						'length' => $link['length']
 					);
-					echo Xml::element( 'enclosure', $attribs ) . "\n";
+					echo Html::element( 'enclosure', $attribs ) . "\n";
 				}
 			} elseif ( $rel == 'replies' ) {
 				if ( !empty( $links ) ) {
 					# RSS only supports a single comments element.
 					$link = array_shift( $links );
-					echo Xml::element( 'comments', null, $link['href'] ) . "\n";
+					echo Html::element( 'comments', null, $link['href'] ) . "\n";
 				}
 			} else {
 				# For other links, we use the atom namespace.
 				foreach ( $links as $link ) {
-					echo Xml::element( 'atom:link', array( 'rel' => $rel ) + $link ) . "\n";
+					echo Html::element( 'atom:link', array( 'rel' => $rel ) + $link ) . "\n";
 				}
 			}
 		}
 
 		foreach ( $entry->getAuthors() as $author ) {
-			echo Xml::element( 'dc:creator', null, $author['name'] ) . "\n";
+			echo Html::element( 'dc:creator', null, $author['name'] ) . "\n";
 		}
 
 		foreach ( $entry->getCategories() as $category ) {
@@ -976,12 +978,12 @@ class WlRSSFeed
 			if ( isset( $category['scheme'] ) ) {
 				$attribs['domain'] = $category['scheme'];
 			}
-			echo Xml::element( 'category', $attribs, $content ) . "\n";
+			echo Html::element( 'category', $attribs, $content ) . "\n";
 		}
 
 		# Use either published or updated dates for the pubDate element.
 		$date = $entry->getPublished() ? $entry->getPublished() : $entry->getUpdated();
-		echo Xml::element( 'pubDate', null, $this->formatTime( $date ) ) . "\n";
+		echo Html::element( 'pubDate', null, $this->formatTime( $date ) ) . "\n";
 
 		# RSS source feed.
 		$source = $entry->getSource();
@@ -989,7 +991,7 @@ class WlRSSFeed
 			$s_title = $source->getTitle();
 			$s_links = $source->getLinks( 'self' );
 			$s_url = array_shift( $s_links );
-			echo Xml::element( 'source', array( 'url' => $s_url['href'] ),
+			echo Html::element( 'source', array( 'url' => $s_url['href'] ),
 				$s_title instanceof WlTextConstruct ?
 					$s_title->getText() : $s_title
 			) . "\n";
@@ -1011,29 +1013,29 @@ class WlRSSFeed
 
 		if ( $description ) {
 			if ( $description instanceof WlTextConstruct ) {
-				echo Xml::element( 'description', null, $description->getHTML() );
+				echo Html::element( 'description', null, $description->getHTML() );
 			} else {
-				echo Xml::element( 'description', null, htmlspecialchars( $description ) );
+				echo Html::element( 'description', null, htmlspecialchars( $description ) );
 			}
 		}
 
 		if ( $content ) {
 			if ( $content instanceof WlTextConstruct ) {
-				echo Xml::element( 'content:encoded', null, $content->getHTML() );
+				echo Html::element( 'content:encoded', null, $content->getHTML() );
 			} else {
-				echo Xml::element( 'content:encoded', null, htmlspecialchars( $content ) );
+				echo Html::element( 'content:encoded', null, htmlspecialchars( $content ) );
 			}
 		}
 
-		echo Xml::closeElement( 'item' ) . "\n";
+		echo Html::closeElement( 'item' ) . "\n";
 	}
 
 	/**
 	 * Output the footer of the RSS feed.
 	 */
 	function outFooter() {
-		echo Xml::closeElement( 'channel' ) . "\n";
-		echo Xml::closeElement( 'rss' ) . "\n";
+		echo Html::closeElement( 'channel' ) . "\n";
+		echo Html::closeElement( 'rss' ) . "\n";
 	}
 }
 

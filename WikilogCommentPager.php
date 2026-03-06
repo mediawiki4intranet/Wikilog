@@ -1,5 +1,6 @@
 <?php
 use MediaWiki\Title\Title;
+use Wikimedia\LightweightObject\Html;
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
@@ -96,11 +97,11 @@ abstract class WikilogCommentPager
 	}
 
 	function getStartBody() {
-		return Xml::openElement( 'div', array( 'class' => 'wl-threads' ) );
+		return Html::openElement( 'div', array( 'class' => 'wl-threads' ) );
 	}
 
 	function getEndBody() {
-		return Xml::closeElement( 'div' ); // wl-threads
+		return Html::closeElement( 'div' ); // wl-threads
 	}
 
 	function getEmptyBody() {

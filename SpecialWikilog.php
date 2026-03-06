@@ -27,6 +27,7 @@
  */
 
 use MediaWiki\Title\Title;
+use Wikimedia\LightweightObject\Html;
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
@@ -223,7 +224,7 @@ class SpecialWikilog
             $body .= '<p>' . SpecialWikilogSubscriptions::subcriptionsRuleLink() . '</p>';
 
 			# Wrap only when not including
-			$body = Xml::wrapClass( $body, 'wl-wrapper', 'div' );
+			$body = Html::wrap( $body, 'div', [ 'class' => 'wl-wrapper' ] );
 		}
 
 		# Output.
@@ -277,9 +278,9 @@ class SpecialWikilog
 		global $wgRequest, $wgTitle;
 		$query = $wgRequest->getValues();
 		$query['markallread'] = wfTimestamp( TS_MW );
-		return Xml::wrapClass(
-			Xml::element( 'a', array( 'href' => $wgTitle->getFullUrl( $query ) ), wfMessage( 'wikilog-mark-all-read' )->text() ),
-			'markallread', 'p'
+		return Html::wrap(
+			Html::element( 'a', array( 'href' => $wgTitle->getFullUrl( $query ) ), wfMessage( 'wikilog-mark-all-read' )->text() ),
+			'p', [ 'class' => 'markallread' ]
 		);
 	}
 
@@ -373,8 +374,8 @@ class SpecialWikilog
 			$out .= Html::hidden( $key, $value );
 		}
 
-		$out = Xml::tags( 'form', array( 'action' => $wgScript ), $out );
-		$out = Xml::fieldset( wfMessage( 'wikilog-form-legend' )->text(), $out,
+		$out = Html::rawElement( 'form', array( 'action' => $wgScript ), $out );
+		$out = Html::fieldset( wfMessage( 'wikilog-form-legend' )->text(), $out,
 			array( 'class' => 'wl-options' )
 		);
 		$out .= WikilogMainPage::formNewItem( NULL );
@@ -393,31 +394,31 @@ class SpecialWikilog
 		$fields = $this->getQueryFormFields( $opts );
 		$columns = array_chunk( $fields, ( count( $fields ) + 1 ) / 2, true );
 
-		$out = Xml::openElement( 'table', array( 'width' => '100%' ) ) .
-				Xml::openElement( 'tr' );
+		$out = Html::openElement( 'table', array( 'width' => '100%' ) ) .
+				Html::openElement( 'tr' );
 
 		foreach ( $columns as $fields ) {
-			$out .= Xml::openElement( 'td' );
-			$out .= Xml::openElement( 'table' );
+			$out .= Html::openElement( 'td' );
+			$out .= Html::openElement( 'table' );
 
 			foreach ( $fields as $row ) {
 				if ( !$row )
 					continue;
-				$out .= Xml::openElement( 'tr' );
+				$out .= Html::openElement( 'tr' );
 				if ( is_array( $row ) ) {
-					$out .= Xml::tags( 'td', array( 'align' => $align ), $row[0] );
-					$out .= Xml::tags( 'td', null, $row[1] );
+					$out .= Html::rawElement( 'td', array( 'align' => $align ), $row[0] );
+					$out .= Html::rawElement( 'td', null, $row[1] );
 				} else {
-					$out .= Xml::tags( 'td', array( 'colspan' => 2 ), $row );
+					$out .= Html::rawElement( 'td', array( 'colspan' => 2 ), $row );
 				}
-				$out .= Xml::closeElement( 'tr' );
+				$out .= Html::closeElement( 'tr' );
 			}
 
-			$out .= Xml::closeElement( 'table' );
-			$out .= Xml::closeElement( 'td' );
+			$out .= Html::closeElement( 'table' );
+			$out .= Html::closeElement( 'td' );
 		}
 
-		$out .= Xml::closeElement( 'tr' ) . Xml::closeElement( 'table' );
+		$out .= Html::closeElement( 'tr' ) . Html::closeElement( 'table' );
 		return $out;
 	}
 
@@ -532,13 +533,17 @@ class SpecialWikilog
 				$values = $select_options[$valueid];
 				if ( count( $values ) > 0 )
 				{
-					$select = new XmlSelect( $valueid, 'wl-'.$valueid, $formvalues[$valueid] );
-					$select->addOption( wfMessage( 'wikilog-form-all' )->text(), '' );
-					foreach( $values as $o )
-						$select->addOption( $o[0], count($o) > 1 ? $o[1] : false );
+					$selectedValue = $formvalues[$valueid];
+					$optionsHtml = Html::option( wfMessage( 'wikilog-form-all' )->text(), '', $selectedValue === '' );
+					foreach( $values as $o ) {
+						$val = count($o) > 1 ? $o[1] : $o[0];
+						$optionsHtml .= Html::option( $o[0], $val, $val === $selectedValue );
+					}
+					$select = Html::rawElement( 'select', [ 'name' => $valueid, 'id' => 'wl-'.$valueid ], $optionsHtml );
+
 					$fields[$valueid] = array(
-						Xml::label( wfMessage( 'wikilog-form-'.$valueid )->text(), 'wl-'.$valueid ),
-						$select->getHTML()
+						Html::label( wfMessage( 'wikilog-form-'.$valueid )->text(), 'wl-'.$valueid ),
+						$select
 					);
 				}
 				else
@@ -546,45 +551,50 @@ class SpecialWikilog
 			}
 			else
 			{
-				$fields[$valueid] = Xml::inputLabelSep(
-					wfMessage( 'wikilog-form-'.$valueid )->text(), $valueid, 'wl-'.$valueid, 40,
-					$formvalues[$valueid]
-				);
+				$fields[$valueid] = Html::label( wfMessage( 'wikilog-form-'.$valueid )->text(), 'wl-'.$valueid ) .
+					Html::input( $valueid, $formvalues[$valueid], 'text', [ 'id' => 'wl-'.$valueid, 'size' => 40 ] );
 			}
 		}
 
-		$month_select = new XmlSelect( 'month', 'wl-month', $opts->consumeValue( 'month' ) );
-		$month_select->setAttribute( 'onchange', "{var wly=document.getElementById('wl-year');if(wly&&!wly.value){wly.value='".date('Y')."';}}" );
-		$month_select->addOption( wfMessage( 'monthsall' )->text(), '' );
-		for ($i = 1; $i <= 12; $i++)
-			$month_select->addOption( $wgLang->getMonthName( $i ), $i );
-		$year_field = Xml::input( 'year', 4, $opts->consumeValue( 'year' ), array( 'maxlength' => 4, 'id' => 'wl-year' ) );
+		$selectedMonth = $opts->consumeValue( 'month' );
+		$optionsHtml = Html::option( wfMessage( 'monthsall' )->text(), '', $selectedMonth === null || $selectedMonth === '' );
+		for ($i = 1; $i <= 12; $i++) {
+			$optionsHtml .= Html::option( $wgLang->getMonthName( $i ), $i, $i == $selectedMonth );
+		}
+		$month_select = Html::rawElement( 'select', [
+			'name' => 'month',
+			'id' => 'wl-month',
+			'onchange' => "{var wly=document.getElementById('wl-year');if(wly&&!wly.value){wly.value='".date('Y')."';}}"
+		], $optionsHtml );
+		$year_field = Html::input( 'year', $opts->consumeValue( 'year' ), 'text', array( 'maxlength' => 4, 'id' => 'wl-year', 'size' => 4 ) );
 		$fields['date'] = array(
-			Xml::label( wfMessage( 'wikilog-form-date' )->text(), 'wl-month' ),
-			$month_select->getHTML() . "&nbsp;" . $year_field
+			Html::label( wfMessage( 'wikilog-form-date' )->text(), 'wl-month' ),
+			$month_select . "&nbsp;" . $year_field
 		);
 		$opts->consumeValue( 'day' );	// ignore day, not really useful
 
-		$viewSelect = new XmlSelect( 'view', 'wl-view', $opts->consumeValue( 'view' ) );
-		$viewSelect->addOption( wfMessage( 'wikilog-view-summary' )->text(), 'summary' );
-		$viewSelect->addOption( wfMessage( 'wikilog-view-archives' )->text(), 'archives' );
+		$selectedView = $opts->consumeValue( 'view' );
+		$optionsHtml = Html::option( wfMessage( 'wikilog-view-summary' )->text(), 'summary', 'summary' === $selectedView );
+		$optionsHtml .= Html::option( wfMessage( 'wikilog-view-archives' )->text(), 'archives', 'archives' === $selectedView );
+		$viewSelect = Html::rawElement( 'select', [ 'name' => 'view', 'id' => 'wl-view' ], $optionsHtml );
 		$fields['view'] = array(
-			Xml::label( wfMessage( 'wikilog-form-view' )->text(), 'wl-view' ),
-			$viewSelect->getHTML()
+			Html::label( wfMessage( 'wikilog-form-view' )->text(), 'wl-view' ),
+			$viewSelect
 		);
 		if( $wgUser && $wgUser->getID() )
 		{
-			$statusSelect = new XmlSelect( 'show', 'wl-status', $opts->consumeValue( 'show' ) );
-			$statusSelect->addOption( wfMessage( 'wikilog-show-all' )->text(), 'all' );
-			$statusSelect->addOption( wfMessage( 'wikilog-show-published' )->text(), 'published' );
-			$statusSelect->addOption( wfMessage( 'wikilog-show-drafts' )->text(), 'drafts' );
+			$selectedStatus = $opts->consumeValue( 'show' );
+			$optionsHtml = Html::option( wfMessage( 'wikilog-show-all' )->text(), 'all', 'all' === $selectedStatus );
+			$optionsHtml .= Html::option( wfMessage( 'wikilog-show-published' )->text(), 'published', 'published' === $selectedStatus );
+			$optionsHtml .= Html::option( wfMessage( 'wikilog-show-drafts' )->text(), 'drafts', 'drafts' === $selectedStatus );
+			$statusSelect = Html::rawElement( 'select', [ 'name' => 'show', 'id' => 'wl-status' ], $optionsHtml );
 			$fields['status'] = array(
-				Xml::label( wfMessage( 'wikilog-form-status' )->text(), 'wl-status' ),
-				$statusSelect->getHTML()
+				Html::label( wfMessage( 'wikilog-form-status' )->text(), 'wl-status' ),
+				$statusSelect
 			);
 		}
 
-		$fields['submit'] = Xml::submitbutton( wfMessage( 'allpagessubmit' )->text() );
+		$fields['submit'] = Html::submitButton( wfMessage( 'allpagessubmit' )->text() );
 		return $fields;
 	}
 

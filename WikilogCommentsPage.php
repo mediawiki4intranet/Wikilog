@@ -28,6 +28,7 @@
 
 use MediaWiki\Linker\Linker;
 use MediaWiki\Title\Title;
+use Wikimedia\LightweightObject\Html;
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
@@ -304,19 +305,19 @@ class WikilogCommentsPage
 		}
 
 		# Enclose all comments or replies in a div.
-		$wgOut->addHtml( Xml::openElement( 'div', array( 'class' => 'wl-comments' ) ) );
+		$wgOut->addHtml( Html::openElement( 'div', array( 'class' => 'wl-comments' ) ) );
 
 		# Switch pager
 		$type = $this->mCommentPagerType;
 		$msg = wfMessage( $type != 'thread' ? 'wikilog-ptswitcher-thread' : 'wikilog-ptswitcher-list' )->text();
 		$url = $wgScript . '?' . http_build_query( [ 'comment_pager_type' => $type != 'thread' ? 'thread' : 'list' ] + $_GET );
-		$link = Xml::tags( 'a', array( 'href' => $url ),  $msg );
-		$pagerType = Xml::tags(
+		$link = Html::rawElement( 'a', array( 'href' => $url ),  $msg );
+		$pagerType = Html::rawElement(
 			'span', array( 'style' => 'float: right; font-size: 70%' ), '[ '. $link . ' ]'
 		);
 
 		# Comments/Replies header.
-		$header = Xml::tags( 'h2', array( 'id' => 'wl-comments-header' ),
+		$header = Html::rawElement( 'h2', array( 'id' => 'wl-comments-header' ),
 			$pagerType . wfMessage( $headerMsg )->parse()
 		);
 		$wgOut->addHtml( $header );
@@ -337,7 +338,7 @@ class WikilogCommentsPage
 		}
 
 		# Close div.
-		$wgOut->addHtml( Xml::closeElement( 'div' ) );
+		$wgOut->addHtml( Html::closeElement( 'div' ) );
 	}
 
 	/**
@@ -526,7 +527,7 @@ class WikilogCommentsPage
 		if ( $comment && $comment->mParent == $pid ) {
 			$check = $this->validateComment( $comment );
 			if ( $check ) {
-				$preview = Xml::wrapClass( wfMessage( $check )->text(), 'mw-warning', 'div' );
+				$preview = Html::wrap( wfMessage( $check )->text(), 'div', [ 'class' => 'mw-warning' ] );
 			} else {
 				$preview = $this->mFormatter->formatComment( $this->mPostedComment );
 			}
@@ -555,18 +556,18 @@ class WikilogCommentsPage
 			);
 			$message = wfMessage( 'wikilog-posting-anonymously', $loginLink )->text();
 			$fields[] = array(
-				Xml::label( wfMessage( 'wikilog-form-name' )->text(), 'wl-name' ),
-				Xml::input( 'wlAnonName', 25, $opts->consumeValue( 'wlAnonName' ),
-					array( 'id' => 'wl-name', 'maxlength' => 255 ) ) .
+				Html::label( wfMessage( 'wikilog-form-name' )->text(), 'wl-name' ),
+				Html::input( 'wlAnonName', $opts->consumeValue( 'wlAnonName' ), 'text',
+					array( 'id' => 'wl-name', 'maxlength' => 255, 'size' => 25 ) ) .
 					"<p>{$message}</p>"
 			);
 		}
 
 		$autofocus = $parent ? array( 'autofocus' => 'autofocus' ) : array();
 		$fields[] = array(
-			Xml::label( wfMessage( 'wikilog-form-comment' )->text(), 'wl-comment' ),
-			Xml::textarea( 'wlComment', $opts->consumeValue( 'wlComment' ),
-				40, 5, array( 'id' => 'wl-comment' ) + $autofocus )
+			Html::label( wfMessage( 'wikilog-form-comment' )->text(), 'wl-comment' ),
+			Html::textarea( 'wlComment', $opts->consumeValue( 'wlComment' ),
+				array( 'id' => 'wl-comment', 'cols' => 40, 'rows' => 5 ) + $autofocus )
 		);
 
 		if ( $this->mCaptchaForm ) {
@@ -583,14 +584,14 @@ class WikilogCommentsPage
 			if ( $subscribed === NULL ) {
 				$subscribed = true;
 			}
-			$subscribe_html = ' &nbsp; ' . Xml::checkLabel( wfMessage( 'wikilog-subscribe' )->text(), 'wl-subscribe', 'wl-subscribe', $subscribed );
+			$subscribe_html = ' &nbsp; ' . Html::checkLabel( wfMessage( 'wikilog-subscribe' )->text(), 'wl-subscribe', 'wl-subscribe', $subscribed );
 		} else {
 			$subscribe_html = '';
 		}
 
 		$fields[] = array( '',
-			Xml::submitbutton( wfMessage( 'wikilog-submit' )->text(), array( 'name' => 'wlActionCommentSubmit' ) ) . WL_NBSP .
-			Xml::submitbutton( wfMessage( 'wikilog-preview' )->text(), array( 'name' => 'wlActionCommentPreview' ) ) .
+			Html::submitButton( wfMessage( 'wikilog-submit' )->text(), array( 'name' => 'wlActionCommentSubmit' ) ) . WL_NBSP .
+			Html::submitButton( wfMessage( 'wikilog-preview' )->text(), array( 'name' => 'wlActionCommentPreview' ) ) .
 			$subscribe_html
 		);
 
@@ -600,13 +601,13 @@ class WikilogCommentsPage
 			$form .= Html::hidden( $key, $value );
 		}
 
-		$form = Xml::tags( 'form', array(
+		$form = Html::rawElement( 'form', array(
 			'action' => $targetTitle->getLocalUrl()."#wl-comment-form",
 			'method' => 'post',
 		), $form );
 
 		$msgid = ( $parent ? 'wikilog-post-reply' : 'wikilog-post-comment' );
-		return Xml::fieldset( wfMessage( $msgid )->text(), $preview . $form,
+		return Html::fieldset( wfMessage( $msgid )->text(), $preview . $form,
 			array( 'id' => ( $inline_reply ? 'wl-comment-form-reply' : 'wl-comment-form' ) ) ) . "\n";
 	}
 

@@ -28,6 +28,7 @@
 
 use MediaWiki\Linker\Linker;
 use MediaWiki\Title\Title;
+use Wikimedia\LightweightObject\Html;
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
@@ -898,8 +899,8 @@ class WikilogCommentFormatter
 		if ( $highlight ) {
 			$divclass[] = 'wl-comment-highlight';
 		}
-		$anchor = $comment->mID ? Xml::tags( 'a', array('name' => "id" . $comment->mID), '' ) : '';
-		return Xml::tags( 'div', array(
+		$anchor = $comment->mID ? Html::rawElement( 'a', array('name' => "id" . $comment->mID), '' ) : '';
+		return Html::rawElement( 'div', array(
 			'class' => implode( ' ', $divclass ),
 			'id' => ( $comment->mID ? "c{$comment->mID}" : 'cpreview' )
 		), $anchor . $html );
@@ -974,7 +975,7 @@ class WikilogCommentFormatter
 		} else {
 			$authorPlain = htmlspecialchars( $comment->mAnonName );
 			$authorFmt = wfMessage( 'wikilog-comment-anonsig',
-				Xml::wrapClass( $this->mSkin->userLink( $comment->mUserID, $comment->mUserText ), 'wl-comment-author' ),
+				Html::wrap( $this->mSkin->userLink( $comment->mUserID, $comment->mUserText ), 'span', [ 'class' => 'wl-comment-author' ] ),
 				$this->mSkin->userTalkLink( $comment->mUserID, $comment->mUserText ),
 				htmlspecialchars( $comment->mAnonName )
 			)->inContentLanguage()->text();

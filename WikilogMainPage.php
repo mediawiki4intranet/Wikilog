@@ -28,6 +28,7 @@
 
 use MediaWiki\Linker\Linker;
 use MediaWiki\Title\Title;
+use Wikimedia\LightweightObject\Html;
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();
@@ -184,18 +185,18 @@ class WikilogMainPage
 				array( 'width' => '32' )
 			);
 		}
-		$s .= Xml::tags( 'div', array( 'class' => 'wl-title' ),
+		$s .= Html::rawElement( 'div', array( 'class' => 'wl-title' ),
 			Linker::link( $this->mTitle, null, array(), array(), array( 'known', 'noclasses' ) ) );
 
 		$st =& $this->mWikilogSubtitle;
 		if ( is_array( $st ) ) {
 			$tc = new WlTextConstruct( $st[0], $st[1] );
-			$s .= Xml::tags( 'div', array( 'class' => 'wl-subtitle' ), $tc->getHTML() );
+			$s .= Html::rawElement( 'div', array( 'class' => 'wl-subtitle' ), $tc->getHTML() );
 		} elseif ( is_string( $st ) && !empty( $st ) ) {
-			$s .= Xml::element( 'div', array( 'class' => 'wl-subtitle' ), $st );
+			$s .= Html::element( 'div', array( 'class' => 'wl-subtitle' ), $st );
 		}
 
-		return Xml::tags( 'div', array( 'class' => 'wl-description' ), $s );
+		return Html::rawElement( 'div', array( 'class' => 'wl-description' ), $s );
 	}
 
 	/**
@@ -219,12 +220,12 @@ class WikilogMainPage
 		$n_drafts = $n_total - $n_published;
 
 		$cont = $this->formatPostCount( $skin, 'p', 'published', $n_published );
-		$cont .= Xml::openElement( 'ul' );
+		$cont .= Html::openElement( 'ul' );
 		$cont .= $this->formatPostCount( $skin, 'li', 'drafts', $n_drafts );
 		$cont .= $this->formatPostCount( $skin, 'li', 'all', $n_total );
-		$cont .= Xml::closeElement( 'ul' );
+		$cont .= Html::closeElement( 'ul' );
 
-		return Xml::fieldset( wfMessage( 'wikilog-information' )->text(), $cont ) . "\n";
+		return Html::fieldset( wfMessage( 'wikilog-information' )->text(), $cont ) . "\n";
 	}
 
 	/**
@@ -264,7 +265,7 @@ class WikilogMainPage
 
 		$fields = array();
 		if ( $title ) {
-			$fields[] = Xml::element( 'input', array(
+			$fields[] = Html::element( 'input', array(
 				'type' => 'hidden',
 				'value' => $title->getPrefixedText(),
 				'id' => 'wl-newitem-wikilog'
@@ -286,21 +287,22 @@ class WikilogMainPage
 			if ( !$opts ) {
 				return '';
 			}
-			$wikilog_select = new XmlSelect( false, 'wl-newitem-wikilog' );
+			$optionsHtml = '';
 			foreach ( $opts as $o ) {
-				$wikilog_select->addOption( $o->getText(), $o->getPrefixedText() );
+				$optionsHtml .= Html::option( $o->getText(), $o->getPrefixedText() );
 			}
-			$fields[] = Xml::label( wfMessage( 'wikilog-form-wikilog' )->text(), 'wl-newitem-wikilog' )
-				. '&nbsp;' . $wikilog_select->getHTML();
+			$wikilog_select = Html::rawElement( 'select', [ 'id' => 'wl-newitem-wikilog' ], $optionsHtml );
+			$fields[] = Html::label( wfMessage( 'wikilog-form-wikilog' )->text(), 'wl-newitem-wikilog' )
+				. '&nbsp;' . $wikilog_select;
 		}
 		$fields[] = Html::hidden( 'action', 'edit' );
 		$fields[] = Html::hidden( 'preload', '' );
 		$fields[] = Html::hidden( 'title', '' );
-		$fields[] = Xml::inputLabel( wfMessage( 'wikilog-item-name' )->text(),
-			false, 'wl-item-name', 70, date( 'Y-m-d ' ) );
-		$fields[] = Xml::submitButton( wfMessage( 'wikilog-new-item-go' )->text() );
+		$fields[] = Html::label( wfMessage( 'wikilog-item-name' )->text(), 'wl-item-name' ) .
+			Html::input( false, date( 'Y-m-d ' ), 'text', [ 'id' => 'wl-item-name', 'size' => 70 ] );
+		$fields[] = Html::submitButton( wfMessage( 'wikilog-new-item-go' )->text() );
 
-		$form = Xml::tags( 'form',
+		$form = Html::rawElement( 'form',
 			array(
 				'action' => $wgScript,
 				'onsubmit' => 'return wlCheckNewItem(this, '
@@ -316,7 +318,7 @@ class WikilogMainPage
 			implode( "\n", $fields )
 		);
 
-		$form = Xml::fieldset( wfMessage( 'wikilog-new-item' )->text(), $form, array( 'id' => 'wl-new-item' ) ) . "\n";
+		$form = Html::fieldset( wfMessage( 'wikilog-new-item' )->text(), $form, array( 'id' => 'wl-new-item' ) ) . "\n";
 		return $form;
 	}
 
@@ -330,18 +332,19 @@ class WikilogMainPage
 		$fields[] = Html::hidden( 'title', $this->mTitle->getPrefixedText() );
 		$fields[] = Html::hidden( 'action', 'wikilog' );
 		$fields[] = Html::hidden( 'wikilog-import', 'blogger' );
-		$fields[] = Xml::inputLabel( wfMessage( 'wikilog-import-file' )->text(), 'wlFile', 'wl-import-file', false, false, array('type' => 'file') );
-		$fields[] = Xml::submitButton( wfMessage( 'wikilog-import-go' )->text(),
+		$fields[] = Html::label( wfMessage( 'wikilog-import-file' )->text(), 'wl-import-file' ) .
+			Html::input( 'wlFile', false, 'file', [ 'id' => 'wl-import-file' ] );
+		$fields[] = Html::submitButton( wfMessage( 'wikilog-import-go' )->text(),
 			array( 'name' => 'wlActionImport' ) );
-		$fields[] = '<br />' . Xml::label( wfMessage( 'wikilog-import-aliases' )->text(), 'wl-user-aliases' ) .
-			Xml::textarea( 'wlUserAliases', '', 40, 5, array( 'id' => 'wl-user-aliases' ) );
+		$fields[] = '<br />' . Html::label( wfMessage( 'wikilog-import-aliases' )->text(), 'wl-user-aliases' ) .
+			Html::textarea( 'wlUserAliases', '', [ 'id' => 'wl-user-aliases', 'cols' => 40, 'rows' => 5 ] );
 
-		$form = Xml::tags( 'form',
+		$form = Html::rawElement( 'form',
 			array( 'action' => $wgScript, 'method' => 'POST', 'enctype' => 'multipart/form-data' ),
 			implode( "\n", $fields )
 		);
 
-		return Xml::fieldset( wfMessage( 'wikilog-import' )->text(), $form ) . "\n";
+		return Html::fieldset( wfMessage( 'wikilog-import' )->text(), $form ) . "\n";
 	}
 
 	/**
