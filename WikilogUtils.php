@@ -164,5 +164,32 @@ class WikilogUtils {
         }
         return '<table class="mw-htmlform-inner">' . $form . '</table>';
     }
+
+    public static function updateWikilog( Title $title ) {
+        // TODO: Implement this. It should update wikilog_wikilogs table.
+        // It seems to aggregate data like authors and latest update time for a blog.
+    }
+
+    public static function authorList( $list ) {
+        if ( is_string( $list ) ) {
+            return self::authorLink( $list );
+        }
+        elseif ( is_array( $list ) ) {
+            return implode( ', ', array_map( [ __CLASS__, 'authorLink' ], $list ) );
+        }
+        else {
+            return '';
+        }
+    }
+
+    public static function authorLink( $name )
+    {
+        $user = MediaWikiServices::getInstance()->getUserFactory()->newFromName( $name );
+        $realName = $user->getRealName();
+        if ( !$realName ) {
+            $realName = $user->getName();
+        }
+        return Linker::link( $user->getUserPage(), $realName );
+    }
 }
 

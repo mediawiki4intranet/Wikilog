@@ -28,6 +28,9 @@ class WikilogHooks {
         if ( !$wi ) return true;
 
         if ( $wi->isItem() ) {
+            $parserOutput = $editResult->getParserOutput();
+            $wikilogData = $parserOutput->getExtensionData( 'wikilog' );
+
             $item = WikilogItem::newFromID( $wikiPage->getId() ) ?: new WikilogItem();
             $item->mID = $wikiPage->getId();
             $item->mName = $wi->mItemName;
@@ -35,6 +38,20 @@ class WikilogHooks {
             $item->mParentTitle = $wi->mWikilogTitle;
             $item->mParent = $item->mParentTitle->getArticleID();
             $item->mUpdated = wfTimestamp( TS_MW );
+
+            if ( $wikilogData ) {
+                $item->mPublish = $wikilogData->mPublish;
+                if ( $wikilogData->mPubDate ) {
+                    $item->mPubDate = $wikilogData->mPubDate;
+                }
+                $item->mAuthors = $wikilogData->mAuthors;
+                $item->mTags = $wikilogData->mTags;
+            }
+
+            if ( !$item->mPubDate ) {
+                $item->mPubDate = $item->mUpdated;
+            }
+
             $item->saveData();
             
             WikilogUtils::updateWikilog( $wi->mWikilogTitle );

@@ -605,7 +605,7 @@ class WikilogArchivesPager
 				return $value;
 
 			case 'wlp_authors':
-				return $this->authorList( $this->mCurrentItem->mAuthors );
+				return WikilogUtils::authorList( array_keys( $this->mCurrentItem->mAuthors ) );
 
 			case 'wlw_title':
 				$page = $this->mCurrentItem->mParentTitle;
@@ -678,38 +678,6 @@ class WikilogArchivesPager
 		return $fields;
 	}
 
-	/**
-	 * Formats the given list of authors into a textual comma-separated list.
-	 * @param $list Array with wikilog article author information.
-	 * @return Resulting HTML fragment.
-	 */
-	private function authorList( $list ) {
-		if ( is_string( $list ) ) {
-			return $this->authorLink( $list );
-		}
-		elseif ( is_array( $list ) ) {
-			$list = array_keys( $list );
-			return implode( ', ', array_map( array( &$this, 'authorLink' ), $list ) );
-		}
-		else {
-			return '';
-		}
-	}
-
-	/**
-	 * Formats an author user page link.
-	 * @param $name Username of the author.
-	 * @return Resulting HTML fragment.
-	 */
-	private function authorLink( $name )
-	{
-		$skin = $this->getSkin();
-		$user = User::newFromName( $name );
-		$name = $user->getRealName();
-		if ( !$name )
-			$name = $user->getName();
-		return Linker::link( $user->getUserPage(), $name );
-	}
 
 	/**
 	 * Returns a wikilog article edit link, much similar to a section edit
