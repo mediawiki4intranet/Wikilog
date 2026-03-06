@@ -12,6 +12,14 @@ class WikilogParser
 {
     private static $parserData = [];
 
+    private static function getParserData($parser) {
+        $hash = spl_object_hash($parser);
+        if (!isset(self::$parserData[$hash])) {
+            self::$parserData[$hash] = new WikilogParserOutput;
+        }
+        return self::$parserData[$hash];
+    }
+
     public static function FirstCallInit( $parser ) {
         $mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
         $mwSummary = $mwFactory->get( 'wlk-summary' );
@@ -56,17 +64,17 @@ class WikilogParser
 
     public static function more( $text, $params, $parser ) {
         $marker = '<!--wikilog-more-->';
-        self::$parserData[spl_object_hash($parser)]->mMore = $marker;
+        self::getParserData($parser)->mMore = $marker;
         return $marker;
     }
 
     public static function summary( $text, $params, $parser ) {
-        self::$parserData[spl_object_hash($parser)]->mSummary = $parser->recursiveTagParse( $text );
+        self::getParserData($parser)->mSummary = $parser->recursiveTagParse( $text );
         return '';
     }
 
     public static function publish( $parser, $frame, $args ) {
-        $data = self::$parserData[spl_object_hash($parser)];
+        $data = self::getParserData($parser);
         $data->mPublish = true;
         $date = isset( $args[0] ) ? trim( $frame->expand( $args[0] ) ) : false;
         if ( $date ) {
@@ -87,7 +95,7 @@ class WikilogParser
     }
 
     public static function comment( $parser, $frame, $args ) {
-        $data = self::$parserData[spl_object_hash($parser)];
+        $data = self::getParserData($parser);
         $data->mComment = [];
         foreach ( $args as $arg ) {
             $data->mComment[] = trim( $frame->expand( $arg ) );
@@ -96,7 +104,7 @@ class WikilogParser
     }
 
     public static function author( $parser, $frame, $args ) {
-        $data = self::$parserData[spl_object_hash($parser)];
+        $data = self::getParserData($parser);
         foreach ( $args as $arg ) {
             $author = trim( $frame->expand( $arg ) );
             if ( $author !== '' ) {
@@ -112,7 +120,7 @@ class WikilogParser
     }
 
     public static function tags( $parser, $frame, $args ) {
-        $data = self::$parserData[spl_object_hash($parser)];
+        $data = self::getParserData($parser);
         foreach ( $args as $arg ) {
             $tag = trim( $frame->expand( $arg ) );
             if ( $tag !== '' ) {
@@ -128,7 +136,7 @@ class WikilogParser
     }
 
     public static function onParserStart( $parser ) {
-        self::$parserData[spl_object_hash($parser)] = new WikilogParserOutput;
+        self::getParserData($parser);
         return true;
     }
 
