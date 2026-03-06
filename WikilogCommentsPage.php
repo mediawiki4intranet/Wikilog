@@ -146,11 +146,9 @@ class WikilogCommentsPage
 		$self->mFormatter = new WikilogCommentFormatter( $self->mSkin, $self->mUserCanPost );
 
 		// Form options.
-		$self->mFormOptions = new FormOptions();
-		$self->mFormOptions->add( 'wlAnonName', '' );
-		$self->mFormOptions->add( 'wlComment', '' );
-		$self->mFormOptions->fetchValuesFromRequest( $wgRequest,
-			array( 'wlAnonName', 'wlComment' ) );
+		$self->mFormOptions = [];
+		$self->mFormOptions['wlAnonName'] = $wgRequest->getText( 'wlAnonName' );
+		$self->mFormOptions['wlComment'] = $wgRequest->getText( 'wlComment' );
 
 		// This flags if we are viewing a single comment (subpage).
 		$self->mSingleComment = $singleComment;
@@ -566,7 +564,7 @@ class WikilogCommentsPage
 		$autofocus = $parent ? array( 'autofocus' => 'autofocus' ) : array();
 		$fields[] = array(
 			Html::label( wfMessage( 'wikilog-form-comment' )->text(), 'wl-comment' ),
-			Html::textarea( 'wlComment', $opts->consumeValue( 'wlComment' ),
+			Html::textarea( 'wlComment', $opts['wlComment'],
 				array( 'id' => 'wl-comment', 'cols' => 40, 'rows' => 5 ) + $autofocus )
 		);
 
@@ -597,7 +595,8 @@ class WikilogCommentsPage
 
 		$form .= WikilogUtils::buildForm( $fields );
 
-		foreach ( $opts->getUnconsumedValues() as $key => $value ) {
+		$unconsumed = array_diff_key( $wgRequest->getValues(), array_flip( [ 'wlAnonName', 'wlComment' ] ) );
+		foreach ( $unconsumed as $key => $value ) {
 			$form .= Html::hidden( $key, $value );
 		}
 

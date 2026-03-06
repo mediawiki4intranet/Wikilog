@@ -83,23 +83,22 @@ class SpecialWikilog
 	 */
 	public function getDefaultOptions() {
 		global $wgWikilogNumArticles;
-		global $wgWikilogDefaultNotCategory;
 
-		$opts = new FormOptions();
-		$opts->add( 'view',     'summary' );
-		$opts->add( 'show',     'published' );
-		$opts->add( 'wikilog',  '' );
-		$opts->add( 'category', '' );
-		$opts->add( 'notcategory', '' );
-		$opts->add( 'author',   '' );
-		$opts->add( 'tag',      '' );
-		$opts->add( 'year',     '', FormOptions::INTNULL );
-		$opts->add( 'month',    '', FormOptions::INTNULL );
-		$opts->add( 'day',      '', FormOptions::INTNULL );
-		$opts->add( 'sort',     '' );
-		$opts->add( 'limit',    $wgWikilogNumArticles );
-		$opts->add( 'template', '' );
-		return $opts;
+		return [
+			'view' => 'summary',
+			'show' => 'published',
+			'wikilog' => '',
+			'category' => '',
+			'notcategory' => '',
+			'author' => '',
+			'tag' => '',
+			'year' => null,
+			'month' => null,
+			'day' => null,
+			'sort' => '',
+			'limit' => $wgWikilogNumArticles,
+			'template' => '',
+		];
 	}
 
 	/**
@@ -110,15 +109,31 @@ class SpecialWikilog
 		global $wgWikilogDefaultNotCategory;
 
 		$opts = $this->getDefaultOptions();
-		$opts->fetchValuesFromRequest( $wgRequest );
+		foreach ( array_keys( $opts ) as $key ) {
+			if ( $wgRequest->getVal( $key ) !== null ) {
+				$opts[$key] = $wgRequest->getVal( $key );
+			}
+		}
+
 		# Default "not in category"
-		if ( is_null( $wgRequest->getVal('notcategory') ) )
+		if ( is_null( $wgRequest->getVal('notcategory') ) ) {
 			$opts['notcategory'] = $wgWikilogDefaultNotCategory;
+		}
 
 		# Collect inline parameters, they have precedence over query params.
 		$this->parseInlineParams( $parameters, $opts );
 
-		$opts->validateIntBounds( 'limit', 0, $wgWikilogExpensiveLimit );
+		$opts['limit'] = min( max( (int)$opts['limit'], 0 ), $wgWikilogExpensiveLimit );
+
+		// Convert to int or null
+		foreach ( [ 'year', 'month', 'day' ] as $key ) {
+			if ( $opts[$key] !== '' && $opts[$key] !== null ) {
+				$opts[$key] = (int)$opts[$key];
+			} else {
+				$opts[$key] = null;
+			}
+		}
+
 		return $opts;
 	}
 
@@ -133,12 +148,28 @@ class SpecialWikilog
 		global $wgWikilogDefaultNotCategory;
 
 		$opts = $this->getDefaultOptions();
-		$opts->fetchValuesFromRequest( $wgRequest );
-		# Default "not in category"
-		if ( is_null( $wgRequest->getVal('notcategory') ) )
-			$opts['notcategory'] = $wgWikilogDefaultNotCategory;
+		foreach ( array_keys( $opts ) as $key ) {
+			if ( $wgRequest->getVal( $key ) !== null ) {
+				$opts[$key] = $wgRequest->getVal( $key );
+			}
+		}
 
-		$opts->validateIntBounds( 'limit', 0, $wgFeedLimit );
+		# Default "not in category"
+		if ( is_null( $wgRequest->getVal('notcategory') ) ) {
+			$opts['notcategory'] = $wgWikilogDefaultNotCategory;
+		}
+
+		$opts['limit'] = min( max( (int)$opts['limit'], 0 ), $wgFeedLimit );
+
+		// Convert to int or null
+		foreach ( [ 'year', 'month', 'day' ] as $key ) {
+			if ( $opts[$key] !== '' && $opts[$key] !== null ) {
+				$opts[$key] = (int)$opts[$key];
+			} else {
+				$opts[$key] = null;
+			}
+		}
+
 		return $opts;
 	}
 
@@ -146,7 +177,7 @@ class SpecialWikilog
 	 * Format the HTML output of the special page.
 	 * @param $opts Form options, such as wikilog name, category, date, etc.
 	 */
-	public function webOutput( FormOptions $opts ) {
+	public function webOutput( $opts ) {
 		global $wgRequest, $wgOut, $wgMimeType, $wgTitle, $wgUser;
 		$parser = \MediaWiki\MediaWikiServices::getInstance()->getParser();
 
@@ -289,7 +320,7 @@ class SpecialWikilog
 	 * @param $format Feed format ('atom' or 'rss').
 	 * @param $opts Form options, such as wikilog name, category, date, etc.
 	 */
-	public function feedOutput( $format, FormOptions $opts ) {
+	public function feedOutput( $format, $opts ) {
 		global $wgTitle;
 
 		$feed = new WikilogItemFeed( $wgTitle, $format, self::getQuery( $opts ),
@@ -311,7 +342,7 @@ class SpecialWikilog
 	 * @param $parameters Inline parameters after the special page name.
 	 * @param $opts Form options.
 	 */
-	public function parseInlineParams( $parameters, FormOptions $opts ) {
+	public function parseInlineParams( $parameters, &$opts ) {
 		global $wgWikilogNamespaces;
 
 		if ( empty( $parameters ) ) return;
@@ -362,17 +393,12 @@ class SpecialWikilog
 	 * @param $opts Form options.
 	 * @return HTML of the page header.
 	 */
-	protected function getHeader( FormOptions $opts ) {
+	protected function getHeader( $opts ) {
 		global $wgScript;
 
 		$out = Html::hidden( 'title', $this->getTitle()->getPrefixedText() );
 
 		$out .= $this->getQueryForm( $opts );
-
-		$unconsumed = $opts->getUnconsumedValues();
-		foreach ( $unconsumed as $key => $value ) {
-			$out .= Html::hidden( $key, $value );
-		}
 
 		$out = Html::rawElement( 'form', array( 'action' => $wgScript ), $out );
 		$out = Html::fieldset( wfMessage( 'wikilog-form-legend' )->text(), $out,
@@ -387,7 +413,7 @@ class SpecialWikilog
 	 * @param $opts Form options.
 	 * @return HTML of the query form.
 	 */
-	protected function getQueryForm( FormOptions $opts ) {
+	protected function getQueryForm( $opts ) {
 		global $wgContLang;
 
 		$align = $wgContLang->isRtl() ? 'left' : 'right';
@@ -506,7 +532,7 @@ class SpecialWikilog
 	 * @param $opts Form options.
 	 * @return Array of form fields.
 	 */
-	protected function getQueryFormFields( FormOptions $opts ) {
+	protected function getQueryFormFields( $opts ) {
 		global $wgWikilogEnableTags;
 		global $wgWikilogDefaultNotCategory;
 		global $wgWikilogSearchDropdowns;
@@ -526,7 +552,7 @@ class SpecialWikilog
 
 		foreach ( $formfields as $valueid => $dropdown )
 		{
-			$formvalues[$valueid] = str_replace( '_', ' ', $opts->consumeValue( $valueid ) );
+			$formvalues[$valueid] = str_replace( '_', ' ', $opts[$valueid] );
 			if ($wgWikilogSearchDropdowns && $dropdown)
 			{
 				/* If drop-down lists are enabled site-wide and permitted for this field */
@@ -556,7 +582,7 @@ class SpecialWikilog
 			}
 		}
 
-		$selectedMonth = $opts->consumeValue( 'month' );
+		$selectedMonth = $opts['month'];
 		$optionsHtml = Html::option( wfMessage( 'monthsall' )->text(), '', $selectedMonth === null || $selectedMonth === '' );
 		for ($i = 1; $i <= 12; $i++) {
 			$optionsHtml .= Html::option( $wgLang->getMonthName( $i ), $i, $i == $selectedMonth );
@@ -566,14 +592,14 @@ class SpecialWikilog
 			'id' => 'wl-month',
 			'onchange' => "{var wly=document.getElementById('wl-year');if(wly&&!wly.value){wly.value='".date('Y')."';}}"
 		], $optionsHtml );
-		$year_field = Html::input( 'year', $opts->consumeValue( 'year' ), 'text', array( 'maxlength' => 4, 'id' => 'wl-year', 'size' => 4 ) );
+		$year_field = Html::input( 'year', $opts['year'], 'text', array( 'maxlength' => 4, 'id' => 'wl-year', 'size' => 4 ) );
 		$fields['date'] = array(
 			Html::label( wfMessage( 'wikilog-form-date' )->text(), 'wl-month' ),
 			$month_select . "&nbsp;" . $year_field
 		);
-		$opts->consumeValue( 'day' );	// ignore day, not really useful
+		// ignore day, not really useful
 
-		$selectedView = $opts->consumeValue( 'view' );
+		$selectedView = $opts['view'];
 		$optionsHtml = Html::option( wfMessage( 'wikilog-view-summary' )->text(), 'summary', 'summary' === $selectedView );
 		$optionsHtml .= Html::option( wfMessage( 'wikilog-view-archives' )->text(), 'archives', 'archives' === $selectedView );
 		$viewSelect = Html::rawElement( 'select', [ 'name' => 'view', 'id' => 'wl-view' ], $optionsHtml );
@@ -583,7 +609,7 @@ class SpecialWikilog
 		);
 		if( $wgUser && $wgUser->getID() )
 		{
-			$selectedStatus = $opts->consumeValue( 'show' );
+			$selectedStatus = $opts['show'];
 			$optionsHtml = Html::option( wfMessage( 'wikilog-show-all' )->text(), 'all', 'all' === $selectedStatus );
 			$optionsHtml .= Html::option( wfMessage( 'wikilog-show-published' )->text(), 'published', 'published' === $selectedStatus );
 			$optionsHtml .= Html::option( wfMessage( 'wikilog-show-drafts' )->text(), 'drafts', 'drafts' === $selectedStatus );
