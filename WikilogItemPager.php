@@ -209,14 +209,14 @@ class WikilogSummaryPager
 		$key = $this->mQuery->isSingleWikilog()
 			? 'wikilog-summary-header-single'
 			: 'wikilog-summary-header';
-		$msg = wfMessage( $key, $params )->inContentLanguage()->text();
+		$msg = wfMessage( $key )->rawParams( $params )->inContentLanguage()->parse();
 		if ( !empty( $msg ) ) {
-			$header = WikilogUtils::wrapDiv( 'wl-summary-header', $this->parse( $msg ) );
+			$header = WikilogUtils::wrapDiv( 'wl-summary-header', $msg );
 		}
 
 		# Summary entry text.
 		if ( $summary ) {
-			$more = $this->parse( wfMessage( 'wikilog-summary-more', $params )->inContentLanguage()->plain() );
+			$more = wfMessage( 'wikilog-summary-more' )->rawParams( $params )->inContentLanguage()->parse();
 			$summary = WikilogUtils::wrapDiv( 'wl-summary', $summary . $more );
 		} else {
 			$summary = WikilogUtils::wrapDiv( 'wl-summary', $content );

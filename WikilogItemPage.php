@@ -90,7 +90,7 @@ class WikilogItemPage
 			}
 
 			# Item page header.
-			$headerTxt = wfMessage( 'wikilog-entry-header', $params )->inContentLanguage()->parse();
+			$headerTxt = wfMessage( 'wikilog-entry-header' )->rawParams( $params )->inContentLanguage()->parse();
 			if ( !empty( $headerTxt ) ) {
 				$wgOut->addHtml( WikilogUtils::wrapDiv( 'wl-entry-header', $headerTxt ) );
 			}
@@ -104,7 +104,7 @@ class WikilogItemPage
 			}
 
 			# Item page footer.
-			$footerTxt = wfMessage( 'wikilog-entry-footer', $params )->inContentLanguage()->parse();
+			$footerTxt = wfMessage( 'wikilog-entry-footer' )->rawParams( $params )->inContentLanguage()->parse();
 			if ( !empty( $footerTxt ) ) {
 				$wgOut->addHtml( WikilogUtils::wrapDiv( 'wl-entry-footer', $footerTxt ) );
 			}
@@ -135,9 +135,9 @@ class WikilogItemPage
 			$wgOut->setHTMLTitle( wfMessage( 'pagetitle', $fullPageTitle )->text() );
 
 			# Set page subtitle
-			$subtitleTxt = wfMessage( 'wikilog-entry-sub', $params )->inContentLanguage()->text();
+			$subtitleTxt = wfMessage( 'wikilog-entry-sub' )->rawParams( $params )->inContentLanguage()->parse();
 			if ( !empty( $subtitleTxt ) ) {
-				$wgOut->setSubtitle( $wgOut->parse( $subtitleTxt ) );
+				$wgOut->setSubtitle( $subtitleTxt );
 			} else {
 				$wgOut->setSubtitle( '' );
 			}

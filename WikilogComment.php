@@ -926,7 +926,7 @@ class WikilogCommentFormatter
 			$status = WikilogUtils::wrapDiv( 'wl-comment-status', wfMessage( "wikilog-comment-{$hidden}" )->text() );
 		}
 
-		$header = wfMessage( 'wikilog-comment-header' )->inContentLanguage()->rawParams( $params )->text();
+		$header = wfMessage( 'wikilog-comment-header' )->inContentLanguage()->rawParams( $params )->parse();
 		if ( $header ) {
 			$header = WikilogUtils::wrapDiv( 'wl-comment-header', $header );
 		}
@@ -944,7 +944,7 @@ class WikilogCommentFormatter
 	 * @return HTML-formatted comment footer.
 	 */
 	public function formatCommentFooter( $comment, $params ) {
-		$footer = wfMessage( 'wikilog-comment-footer' )->inContentLanguage()->rawParams( $params )->text();
+		$footer = wfMessage( 'wikilog-comment-footer' )->inContentLanguage()->rawParams( $params )->parse();
 		if ( $footer ) {
 			return WikilogUtils::wrapDiv( 'wl-comment-footer', $footer );
 		} else {
@@ -976,11 +976,11 @@ class WikilogCommentFormatter
 			$authorFmt = WikilogUtils::authorSig( $comment->mUserText, true );
 		} else {
 			$authorPlain = htmlspecialchars( $comment->mAnonName );
-			$authorFmt = wfMessage( 'wikilog-comment-anonsig',
+			$authorFmt = wfMessage( 'wikilog-comment-anonsig' )->rawParams(
 				Html::rawElement( 'span', [ 'class' => 'wl-comment-author' ], $this->mSkin->userLink( $comment->mUserID, $comment->mUserText ) ),
 				$this->mSkin->userTalkLink( $comment->mUserID, $comment->mUserText ),
 				htmlspecialchars( $comment->mAnonName )
-			)->inContentLanguage()->text();
+			)->inContentLanguage()->parse();
 		}
 
 		list( $date, $time, $tz ) = WikilogUtils::getLocalDateTime( $comment->mTimestamp );
@@ -989,9 +989,9 @@ class WikilogCommentFormatter
 		$extra = array();
 		if ( $this->mShowItem ) {
 			# Display item title.
-			$extra[] = wfMessage( 'wikilog-comment-note-item',
+			$extra[] = wfMessage( 'wikilog-comment-note-item' )->rawParams(
 				Linker::link( $comment->mSubject, $comment->mSubject->getSubpageText() )
-			)->inContentLanguage()->text();
+			)->inContentLanguage()->parse();
 		}
 		if ( $comment->mID && $comment->mCommentTitle &&
 				$comment->mCommentTitle->exists() )
@@ -1023,7 +1023,7 @@ class WikilogCommentFormatter
 			} else {
 				$parentSig = wfMessage( 'wikilog-comment-anonsig', '', '', htmlspecialchars( $parent->mAnonName ) )->inContentLanguage()->text();
 			}
-			$extra[] = wfMessage( 'wikilog-ptswitcher-to-parent', array( $link, $parentSig, $pd, $pt, $ptz ) )->text();
+			$extra[] = wfMessage( 'wikilog-ptswitcher-to-parent' )->rawParams( array( $link, $parentSig, $pd, $pt, $ptz ) )->inContentLanguage()->parse();
 		}
 
 		if ( $extra ) {

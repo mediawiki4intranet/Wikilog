@@ -268,7 +268,7 @@ class WikilogCommentsPage
 		# Add a backlink to the original article.
 		if ( $name !== '' ) {
 			$link = Linker::link( $this->mSubject, Sanitizer::escapeHtmlAllowEntities( $name ) );
-			$wgOut->setSubtitle( wfMessage( 'wikilog-backlink', $link )->text() );
+			$wgOut->setSubtitle( wfMessage( 'wikilog-backlink' )->rawParams( $link )->parse() );
 		}
 
 		# Retrieve comments (or replies) from database and display them.
@@ -553,7 +553,7 @@ class WikilogCommentsPage
 				wfMessage( 'loginreqlink' )->escaped(), array(),
 				array( 'returnto' => $wgTitle->getPrefixedUrl() )
 			);
-			$message = wfMessage( 'wikilog-posting-anonymously', $loginLink )->text();
+			$message = wfMessage( 'wikilog-posting-anonymously' )->rawParams( $loginLink )->parse();
 			$fields[] = array(
 				Html::label( wfMessage( 'wikilog-form-name' )->text(), 'wl-name' ),
 				Html::input( 'wlAnonName', $opts['wlAnonName'], 'text',
