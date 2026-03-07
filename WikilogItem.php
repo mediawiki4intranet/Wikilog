@@ -98,6 +98,10 @@ class WikilogItem {
         return $row ? self::newFromRow( $row ) : null;
     }
 
+    public static function newFromInfo( WikilogInfo $wi ) {
+        return self::newFromID( $wi->mTitle->getArticleID() );
+    }
+
     public static function newFromRow( $row ) {
         $item = new self();
         $item->mID = (int)$row->wlp_page;
