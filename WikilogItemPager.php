@@ -229,9 +229,10 @@ class WikilogSummaryPager
 		$key = $this->mQuery->isSingleWikilog()
 			? 'wikilog-summary-footer-single'
 			: 'wikilog-summary-footer';
-		$msg = wfMessage( $key, $params )->inContentLanguage()->text();
+		// $msg = wfMessage( $key, $params )->inContentLanguage()->text();
+		$msg = wfMessage( $key )->rawParams( $params )->inContentLanguage()->parse();
 		if ( !empty( $msg ) ) {
-			$footer = WikilogUtils::wrapDiv( 'wl-summary-footer', $this->parse( $msg ) );
+			$footer = WikilogUtils::wrapDiv( 'wl-summary-footer', $msg );
 		}
 
 		# Assembly the entry div.

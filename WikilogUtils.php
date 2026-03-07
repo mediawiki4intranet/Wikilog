@@ -144,7 +144,15 @@ class WikilogUtils {
         $num = $item->getNumComments();
         $msg = $num ? 'wikilog-has-comments' : 'wikilog-no-comments';
         $txt = wfMessage( $msg, $num )->inContentLanguage()->text();
-        return "[[" . $item->mTitle->getTalkPage()->getPrefixedText() . "|$txt]]";
+
+        // Вместо возврата строки "[[...]]", возвращаем готовый HTML
+        return Linker::link( 
+            $item->mTitle->getTalkPage(), 
+            $txt, 
+            array(), 
+            array(), 
+            array( 'known', 'noclasses' ) 
+        );
     }
 
     public static function parsedArticle( Title $title, $useParserCache = false ) {

@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "Wikilog",
 	"version": "2.0.0",
-	"author": "Juliano F. Ravasi",
+	"author": "Juliano F. Ravasi, Vitaly Filippov, Stas Fomin, AI",
 	"descriptionmsg": "wikilog-desc",
 	"type": "other",
 	"requires": {
@@ -58,6 +58,11 @@
         "WikilogComments": "SpecialWikilogComments",
         "WikilogSubscriptions": "SpecialWikilogSubscriptions"
     },
+    "MessagesDirs": {
+        "Wikilog": [
+            "i18n"
+        ]
+    },    
 	"ExtensionMessagesFiles": {
 		"WikilogMagic": "Wikilog.i18n.magic.php",
         "WikilogAlias": "Wikilog.i18n.alias.php",

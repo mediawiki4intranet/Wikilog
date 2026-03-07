@@ -42,4 +42,5 @@
 !target
 !.idea
 !package-lock.json
+!*history.md
 # !.olegcat # Exclude the config file itself
