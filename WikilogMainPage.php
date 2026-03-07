@@ -30,7 +30,6 @@ use MediaWiki\Linker\Linker;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use MediaWiki\Html\Html;
-use RequestContext;
 
 if ( !defined( 'MEDIAWIKI' ) )
 	die();

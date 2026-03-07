@@ -6,11 +6,7 @@
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
 use MediaWiki\Page\WikiPage;
-use ParserOutput;
-use RequestContext;
-use Article;
 use MediaWiki\Linker\Linker;
-use ParserOptions;
 use MediaWiki\Html\Html;
 
 if ( !defined( 'MEDIAWIKI' ) )

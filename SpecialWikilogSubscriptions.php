@@ -24,7 +24,6 @@
 use MediaWiki\Linker\Linker;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
-use RequestContext;
 
 if ( !defined( 'MEDIAWIKI' ) )
     die();
