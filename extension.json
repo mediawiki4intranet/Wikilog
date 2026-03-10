@@ -8,6 +8,38 @@
 	"requires": {
 		"MediaWiki": ">= 1.44.0"
 	},
+    "config": {
+        "TaggingEntity": { "value": false },
+        "WikilogStylePath": { "value": false },
+        "WikilogExpensiveLimit": { "value": 50 },
+        "WikilogNumArticles": { "value": 20 },
+        "WikilogNumComments": { "value": 50 },
+        "WikilogExtSummaries": { "value": false },
+        "WikilogPagerDateFormat": { "value": false },
+        "WikilogDefaultNotCategory": { "value": false },
+        "WikilogSearchDropdowns": { "value": true },
+        "WikilogSignAndPublishDefault": { "value": false },
+        "WikilogMaxAuthors": { "value": 6 },
+        "WikilogEnableTags": { "value": false },
+        "WikilogMaxTags": { "value": 25 },
+        "WikilogEnableComments": { "value": true },
+        "WikilogCommentNamespaces": { "value": [] },
+        "WikilogCommentsOnItemPage": { "value": [] },
+        "WikilogMaxCommentSize": { "value": 2147483647 },
+        "WikilogModerateAnonymous": { "value": false },
+        "WikilogFeedClasses": {
+            "value": {
+                "atom": "WlAtomFeed",
+                "rss": "WlRSSFeed"
+            }
+        },
+        "WikilogFeedSummary": { "value": true },
+        "WikilogFeedContent": { "value": true },
+        "WikilogFeedCategories": { "value": true },
+        "WikilogFeedRelated": { "value": false },
+        "WikilogNamespaces": { "value": [] },
+        "WikilogCloneParser": { "value": false }
+    },    
     "AutoloadClasses": {
         "Wikilog": "Wikilog.php",
         "WikilogParser": "WikilogParser.php",

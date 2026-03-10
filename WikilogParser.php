@@ -32,11 +32,11 @@ class WikilogParser
         }
 
         // Исправлено: заменяем формат [ __CLASS__, 'method' ] на анонимные функции
-        $parser->setFunctionHook( 'wl-settings', 'WikilogParser::settings' );
-        $parser->setFunctionHook( 'wl-publish', 'WikilogParser::publish' );
-        $parser->setFunctionHook( 'wl-comment', 'WikilogParser::comment' );
-        $parser->setFunctionHook( 'wl-author', 'WikilogParser::author' );
-        $parser->setFunctionHook( 'wl-tags', 'WikilogParser::tags' );
+        $parser->setFunctionHook( 'wl-settings', 'WikilogParser::settings', Parser::SFH_NO_HASH);
+        $parser->setFunctionHook( 'wl-publish', 'WikilogParser::publish', Parser::SFH_NO_HASH);
+        $parser->setFunctionHook( 'wl-comment', 'WikilogParser::comment', Parser::SFH_NO_HASH );
+        $parser->setFunctionHook( 'wl-author', 'WikilogParser::author', Parser::SFH_NO_HASH );
+        $parser->setFunctionHook( 'wl-tags', 'WikilogParser::tags', Parser::SFH_NO_HASH );
 
         $mwMore = $mwFactory->get( 'wlk-more' );
         foreach ( $mwMore->getSynonyms() as $tagname ) {
