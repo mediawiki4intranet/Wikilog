@@ -96,7 +96,7 @@ class WikilogMainPage
 
 		# Subscription
 		if ( !$wgUser->isAnon() ) {
-			$link = SpecialWikilogSubscriptions::generateSubscriptionLink( $this->mTitle );
+			$link = SpecialWikilogSubscriptions::generateSubscriptionLink( $this->getTitle() );
 			$wgOut->addHtml( '<p id="wl-subscription-link">' . $link . '</p>' );
 		}
 

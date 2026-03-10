@@ -603,18 +603,18 @@ class WikilogCommentsPage
 			$comment->mStatus = WikilogComment::S_OK;
 			$comment->saveComment();
 			$log->addEntry( 'c-approv', $title, '' );
-			$wgOut->redirect( $this->mTalkTitle->getFullUrl() );
+			$wgOut->redirect( $this->mSubject->getTalkPage()->getFullUrl() );
 		} elseif ( $approval == 'reject' ) {
 			$reason = wfMessage( 'wikilog-log-cmt-rejdel', $comment->mUserText )->inContentLanguage()->text();
 			$id = $title->getArticleID( Title::GAID_FOR_UPDATE );
 			if ( $this->doDeleteArticle( $reason, false, $id ) ) {
 				$comment->deleteComment();
 				$log->addEntry( 'c-reject', $title, '' );
-				$wgOut->redirect( $this->mTalkTitle->getFullUrl() );
+				$wgOut->redirect( $this->mSubject->getTalkPage()->getFullUrl() );
 			} else {
 				$wgOut->showFatalError( wfMessage( 'cannotdelete' )->parse() );
 				$wgOut->addHTML( Xml::element( 'h2', null, LogPage::logName( 'delete' ) ) );
-				LogEventsList::showLogExtract( $wgOut, 'delete', $this->mTitle->getPrefixedText() );
+				LogEventsList::showLogExtract( $wgOut, 'delete', $this->getTitle()->getPrefixedText() );
 			}
 		} else {
 			$wgOut->showErrorPage( 'nosuchaction', 'nosuchactiontext' );
