@@ -1,31 +1,4 @@
 <?php
-/**
- * MediaWiki Wikilog extension
- * Copyright © 2008-2010 Juliano F. Ravasi
- * http://www.mediawiki.org/wiki/Extension:Wikilog
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- */
-
-/**
- * @file
- * @ingroup Extensions
- * @author Juliano F. Ravasi < dev juliano info >
- */
-
 use MediaWiki\Linker\Linker;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Title\Title;
@@ -60,7 +33,7 @@ class SpecialWikilogComments
 	 * and also the name that will be listed in Special:Specialpages.
 	 */
 	public function getDescription() {
-		return wfMessage( 'wikilog-title-comments-all' )->text();
+		return wfMessage( 'wikilog-title-comments-all' );
 	}
 }
 
@@ -435,11 +408,11 @@ class WikilogCommentsPage
 		$all = false;
 		$subjId = $this->mSubject->getArticleId();
 		$one = $this->isSubscribed( $subjId );
-		if ( $this->includeSubpageComments() ) {
-			$msg = $one ? 'wikilog-do-unsubscribe-all' : 'wikilog-do-subscribe-all';
-		} elseif ( !$this->mSingleComment ) {
-			$dbr = wfGetDB( DB_SLAVE );
-			// Is it the user talk page? If yes, he can't unsubscribe.
+        if ( $this->includeSubpageComments() ) {
+            $msg = $one ? 'wikilog-do-unsubscribe-all' : 'wikilog-do-subscribe-all';
+        } elseif ( !$this->mSingleComment ) {
+            $dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
+        	// Is it the user talk page? If yes, he can't unsubscribe.
 			if ( $this->mSubject->getNamespace() == NS_USER &&
 				$this->mSubject->getText() == $wgUser->getName() ) {
 				return wfMessage( 'wikilog-subscribed-usertalk' )->plain();
