@@ -1,31 +1,4 @@
 <?php
-/**
- * MediaWiki Wikilog extension
- * Copyright © 2008-2010 Juliano F. Ravasi
- * http://www.mediawiki.org/wiki/Extension:Wikilog
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- */
-
-/**
- * @file
- * @ingroup Extensions
- * @author Juliano F. Ravasi < dev juliano info >
- */
-
 use MediaWiki\Title\Title;
 use MediaWiki\Html\Html;
 use MediaWiki\MediaWikiServices;
@@ -50,6 +23,7 @@ class SpecialWikilog
 	/** Statuses. */
 	protected static $statuses = array( 'all', 'published', 'drafts' );
 
+    public $query;
 	/**
 	 * Constructor.
 	 */
@@ -334,9 +308,9 @@ class SpecialWikilog
 	 * Returns the name used as page title in the special page itself,
 	 * and also the name that will be listed in Special:Specialpages.
 	 */
-	public function getDescription() {
-		return wfMessage( 'wikilog-specialwikilog-title' )->text();
-	}
+    public function getDescription() {
+        return wfMessage( 'wikilog-specialwikilog-title' );
+    }
 
 	/**
 	 * Parse inline parameters passed after the special page name.
@@ -523,7 +497,7 @@ class SpecialWikilog
 
 	/* Get possible Author options for combo-box */
 	protected function getAuthorOptions() {
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 	}
 
 	/**

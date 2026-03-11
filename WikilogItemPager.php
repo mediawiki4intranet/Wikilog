@@ -308,10 +308,10 @@ class WikilogTemplatePager
 		parent::__construct( $query, $limit, $including );
 
 		# Load template
-		if ( !$parser->mOptions ) {
-			$parser->parse( '', $template, ParserOptions::newFromUser( $wgUser ) );
-		}
-		list( $this->mTemplate, $this->mTemplateTitle ) =
+        if ( !$parser->getOptions() ) {
+            $parser->parse( '', $template, ParserOptions::newFromUser( $wgUser ) );
+        }
+        list( $this->mTemplate, $this->mTemplateTitle ) =
 			$parser->getTemplateDom( $template );
 		if ( $this->mTemplate === false ) {
 			$this->mTemplate = "[[:$template]]";

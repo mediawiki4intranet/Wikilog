@@ -108,7 +108,7 @@ class WikilogUtils {
         $tzPref = $optionsManager->getOption( $user, 'timezone' );
         $tzName = null;
 
-        if ( strpos( $tzPref, '|' ) !== false ) {
+        if ( $tzPref !== null && strpos( $tzPref, '|' ) !== false ) {
             list( $type, $zone ) = explode( '|', $tzPref, 2 );
             if ( $type === 'ZoneInfo' ) {
                 $tzName = $zone;
@@ -167,7 +167,7 @@ class WikilogUtils {
     }
 
     public static function splitSummaryContent( ParserOutput $parserOutput ) {
-        $text = $parserOutput->getText();
+        $text = $parserOutput->getRawText();
         $summary = $parserOutput->getExtensionData( 'wikilog-summary' );
         $moreMarker = $parserOutput->getExtensionData( 'wikilog-more' );
 
