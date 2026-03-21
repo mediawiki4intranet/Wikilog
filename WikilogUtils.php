@@ -167,16 +167,22 @@ class WikilogUtils {
     }
 
     public static function splitSummaryContent( ParserOutput $parserOutput ) {
-        $text = $parserOutput->getRawText();
+        // 1. Просим MediaWiki отрендерить финальный HTML, ВЫРЕЗАВ ссылки "править" и оглавления
+        $text = $parserOutput->getText( [
+            'enableSectionEditLinks' => false,
+            'allowTOC' => false
+        ] );
+
         $summary = $parserOutput->getExtensionData( 'wikilog-summary' );
         $moreMarker = $parserOutput->getExtensionData( 'wikilog-more' );
 
+        // 2. Если summary задано явно через <wlk-summary>, оно не прошло через getText().
+        // Вычищаем <mw:editsection> из него принудительно:
         if ( $summary !== null ) {
-            // summary from <summary> tag.
+            $summary = preg_replace( '#<mw:editsection[^>]*>.*?</mw:editsection>#s', '', $summary );
             return [ $summary, $text ];
         } elseif ( $moreMarker ) {
-            // summary from <!--more-->
-            $parts = explode( $moreMarker, $text, 2 );
+            // summary from $parts = explode( $moreMarker, $text, 2 );
             return [ $parts[0], $text ];
         } else {
             // no summary

@@ -708,7 +708,7 @@ class WikilogCommentFeed
 		# Comment text.
 		if ( $comment->mCommentRev ) {
 			list( , $parserOutput ) = WikilogUtils::parsedArticle( $comment->mCommentTitle, true );
-			$content = Sanitizer::removeHTMLcomments( $parserOutput->getRawText() );
+			$content = Sanitizer::removeHTMLcomments( $parserOutput->getText() );
 			if ( $content ) {
 				$entry->setContent( new WlTextConstruct( 'html', $content ) );
 			}

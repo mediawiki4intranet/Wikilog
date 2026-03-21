@@ -156,10 +156,17 @@ class WikilogSummaryPager
 		list( , $parserOutput ) = WikilogUtils::parsedArticle( $item->mTitle );
 		list( $summary, $content ) = WikilogUtils::splitSummaryContent( $parserOutput );
 
-		// FIXME: Do not use global output, pass it from somewhere
-		global $wgOut;
-		$wgOut->addModules( $parserOutput->getModules() );
-		$wgOut->addModuleStyles( $parserOutput->getModuleStyles() );
+        global $wgOut;
+        
+        $modules = $parserOutput->getModules();
+        if ( !empty( $modules ) ) {
+            $wgOut->addModules( $modules );
+        }
+        
+        $styles = $parserOutput->getModuleStyles();
+        if ( !empty( $styles ) ) {
+            $wgOut->addModuleStyles( $styles );
+        }
 
 		# Retrieve the common header and footer parameters.
 		$params = $item->getMsgParams( $wgWikilogExtSummaries, $parserOutput );
