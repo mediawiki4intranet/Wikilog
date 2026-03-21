@@ -76,4 +76,36 @@ class WikilogHooks {
         return true;
     }
 
+    public static function onSkinTemplateNavigation__Universal( $skinTemplate, &$links ) {
+        $title = $skinTemplate->getTitle();
+        
+        // Убеждаемся, что мы работаем с существующим объектом и расширение загружено
+        if ( !$title || !class_exists( 'Wikilog' ) ) {
+            return true;
+        }
+
+        $wi = Wikilog::getWikilogInfo( $title );
+        
+        // Вкладка имеет смысл только для главной страницы блога
+        if ( $wi && $wi->isMain() ) {
+            $request = $skinTemplate->getRequest();
+            $action = $request->getVal( 'action', 'view' );
+
+            // Получаем текст вкладки. Если локализация не прогрузилась, ставим fallback.
+            $tabText = wfMessage( 'wikilog-tab-title' )->exists() 
+                ? wfMessage( 'wikilog-tab-title' )->text() 
+                : 'Викилог';
+
+            // КРИТИЧНО для Vector: обязательно нужен 'id', начинающийся с 'ca-'
+            $links['views']['wikilog'] = [
+                'id'    => 'ca-wikilog',
+                'text'  => $tabText,
+                'href'  => $title->getLocalURL( [ 'action' => 'wikilog' ] ),
+                'class' => ( $action === 'wikilog' ) ? 'selected' : '',
+            ];
+        }
+        
+        return true;
+    }
+
 }

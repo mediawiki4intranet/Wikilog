@@ -131,7 +131,13 @@
         "WlRSSFeed": "WlFeed.body.php",
         "WlFeedItemCompat": "WlFeed.body.php",
         "WlAtomFeedCompat": "WlFeed.body.php",
-        "WlRSSFeedCompat": "WlFeed.body.php"
+        "WlRSSFeedCompat": "WlFeed.body.php",
+        "WikilogAction": "WikilogAction.php",
+        "WikilogHooks": "WikilogHooks.php",
+        "WikilogLinksUpdate": "WikilogLinksUpdate.php",
+        "WikilogBloggerImport": "WikilogBloggerImport.php",
+        "WikilogCalendar": "WikilogCalendar.php",
+        "HtmlToMediaWiki": "HtmlToMediaWiki.php"
     },
     "SpecialPages": {
         "Wikilog": "SpecialWikilog",
@@ -149,6 +155,7 @@
         "WlFeed": "WlFeed.i18n.php"
     },
     "Hooks": {
+        "SkinTemplateNavigation::Universal": "WikilogHooks::onSkinTemplateNavigation__Universal",
         "BeforePageDisplay": "Wikilog::BeforePageDisplay",
         "ArticleFromTitle": "Wikilog::ArticleFromTitle",
         "ParserFirstCallInit": "WikilogParser::FirstCallInit",
@@ -170,5 +177,8 @@
                 "mobile"
             ]
         }
+    },
+    "Actions": {
+        "wikilog": "WikilogAction"
     }
 }
