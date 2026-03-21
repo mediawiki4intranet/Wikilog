@@ -16,6 +16,7 @@ class WikilogParser
         $hash = spl_object_hash($parser);
         if (!isset(self::$parserData[$hash])) {
             self::$parserData[$hash] = new WikilogParserOutput;
+            $parser->getOutput()->setExtensionData('wikilog', self::$parserData[$hash]);
         }
         return self::$parserData[$hash];
     }

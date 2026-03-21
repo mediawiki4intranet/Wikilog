@@ -159,11 +159,12 @@
         "BeforePageDisplay": "Wikilog::BeforePageDisplay",
         "ArticleFromTitle": "Wikilog::ArticleFromTitle",
         "ParserFirstCallInit": "WikilogParser::FirstCallInit",
-        "ArticleEditUpdates": "WikilogHooks::ArticleEditUpdates",
         "DatabaseSchemaUpdates": "WikilogHooks::onDatabaseSchemaUpdates",
         "ParserStart": "WikilogParser::onParserStart",
-        "InternalParseBeforeSanitize": "WikilogParser::onInternalParseBeforeSanitize",
-        "ParserClearState": "WikilogParser::onParserClearState"
+        "ParserClearState": "WikilogParser::onParserClearState",
+        "EditPage::importFormData": "WikilogHooks::onEditPage__importFormData",
+        "EditPage::showStandardInputs:options": "WikilogHooks::onEditPage__showStandardInputs_options",
+        "PageSaveComplete": "WikilogHooks::onPageSaveComplete"
     },
     "ResourceFileModulePaths": {
         "localBasePath": ""
