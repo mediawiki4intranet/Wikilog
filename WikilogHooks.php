@@ -76,26 +76,4 @@ class WikilogHooks {
         return true;
     }
 
-    public static function onResourceLoaderRegisterModules( \MediaWiki\ResourceLoader\ResourceLoader $rl ) {
-        global $wgExtensionDirectory, $wgExtensionAssetsPath;
-
-        // ИСПОЛЬЗУЕМ __DIR__ НАПРЯМУЮ, так как файл уже в корне расширения
-        $localDir = str_replace( '\\', '/', __DIR__ ); 
-        $baseExtDir = str_replace( '\\', '/', $wgExtensionDirectory );
-        
-        // Вычисляем относительный путь (например, 'our/Wikilog' или просто 'Wikilog')
-        $relativePath = ltrim( str_replace( $baseExtDir, '', $localDir ), '/' );
-        
-        // Формируем URL для браузера
-        $remotePath = $wgExtensionAssetsPath . '/' . $relativePath;
-
-        // Регистрируем модуль на лету
-        $rl->register( 'ext.wikilog', [
-            'localBasePath' => $localDir,
-            'remoteBasePath' => $remotePath,
-            'styles' => 'style/wikilog.css',
-            'scripts' => 'style/wikilog.js',
-            'targets' => [ 'desktop', 'mobile' ]
-        ] );
-    }
 }
