@@ -18,7 +18,7 @@
 	"wikilog-log-cmt-reject": "отклонил комментарий [[$1]]",
 	"wikilog-log-cmt-rejdel": "Отклонён комментарий викилога от [[Special:Contributions/$1|$1]]",
 	"wikilog-tab": "Викилог",
-	"wikilog-tab-title": "Действия викилога",
+	"wikilog-tab-title": "Викилог",
 	"wikilog-missing-wikilog": "Это страница [[{{int:wikilog-help}}|викилога]] для [[{{FULLPAGENAME}}]].\n\nДанного викилога пока не существует. \nДля публикации статей и включения других функций викилога, его необходимо предварительно создать.\n\n* <span class=\"plainlinks\">[{{fullurl:{{FULLPAGENAME}}|action=edit}} Создать этот викилог].</span>",
 	"wikilog-information": "Сведения о викилоге",
 	"wikilog-post-count-published": "В этом викилоге {{PLURAL:$1|опубликована $1 статья|опубликовано $1 статьи|опубликовано $1 статей}},",

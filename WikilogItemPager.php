@@ -489,7 +489,7 @@ class WikilogArchivesPager
 	}
 
 	function getTableClass() {
-		return 'wl-archives TablePager';
+		return 'wl-archives mw-datatable TablePager';
 	}
 
 	// Should be static, but isn't in TablePager :-E
@@ -549,7 +549,7 @@ class WikilogArchivesPager
 				'COUNT(*) AS unread_count',
 				array( 'wlc_status' => 'OK', 'IFNULL(wlc_updated>pv_date,1)', 'wlc_post' => $row->wlp_page ),
 				__METHOD__,
-				NULL,
+				// NULL,
 				array( 'page_last_visit' => array( 'LEFT JOIN', array( 'pv_page = wlc_comment_page', 'pv_user' => $wgUser->getID() ) ) )
 			);
 			$v = $result->fetchObject();
@@ -616,13 +616,13 @@ class WikilogArchivesPager
 				return Linker::link( $page, $text, array(), array(),
 					array( 'known', 'noclasses' ) );
 
-			case '_wl_actions':
-				$permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
-				if ( $permissionManager->quickUserCan( 'edit', $this->getContext()->getUser(), $this->mCurrentItem->mTitle ) ) {
-					return $this->doEditLink( $this->mCurrentItem->mTitle, $this->mCurrentItem->mName );
-				} else {
-					return '';
-				}
+			// case '_wl_actions':
+			// 	$permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
+			// 	if ( $permissionManager->quickUserCan( 'edit', $this->getContext()->getUser(), $this->mCurrentItem->mTitle ) ) {
+			// 		return $this->doEditLink( $this->mCurrentItem->mTitle, $this->mCurrentItem->mName );
+			// 	} else {
+			// 		return '';
+			// 	}
 
 			default:
 				return htmlentities( $value );
@@ -654,8 +654,8 @@ class WikilogArchivesPager
 		if ( $wgWikilogEnableComments )
 			$fields['wti_num_comments']	= wfMessage( 'wikilog-comments' )->escaped();
 
-		if ( empty( $this->noActions ) )
-			$fields['_wl_actions']			= wfMessage( 'wikilog-actions' )->escaped();
+		// if ( empty( $this->noActions ) )
+		// 	$fields['_wl_actions']			= wfMessage( 'wikilog-actions' )->escaped();
 
 		$fields['wti_talk_updated'] = wfMessage( 'wikilog-talk-updated' )->escaped();
 
