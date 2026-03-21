@@ -72,33 +72,6 @@ class WikilogHooks {
         return true;
     }
 
-    public static function onEditPage__showStandardInputs_options( $editPage, $out, &$tabindex ) {
-        $title = $editPage->getTitle();
-        if ( !class_exists( 'Wikilog' ) ) return true;
-        $wi = Wikilog::getWikilogInfo( $title );
-
-        if ( $wi && $wi->isItem() ) {
-            $text = $editPage->textbox1 ?? '';
-            if ( !preg_match( '/\{\{\s*wl-publish\s*:/', $text ) ) {
-                global $wgWikilogSignAndPublishDefault;
-                $request = $editPage->getContext()->getRequest();
-                $checked = $request->getBool( 'wlSignpub', $wgWikilogSignAndPublishDefault );
-
-                $checkboxHtml = \MediaWiki\Html\Html::check( 'wlSignpub', $checked, [ 'id' => 'wl-signpub', 'tabindex' => ++$tabindex ] ) .
-                    '&#160;' .
-                    \MediaWiki\Html\Html::element( 'label', [
-                        'for' => 'wl-signpub',
-                        'title' => 'Вызывает подписывание и опубликование статьи в викилоге при сохранении. Снимите этот флажок, чтобы оставить статью в качестве черновика.'
-                    ], 'Подписать и опубликовать эту статью' );
-
-                $out->addHTML( \MediaWiki\Html\Html::rawElement( 'fieldset', [],
-                    \MediaWiki\Html\Html::element( 'legend', [], 'Настройки викилога:' ) . $checkboxHtml
-                ) );
-            }
-        }
-        return true;
-    }
-
     
 
     public static function onPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ) {
@@ -153,6 +126,37 @@ class WikilogHooks {
         return true;
     }
 
+
+    public static function onEditPage__showStandardInputs_options( $editPage, $out, &$tabindex ) {
+        $title = $editPage->getTitle();
+        if ( !class_exists( 'Wikilog' ) ) return true;
+        $wi = Wikilog::getWikilogInfo( $title );
+
+        if ( $wi && $wi->isItem() ) {
+            // ИСПРАВЛЕНИЕ: Проверяем статус в базе данных, как в старом коде
+            $item = WikilogItem::newFromInfo( $wi );
+            
+            // Показываем, если статьи еще нет в базе ИЛИ она есть, но не опубликована
+            if ( !$item || !$item->getIsPublished() ) {
+                global $wgWikilogSignAndPublishDefault;
+                $request = $editPage->getContext()->getRequest();
+                $checked = $request->getBool( 'wlSignpub', $wgWikilogSignAndPublishDefault );
+
+                $checkboxHtml = \MediaWiki\Html\Html::check( 'wlSignpub', $checked, [ 'id' => 'wl-signpub', 'tabindex' => ++$tabindex ] ) .
+                    '&#160;' .
+                    \MediaWiki\Html\Html::element( 'label', [
+                        'for' => 'wl-signpub',
+                        'title' => 'Вызывает подписывание и опубликование статьи в викилоге при сохранении. Снимите этот флажок, чтобы оставить статью в качестве черновика.'
+                    ], 'Подписать и опубликовать эту статью' );
+
+                $out->addHTML( \MediaWiki\Html\Html::rawElement( 'fieldset', [],
+                    \MediaWiki\Html\Html::element( 'legend', [], 'Настройки викилога:' ) . $checkboxHtml
+                ) );
+            }
+        }
+        return true;
+    }
+
     public static function onEditPage__importFormData( $editPage, $request ) {
         $title = $editPage->getTitle();
         if ( !class_exists( 'Wikilog' ) ) return true;
@@ -163,7 +167,7 @@ class WikilogHooks {
             $date = gmdate( 'Y-m-d H:i:s \+0000' );
             $author = $editPage->getContext()->getUser()->getName();
 
-            // 1. Восстанавливаем магию тильд (~~~~)
+            // 1. Магия тильд
             $sigs = [
                 '/\n?(--)?~~~~~\n?/m' => "\n{{wl-publish: $date }}\n",
                 '/\n?(--)?~~~~\n?/m' => "\n{{wl-publish: $date | $author }}\n",
@@ -173,12 +177,14 @@ class WikilogHooks {
 
             // 2. Обрабатываем галочку из интерфейса
             if ( $request->getBool( 'wlSignpub' ) ) {
-                if ( !preg_match( '/\{\{\s*wl-publish\s*:/', $text ) ) {
-                    $text = rtrim( $text ) . "\n\n{{wl-publish: $date | $author }}";
+                $item = WikilogItem::newFromInfo( $wi );
+                if ( !$item || !$item->getIsPublished() ) {
+                    if ( !preg_match( '/\{\{\s*wl-publish\s*:/', $text ) ) {
+                        $text = rtrim( $text ) . "\n\n{{wl-publish: $date | $author }}";
+                    }
                 }
             }
 
-            // Передаем измененный текст обратно в форму
             $editPage->textbox1 = $text;
         }
         return true;
