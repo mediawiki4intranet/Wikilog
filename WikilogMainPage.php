@@ -159,11 +159,11 @@ class WikilogMainPage
 			$skin = $this->getContext()->getSkin();
 			$wgOut->addHTML( $this->formatWikilogDescription( $skin ) );
 			$wgOut->addHTML( $this->formatWikilogInformation( $skin ) );
-			if ( $permissionManager->quickUserCan( 'edit', $this->getUser(), $this->getTitle() ) ) {
+			if ( $permissionManager->quickUserCan( 'edit', $this->getContext()->getUser(), $this->getTitle() ) ) {
 				$wgOut->addHTML( self::formNewItem( $this->getTitle() ) );
 				$wgOut->addHTML( $this->formImport() );
 			}
-		} elseif ( $permissionManager->userCan( 'create', $this->getUser(), $this->getTitle() ) ) {
+		} elseif ( $permissionManager->userCan( 'create', $this->getContext()->getUser(), $this->getTitle() ) ) {
 			$text = wfMessage( 'wikilog-missing-wikilog' )->parse();
 			$text = WikilogUtils::wrapDiv( 'noarticletext', $text );
 			$wgOut->addHTML( $text );
@@ -212,7 +212,7 @@ class WikilogMainPage
 			'COUNT(*) as total, SUM(wlp_publish) as published',
 			array(
 				'wlp_page = page_id',
-				'wlp_parent' => $this->mTitle->getArticleID(),
+				'wlp_parent' => $this->getTitle()->getArticleID(),
 				'page_is_redirect' => 0
 			),
 			__METHOD__
@@ -362,7 +362,7 @@ class WikilogMainPage
 		$wgOut->setPageTitle( wfMessage( 'wikilog-import' )->text() );
 
 		$permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
-		if ( !$permissionManager->quickUserCan( 'edit', $this->getUser(), $this->getTitle() ) ) {
+		if ( !$permissionManager->quickUserCan( 'edit', $this->getContext()->getUser(), $this->getTitle() ) ) {
 			$wgOut->loginToUse();
 			$wgOut->output();
 			exit;
@@ -394,7 +394,7 @@ class WikilogMainPage
 				    ( $user = User::newFromName( $user->getText() ) ))
 					$users[ trim($m[2]) ] = $user->getName();
 			$params = array(
-				'blog' => $this->mTitle->getText(),
+				'blog' => $this->getTitle()->getText(),
 				'users' => $users,
 			);
 			$out = WikilogBloggerImport::parse_blogger_xml( file_get_contents( $_FILES['wlFile']['tmp_name'] ), $params );
@@ -402,7 +402,7 @@ class WikilogMainPage
 				$result = WikilogBloggerImport::import_parsed_blogger( $out );
 			if ( $result )
 			{
-				$wgOut->addWikiMsg( 'wikilog-import-ok', count( $result ), $this->mTitle->getPrefixedText() );
+				$wgOut->addWikiMsg( 'wikilog-import-ok', count( $result ), $this->getTitle()->getPrefixedText() );
 				/* Print RewriteRules */
 				$rewrite = array_reverse( $out['rewrite'] );
 				foreach ( $rewrite as &$r )
@@ -424,7 +424,7 @@ class WikilogMainPage
 	private function loadWikilogData() {
 		if ( !$this->mWikilogDataLoaded ) {
 			$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
-			$data = $this->getWikilogDataFromId( $dbr, $this->getId() );
+			$data = $this->getWikilogDataFromId( $dbr, $this->getTitle()->getArticleID() );
 			if ( $data ) {
 				$this->mWikilogSubtitle = unserialize( $data->wlw_subtitle );
 				$this->mWikilogIcon = $data->wlw_icon;

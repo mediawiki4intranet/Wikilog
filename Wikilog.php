@@ -85,7 +85,7 @@ class Wikilog
     }
 
     public static function ArticleViewHeader( $article, &$outputDone, $pcache ) {
-        if ( $article instanceof WikilogCommentsPage && $article->getID() == 0 ) {
+        if ( $article instanceof WikilogCommentsPage && $article->getTitle()->getArticleID() == 0 ) {
             $outputDone = true;
             return false;
         }
