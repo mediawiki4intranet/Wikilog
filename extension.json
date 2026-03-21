@@ -1,45 +1,93 @@
 {
-	"manifest_version": 2,
-	"name": "Wikilog",
-	"version": "2.0.0",
-	"author": "Juliano F. Ravasi, Vitaly Filippov, Stas Fomin, AI",
-	"descriptionmsg": "wikilog-desc",
-	"type": "other",
-	"requires": {
-		"MediaWiki": ">= 1.44.0"
-	},
+    "manifest_version": 2,
+    "name": "Wikilog",
+    "version": "2.0.0",
+    "author": "Juliano F. Ravasi, Vitaly Filippov, Stas Fomin, AI",
+    "descriptionmsg": "wikilog-desc",
+    "type": "other",
+    "requires": {
+        "MediaWiki": ">= 1.44.0"
+    },
     "config": {
-        "TaggingEntity": { "value": false },
-        "WikilogStylePath": { "value": false },
-        "WikilogExpensiveLimit": { "value": 50 },
-        "WikilogNumArticles": { "value": 20 },
-        "WikilogNumComments": { "value": 50 },
-        "WikilogExtSummaries": { "value": false },
-        "WikilogPagerDateFormat": { "value": false },
-        "WikilogDefaultNotCategory": { "value": false },
-        "WikilogSearchDropdowns": { "value": true },
-        "WikilogSignAndPublishDefault": { "value": false },
-        "WikilogMaxAuthors": { "value": 6 },
-        "WikilogEnableTags": { "value": false },
-        "WikilogMaxTags": { "value": 25 },
-        "WikilogEnableComments": { "value": true },
-        "WikilogCommentNamespaces": { "value": [] },
-        "WikilogCommentsOnItemPage": { "value": [] },
-        "WikilogMaxCommentSize": { "value": 2147483647 },
-        "WikilogModerateAnonymous": { "value": false },
+        "TaggingEntity": {
+            "value": false
+        },
+        "WikilogStylePath": {
+            "value": false
+        },
+        "WikilogExpensiveLimit": {
+            "value": 50
+        },
+        "WikilogNumArticles": {
+            "value": 20
+        },
+        "WikilogNumComments": {
+            "value": 50
+        },
+        "WikilogExtSummaries": {
+            "value": false
+        },
+        "WikilogPagerDateFormat": {
+            "value": false
+        },
+        "WikilogDefaultNotCategory": {
+            "value": false
+        },
+        "WikilogSearchDropdowns": {
+            "value": true
+        },
+        "WikilogSignAndPublishDefault": {
+            "value": false
+        },
+        "WikilogMaxAuthors": {
+            "value": 6
+        },
+        "WikilogEnableTags": {
+            "value": false
+        },
+        "WikilogMaxTags": {
+            "value": 25
+        },
+        "WikilogEnableComments": {
+            "value": true
+        },
+        "WikilogCommentNamespaces": {
+            "value": []
+        },
+        "WikilogCommentsOnItemPage": {
+            "value": []
+        },
+        "WikilogMaxCommentSize": {
+            "value": 2147483647
+        },
+        "WikilogModerateAnonymous": {
+            "value": false
+        },
         "WikilogFeedClasses": {
             "value": {
                 "atom": "WlAtomFeed",
                 "rss": "WlRSSFeed"
             }
         },
-        "WikilogFeedSummary": { "value": true },
-        "WikilogFeedContent": { "value": true },
-        "WikilogFeedCategories": { "value": true },
-        "WikilogFeedRelated": { "value": false },
-        "WikilogNamespaces": { "value": [] },
-        "WikilogCloneParser": { "value": false }
-    },    
+        "WikilogFeedSummary": {
+            "value": true
+        },
+        "WikilogFeedContent": {
+            "value": true
+        },
+        "WikilogFeedCategories": {
+            "value": true
+        },
+        "WikilogFeedRelated": {
+            "value": false
+        },
+        "WikilogNamespaces": {
+            "value": []
+        },
+        "WikilogCloneParser": {
+            "value": false
+        }
+    },
     "AutoloadClasses": {
         "Wikilog": "Wikilog.php",
         "WikilogParser": "WikilogParser.php",
@@ -94,31 +142,33 @@
         "Wikilog": [
             "i18n"
         ]
-    },    
-	"ExtensionMessagesFiles": {
-		"WikilogMagic": "Wikilog.i18n.magic.php",
+    },
+    "ExtensionMessagesFiles": {
+        "WikilogMagic": "Wikilog.i18n.magic.php",
         "WikilogAlias": "Wikilog.i18n.alias.php",
         "WlFeed": "WlFeed.i18n.php"
-	},
-	"ResourceModules": {
-		"ext.wikilog": {
-			"styles": "style/wikilog.css",
-			"scripts": "style/wikilog.js",
-			"targets": [ "desktop", "mobile" ]
-		}
-	},
-    "ResourceFileModulePaths": {
-        "localBasePath": "",
-        "remoteExtPath": "our/Wikilog"
-    },    
+    },
     "Hooks": {
+        "BeforePageDisplay": "Wikilog::BeforePageDisplay",
         "ArticleFromTitle": "Wikilog::ArticleFromTitle",
         "ParserFirstCallInit": "WikilogParser::FirstCallInit",
         "ArticleEditUpdates": "WikilogHooks::ArticleEditUpdates",
         "DatabaseSchemaUpdates": "WikilogHooks::onDatabaseSchemaUpdates",
         "ParserStart": "WikilogParser::onParserStart",
         "InternalParseBeforeSanitize": "WikilogParser::onInternalParseBeforeSanitize",
-        "ParserClearState": "WikilogParser::onParserClearState",
-        "BeforePageDisplay": "Wikilog::BeforePageDisplay"
+        "ParserClearState": "WikilogParser::onParserClearState"
+    },
+    "ResourceFileModulePaths": {
+        "localBasePath": ""
+    },
+    "ResourceModules": {
+        "ext.wikilog": {
+            "styles": "style/wikilog.css",
+            "scripts": "style/wikilog.js",
+            "targets": [
+                "desktop",
+                "mobile"
+            ]
+        }
     }
 }

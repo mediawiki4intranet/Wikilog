@@ -159,6 +159,9 @@ class SpecialWikilog
 		# Set page title, html title, nofollow, noindex, etc...
 		$this->setHeaders();
 		$this->outputHeader();
+        
+        $wgOut->addModules( 'ext.wikilog' );
+        $wgOut->addModuleStyles( 'ext.wikilog' );
 
 		# Build query object.
 		$this->query = $query = self::getQuery( $opts );
