@@ -18,8 +18,8 @@ window.wlCheckNewItem = function(f, msgs)
             return false;
         }
     }
-    f.title.value = w.value + '/' + i.value;
-    f.preload.value = 'Template:' + w.value;
+    f.elements['title'].value = w.value + '/' + i.value;
+    f.elements['preload'].value = 'Template:' + w.value;
     return true;
 };
 

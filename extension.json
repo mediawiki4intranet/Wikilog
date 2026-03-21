@@ -107,13 +107,18 @@
 			"targets": [ "desktop", "mobile" ]
 		}
 	},
-	"Hooks": {
-		"ArticleFromTitle": "Wikilog::ArticleFromTitle",
-		"ParserFirstCallInit": "WikilogParser::FirstCallInit",
-		"ArticleEditUpdates": "WikilogHooks::ArticleEditUpdates",
-		"DatabaseSchemaUpdates": "WikilogHooks::onDatabaseSchemaUpdates",
-		"ParserStart": "WikilogParser::onParserStart",
-		"InternalParseBeforeSanitize": "WikilogParser::onInternalParseBeforeSanitize",
-		"ParserClearState": "WikilogParser::onParserClearState"
-	}
+    "ResourceFileModulePaths": {
+        "localBasePath": "",
+        "remoteExtPath": "our/Wikilog"
+    },    
+    "Hooks": {
+        "ArticleFromTitle": "Wikilog::ArticleFromTitle",
+        "ParserFirstCallInit": "WikilogParser::FirstCallInit",
+        "ArticleEditUpdates": "WikilogHooks::ArticleEditUpdates",
+        "DatabaseSchemaUpdates": "WikilogHooks::onDatabaseSchemaUpdates",
+        "ParserStart": "WikilogParser::onParserStart",
+        "InternalParseBeforeSanitize": "WikilogParser::onInternalParseBeforeSanitize",
+        "ParserClearState": "WikilogParser::onParserClearState",
+        "BeforePageDisplay": "Wikilog::BeforePageDisplay"
+    }
 }
