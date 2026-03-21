@@ -271,22 +271,24 @@ class WikilogItemQuery
 		}
 	}
 
-	/**
-	 * Sets the author to query for.
-	 * @param $author User page title object or text.
-	 */
-	public function setAuthor( $author ) {
-		if ( is_null( $author ) || is_object( $author ) ) {
-			$this->mAuthor = $author;
-		} elseif ( is_string( $author ) ) {
-			$t = Title::makeTitleSafe( NS_USER, $author );
-			if ( $t !== null ) {
-				$this->mAuthor = User::getCanonicalName( $t->getText() );
-			}
-		}
-	}
-
-	/**
+    /**
+     * Sets the author to query for.
+     * @param $author User page title object or text.
+     */
+    public function setAuthor( $author ) {
+        if ( is_null( $author ) || is_object( $author ) ) {
+            $this->mAuthor = $author;
+        } elseif ( is_string( $author ) ) {
+            $t = Title::makeTitleSafe( NS_USER, $author );
+            if ( $t !== null ) {
+                // Используем UserNameUtils для нормализации имени пользователя
+                $userNameUtils = MediaWikiServices::getInstance()->getUserNameUtils();
+                $this->mAuthor = $userNameUtils->getCanonical( $t->getText(), 'usable' );
+            }
+        }
+    }
+    
+    /**
 	 * Sets the tag to query for.
 	 * @param $tag Tag text.
 	 */
