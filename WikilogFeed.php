@@ -3,6 +3,7 @@ if ( !defined( 'MEDIAWIKI' ) )
 	die();
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Title\Title;
 
 /**
  * Syndication feed driver base class.
@@ -64,7 +65,7 @@ abstract class WikilogFeed
 		# Retrieve copyright notice.
 		$skin = RequestContext::getMain()->getSkin();
 		$saveExpUrls = WikilogParser::expandLocalUrls();
-		$this->mCopyright = $skin->getCopyright( 'normal' );
+		$this->mCopyright = isset($GLOBALS['wgRightsText']) ? $GLOBALS['wgRightsText'] : '';
 		WikilogParser::expandLocalUrls( $saveExpUrls );
 	}
 
@@ -81,13 +82,12 @@ abstract class WikilogFeed
 		$feed = $this->getFeedObject();
 
 		if ( !$feed ) {
-			wfHttpError( 404, "Not found",
-				"There is no such wikilog feed available from this site." );
+			http_response_code(404); echo "There is no such wikilog feed available from this site."; die();
 			return;
 		}
 
 		list( $timekey, $feedkey ) = $this->getCacheKeys();
-		FeedUtils::checkPurge( $timekey, $feedkey );
+		(function($t, $k) { $p = isset($_GET['action']) && $_GET['action'] === 'purge'; if ($p) { $c = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache(); $c->delete($t); $c->delete($k); } return $p; })( $timekey, $feedkey );
 
 		if ( $feed->isCacheable() ) {
 			# Check if client cache is ok.
@@ -103,13 +103,16 @@ abstract class WikilogFeed
 			if ( is_string( $cached ) ) {
 				wfDebug( __METHOD__ . ": Outputting cached feed\n" );
 				$feed->httpHeaders();
+				$cached = preg_replace( '/(<link\b[^>]*)(?<!\/)>\s*/', "$1/>\n", $cached );
 				echo $cached;
 			} else {
 				wfDebug( __METHOD__ . ": rendering new feed and caching it\n" );
 				ob_start();
 				$this->printFeed( $feed );
 				$cached = ob_get_contents();
-				ob_end_flush();
+				ob_end_clean();
+				$cached = preg_replace( '/(<link\b[^>]*)(?<!\/)>\s*/', "$1/>\n", $cached );
+				echo $cached;
 				$this->saveToCache( $cached, $timekey, $feedkey );
 			}
 		} else {
@@ -150,14 +153,14 @@ abstract class WikilogFeed
 	 */
 	public function doQuery() {
 		$fname = __METHOD__ . ' (' . get_class( $this ) . ')';
-		wfProfileIn( $fname );
+		
 
 		$this->mResult = $this->mQuery->select( $this->mDb, false, false, false, $fname, array(
 			'ORDER BY' => $this->mIndexField . ' DESC',
 			'LIMIT'    => intval( $this->mLimit ),
 		) );
 
-		wfProfileOut( $fname );
+		
 	}
 
 	/**
@@ -169,8 +172,8 @@ abstract class WikilogFeed
 	 */
 	public function saveToCache( $feed, $timekey, $feedkey ) {
 		global $messageMemc;
-		$messageMemc->set( $feedkey, $feed );
-		$messageMemc->set( $timekey, wfTimestamp( TS_MW ), 24 * 3600 );
+		\MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache()->set( $feedkey, $feed );
+		\MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache()->set( $timekey, wfTimestamp( TS_MW ), 24 * 3600 );
 	}
 
 	/**
@@ -184,7 +187,7 @@ abstract class WikilogFeed
 	 */
 	public function loadFromCache( $tsData, $timekey, $feedkey ) {
 		global $wgFeedCacheTimeout, $wgOut, $messageMemc;
-		$tsCache = $messageMemc->get( $timekey );
+		$tsCache = \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache()->get( $timekey );
 
 		if ( ( $wgFeedCacheTimeout > 0 ) && $tsCache ) {
 			$age = time() - wfTimestamp( TS_UNIX, $tsCache );
@@ -196,12 +199,12 @@ abstract class WikilogFeed
 
 				$wgOut->setLastModified( $tsCache );
 
-				return $messageMemc->get( $feedkey );
+				return \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache()->get( $feedkey );
 			} elseif ( $tsCache >= $tsData ) {
 				wfDebug( __METHOD__ . ": loading feed from cache -- " .
 					"not modified: cache ($tsCache) >= data ($tsData)" .
 					"($feedkey)\n" );
-				return $messageMemc->get( $feedkey );
+				return \MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache()->get( $feedkey );
 			} else {
 				wfDebug( __METHOD__ . ": cached feed timestamp check failed -- " .
 					"cache ($tsCache) < data ($tsData)\n" );
@@ -235,7 +238,7 @@ abstract class WikilogFeed
 	abstract public function getCacheKeys();
 
 	/**
-	 * Shadowed from FeedUtils::checkFeedOutput(). The difference is that
+	 * Shadowed from \MediaWiki\Feed\FeedUtils::checkFeedOutput(). The difference is that
 	 * this version checks against $wgWikilogFeedClasses instead of
 	 * $wgFeedClasses.
 	 */
@@ -246,7 +249,7 @@ abstract class WikilogFeed
 			return false;
 		}
 		if ( !isset( $wgWikilogFeedClasses[$this->mFormat] ) ) {
-			wfHttpError( 500, "Internal Server Error", "Unsupported feed type." );
+			http_response_code(500); echo "Unsupported feed type."; die();
 			return false;
 		}
 		return true;
@@ -482,15 +485,16 @@ class WikilogItemFeed
 
 		# Make titles.
 		$wikilogName = str_replace( '_', ' ', $row->wlw_title );
-		$wikilogTitle =& Title::makeTitle( $row->wlw_namespace, $row->wlw_title );
+		$wikilogTitle = Title::makeTitle( $row->wlw_namespace, $row->wlw_title );
 		$itemName = str_replace( '_', ' ', $row->wlp_title );
-		$itemTitle =& Title::makeTitle( $row->page_namespace, $row->page_title );
+		$itemTitle = Title::makeTitle( $row->page_namespace, $row->page_title );
 
 		# Retrieve article parser output
 		list( , $parserOutput ) = WikilogUtils::parsedArticle( $itemTitle, true );
 
 		# Generate some fixed bits
-		$authors = unserialize( $row->wlp_authors );
+		$authors = !empty($row->wlp_authors) ? unserialize( $row->wlp_authors ) : [];
+        if (!is_array($authors)) $authors = [];
 
 		# Create new syndication entry.
 		$entry = new WlSyndicationEntry(
@@ -506,7 +510,7 @@ class WikilogItemFeed
 			'type' => $wgMimeType
 		);
 		if ( $wgWikilogEnableComments ) {
-			$cmtLink['thr:count'] = $row->wti_num_comments;
+			$cmtLink['thr:count'] = isset($row->wti_num_comments) ? $row->wti_num_comments : 0;
 			if ( isset( $row->wti_talk_updated ) ) {
 				$cmtLink['thr:updated'] = wfTimestamp( TS_ISO_8601, $row->wti_talk_updated );
 			}
@@ -571,8 +575,8 @@ class WikilogItemFeed
 		$ft = 'q:' . md5( serialize( $this->mQuery ) ) .
 			':limit:' . $this->mLimit;
 		return array(
-			wfMemcKey( 'wikilog', $this->mFormat, $id, 'timestamp' ),
-			wfMemcKey( 'wikilog', $this->mFormat, $id, $ft )
+			\MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache()->makeKey( 'wikilog', $this->mFormat, $id, 'timestamp' ),
+			\MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache()->makeKey( 'wikilog', $this->mFormat, $id, $ft )
 		);
 	}
 
@@ -584,7 +588,7 @@ class WikilogItemFeed
 	public static function makeEntryId( $title ) {
 		global $wgTaggingEntity;
 		if ( $wgTaggingEntity ) {
-			$qstr = wfArrayToCGI( array( 'wk' => wfWikiID(), 'id' => $title->getArticleID() ) );
+			$qstr = http_build_query( array( 'wk' => wfWikiID(), 'id' => $title->getArticleID() ), '', '&' );
 			return "tag:{$wgTaggingEntity}:/MediaWiki/Wikilog?{$qstr}";
 		} else {
 			return $title->getFullUrl();
@@ -734,8 +738,8 @@ class WikilogCommentFeed
 		$ft = 'show:' . $this->mQuery->getModStatus() .
 			':limit:' . $this->mLimit;
 		return array(
-			wfMemcKey( 'wikilog', $this->mFormat, $id, 'timestamp' ),
-			wfMemcKey( 'wikilog', $this->mFormat, $id, $ft )
+			\MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache()->makeKey( 'wikilog', $this->mFormat, $id, 'timestamp' ),
+			\MediaWiki\MediaWikiServices::getInstance()->getMainWANObjectCache()->makeKey( 'wikilog', $this->mFormat, $id, $ft )
 		);
 	}
 
@@ -747,7 +751,7 @@ class WikilogCommentFeed
 	public static function makeEntryId( WikilogComment $comment ) {
 		global $wgTaggingEntity;
 		if ( $wgTaggingEntity ) {
-			$qstr = wfArrayToCGI( array( 'wk' => wfWikiID(), 'id' => $comment->getID() ) );
+			$qstr = http_build_query( array( 'wk' => wfWikiID(), 'id' => $comment->getID() ), '', '&' );
 			return "tag:{$wgTaggingEntity}:/MediaWiki/Wikilog/comment?{$qstr}";
 		} else {
 			return $comment->getCommentArticleTitle()->getFullUrl();

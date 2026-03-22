@@ -144,6 +144,12 @@ class WikilogParser
         }
         return true;
     }
+
+    public static function expandLocalUrls( $expand = true ) {
+        // В новых версиях MediaWiki URL обрабатываются автоматически,
+        // эта заглушка предотвращает падение старых вызовов.
+        return false;
+    }
 }
 
 class WikilogParserOutput {
