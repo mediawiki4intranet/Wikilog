@@ -81,8 +81,9 @@ class WikilogSummaryPager
 		# We will need a clean parser if not including.
 			$parser->startExternalParse( $wgTitle, $popt, Parser::OT_HTML );
 		}
-		$this->mShowEditLink = !$popt->getInterfaceMessage() && (bool)\MediaWiki\MediaWikiServices::getInstance()->getUserOptionsManager()->getOption( $this->getContext()->getUser(), 'editsection' );
-	}
+        $isInterface = $popt ? $popt->getInterfaceMessage() : false;
+        $this->mShowEditLink = !$isInterface && (bool)\MediaWiki\MediaWikiServices::getInstance()->getUserOptionsManager()->getOption( $this->getContext()->getUser(), 'editsection' );	
+    }
 
 	/**
 	 * Property accessor/mutators.
